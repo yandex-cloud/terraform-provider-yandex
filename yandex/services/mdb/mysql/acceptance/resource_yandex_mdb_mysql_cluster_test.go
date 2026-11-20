@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/vpc/v1"
 	mysqlsdk "github.com/yandex-cloud/go-sdk/services/mdb/mysql/v1"
@@ -25,6 +26,8 @@ import (
 	acceptance "github.com/yandex-cloud/terraform-provider-yandex/internal/acceptance"
 	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
 	svc_mysql "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/mysql/pluginsdk"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -286,8 +289,8 @@ func TestAccMDBMySQLClusterHA_update(t *testing.T) {
 					resource.TestCheckResourceAttr(mysqlResourceFoo, "name", mysqlName),
 
 					suite.testAccCheckMDBMysqlClusterHasHosts(mysqlResourceFoo, 4),
-					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.zone", "ru-central1-a"),
-					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.1.zone", "ru-central1-b"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.zone", "ru-central1-d"),
+					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.1.zone", "ru-central1-a"),
 					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.2.zone", "ru-central1-d"),
 					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.3.zone", "ru-central1-d"),
 					resource.TestCheckResourceAttr(mysqlResourceFoo, "host.0.assign_public_ip", "false"),
@@ -388,7 +391,7 @@ func TestAccMDBMySQLCluster_restore(t *testing.T) {
 					suite.testAccCheckMDBMySQLClusterExists(clusterResource, &cluster),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "description", "MySQL Cluster Restore Test"),
-					resource.TestCheckResourceAttr(clusterResource, "host.0.zone", "ru-central1-a"),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.zone", "ru-central1-d"),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "true"),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 10737418240),
 					resource.TestCheckNoResourceAttr(clusterResource, "disk_encryption_key_id"),
@@ -440,7 +443,7 @@ func TestAccMDBMySQLCluster_restoreFromSourceCluster(t *testing.T) {
 					suite.testAccCheckMDBMySQLClusterExists(clusterResource, &cluster),
 					resource.TestCheckResourceAttr(clusterResource, "name", clusterName),
 					resource.TestCheckResourceAttr(clusterResource, "description", "MySQL Cluster Restore Test"),
-					resource.TestCheckResourceAttr(clusterResource, "host.0.zone", "ru-central1-a"),
+					resource.TestCheckResourceAttr(clusterResource, "host.0.zone", "ru-central1-d"),
 					resource.TestCheckResourceAttr(clusterResource, "deletion_protection", "false"),
 					testAccCheckMDBMysqlClusterHasResources(&cluster, "s2.micro", "network-ssd", 10737418240),
 					resource.TestCheckNoResourceAttr(clusterResource, "disk_encryption_key_id"),
@@ -1027,26 +1030,13 @@ func (suite testSuite) testAccMDBMysqlCompareHostNames(resource string, oldHosts
 	}
 }
 
-// TODO: add more zones when v2 platform becomes available.
 const mysqlVPCDependencies = `
 resource "yandex_vpc_network" "foo" {}
 
-resource "yandex_vpc_subnet" "foo_c" {
+resource "yandex_vpc_subnet" "foo_d" {
   zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.3.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "foo_b" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.4.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "foo_a" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.5.0.0/24"]
 }
 
 resource "yandex_vpc_security_group" "sg-x" {
@@ -1136,7 +1126,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   host {
     zone      = "ru-central1-d"
-    subnet_id = yandex_vpc_subnet.foo_c.id
+    subnet_id = yandex_vpc_subnet.foo_d.id
   }
 
   security_group_ids = [yandex_vpc_security_group.sg-x.id]
@@ -1173,7 +1163,7 @@ resource "yandex_mdb_mysql_cluster" "test_connection_manager" {
 
   host {
     zone      = "ru-central1-d"
-    subnet_id = yandex_vpc_subnet.foo_c.id
+    subnet_id = yandex_vpc_subnet.foo_d.id
   }
 }
 `, name, enabled)
@@ -1217,7 +1207,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   host {
     zone      = "ru-central1-d"
-    subnet_id = yandex_vpc_subnet.foo_c.id
+    subnet_id = yandex_vpc_subnet.foo_d.id
   }
 
   security_group_ids = [yandex_vpc_security_group.sg-x.id]
@@ -1319,7 +1309,7 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
   host {
     zone      = "ru-central1-d"
-    subnet_id = yandex_vpc_subnet.foo_c.id
+    subnet_id = yandex_vpc_subnet.foo_d.id
 	assign_public_ip = true
   }
 
@@ -1331,6 +1321,12 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 
 func testAccMDBMysqlClusterHABasic(name, hosts string) string {
 	return fmt.Sprintf(mysqlVPCDependencies+`
+resource "yandex_vpc_subnet" "foo_a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.5.0.0/24"]
+}
+
 resource "yandex_mdb_mysql_cluster" "foo" {
   name        = "%s"
   description = "MySQL High Availability Cluster Terraform Test"
@@ -1352,19 +1348,19 @@ resource "yandex_mdb_mysql_cluster" "foo" {
 func testAccMDBMysqlClusterHA(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-	zone      = "ru-central1-a"
-	subnet_id = yandex_vpc_subnet.foo_a.id
+	zone      = "ru-central1-d"
+	subnet_id = yandex_vpc_subnet.foo_d.id
   }
 
   host {
-    zone      = "ru-central1-b"
-    subnet_id = yandex_vpc_subnet.foo_b.id
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo_a.id
 	assign_public_ip = true
   }
 
   host {
     zone      = "ru-central1-d"
-    subnet_id = yandex_vpc_subnet.foo_c.id
+    subnet_id = yandex_vpc_subnet.foo_d.id
   }
 
   maintenance_window {
@@ -1376,24 +1372,24 @@ func testAccMDBMysqlClusterHA(name string) string {
 func testAccMDBMysqlClusterHA2(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-	zone      = "ru-central1-a"
-	subnet_id = yandex_vpc_subnet.foo_a.id
+	zone      = "ru-central1-d"
+	subnet_id = yandex_vpc_subnet.foo_d.id
   }
 	
   host {
-    zone      = "ru-central1-b"
-    subnet_id = yandex_vpc_subnet.foo_b.id
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.foo_a.id
 	assign_public_ip = true
   }
 
   host {
     zone      = "ru-central1-d"
-    subnet_id = yandex_vpc_subnet.foo_c.id
+    subnet_id = yandex_vpc_subnet.foo_d.id
   }
 
   host {
     zone      = "ru-central1-d"
-    subnet_id = yandex_vpc_subnet.foo_c.id
+    subnet_id = yandex_vpc_subnet.foo_d.id
   }
 
   maintenance_window {
@@ -1406,15 +1402,15 @@ func testAccMDBMysqlClusterHANamedWithCascade(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
 
   host {
-	zone                    = "ru-central1-a"
-	subnet_id               = yandex_vpc_subnet.foo_a.id
+	zone                    = "ru-central1-d"
+	subnet_id               = yandex_vpc_subnet.foo_d.id
 	name                    = "nd"
 	replication_source_name = "nb"
   }
 
   host {
-    zone      				= "ru-central1-b"
-    subnet_id 				= yandex_vpc_subnet.foo_b.id
+    zone      				= "ru-central1-a"
+    subnet_id 				= yandex_vpc_subnet.foo_a.id
     name      				= "nc"
 	replication_source_name = "na"
 	assign_public_ip 		= true
@@ -1422,14 +1418,14 @@ func testAccMDBMysqlClusterHANamedWithCascade(name string) string {
 
   host {
     zone             = "ru-central1-d"
-    subnet_id        = yandex_vpc_subnet.foo_c.id
+    subnet_id        = yandex_vpc_subnet.foo_d.id
     name             = "na"
   }
 
 
   host {
     zone 		= "ru-central1-d"
-    subnet_id   = yandex_vpc_subnet.foo_c.id
+    subnet_id   = yandex_vpc_subnet.foo_d.id
     name        = "nb"
   }
 
@@ -1442,29 +1438,29 @@ func testAccMDBMysqlClusterHANamedWithCascade(name string) string {
 func testAccMDBMysqlClusterHANamedChangePublicIP(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-	zone                    = "ru-central1-a"
-	subnet_id               = yandex_vpc_subnet.foo_a.id
+	zone                    = "ru-central1-d"
+	subnet_id               = yandex_vpc_subnet.foo_d.id
 	name                    = "nd"
 	replication_source_name = "nb"
 	assign_public_ip 		= true
   }
 
   host {
-	zone      				= "ru-central1-b"
-	subnet_id 				= yandex_vpc_subnet.foo_b.id
+	zone      				= "ru-central1-a"
+	subnet_id 				= yandex_vpc_subnet.foo_a.id
 	name      				= "nc"
 	replication_source_name = "na"
   }
 
   host {
 	zone             = "ru-central1-d"
-	subnet_id        = yandex_vpc_subnet.foo_c.id
+	subnet_id        = yandex_vpc_subnet.foo_d.id
 	name             = "na"
   }
 
   host {
 	zone 		= "ru-central1-d"
-	subnet_id   = yandex_vpc_subnet.foo_c.id
+	subnet_id   = yandex_vpc_subnet.foo_d.id
 	name        = "nb"
   }
 
@@ -1477,16 +1473,16 @@ func testAccMDBMysqlClusterHANamedChangePublicIP(name string) string {
 func testAccMDBMysqlClusterWithBackupPriorities(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-	zone                    = "ru-central1-a"
-	subnet_id               = yandex_vpc_subnet.foo_a.id
+	zone                    = "ru-central1-d"
+	subnet_id               = yandex_vpc_subnet.foo_d.id
 	name                    = "nd"
 	replication_source_name = "nb"
 	backup_priority 		= 10
   }
 
   host {
-	zone      				= "ru-central1-b"
-	subnet_id 				= yandex_vpc_subnet.foo_b.id
+	zone      				= "ru-central1-a"
+	subnet_id 				= yandex_vpc_subnet.foo_a.id
 	name      				= "nc"
 	replication_source_name = "na"
 	assign_public_ip 		= true
@@ -1495,13 +1491,13 @@ func testAccMDBMysqlClusterWithBackupPriorities(name string) string {
 
   host {
 	zone             = "ru-central1-d"
-	subnet_id        = yandex_vpc_subnet.foo_c.id
+	subnet_id        = yandex_vpc_subnet.foo_d.id
 	name             = "na"
   }
 
   host {
 	zone 		= "ru-central1-d"
-	subnet_id   = yandex_vpc_subnet.foo_c.id
+	subnet_id   = yandex_vpc_subnet.foo_d.id
 	name        = "nb"
   }
 
@@ -1514,16 +1510,16 @@ func testAccMDBMysqlClusterWithBackupPriorities(name string) string {
 func testAccMDBMysqlClusterWithPriorities(name string) string {
 	return testAccMDBMysqlClusterHABasic(name, `
   host {
-	zone                    = "ru-central1-a"
-	subnet_id               = yandex_vpc_subnet.foo_a.id
+	zone                    = "ru-central1-d"
+	subnet_id               = yandex_vpc_subnet.foo_d.id
 	name                    = "nd"
 	replication_source_name = "nb"
 	priority 				= 10
   }
 
   host {
-	zone      				= "ru-central1-b"
-	subnet_id 				= yandex_vpc_subnet.foo_b.id
+	zone      				= "ru-central1-a"
+	subnet_id 				= yandex_vpc_subnet.foo_a.id
 	name      				= "nc"
 	replication_source_name = "na"
 	assign_public_ip 		= true
@@ -1532,13 +1528,13 @@ func testAccMDBMysqlClusterWithPriorities(name string) string {
 
   host {
 	zone             = "ru-central1-d"
-	subnet_id        = yandex_vpc_subnet.foo_c.id
+	subnet_id        = yandex_vpc_subnet.foo_d.id
 	name             = "na"
   }
 
   host {
 	zone 		= "ru-central1-d"
-	subnet_id   = yandex_vpc_subnet.foo_c.id
+	subnet_id   = yandex_vpc_subnet.foo_d.id
 	name        = "nb"
   }
 
@@ -1577,8 +1573,8 @@ resource "yandex_mdb_mysql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.foo_a.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.foo_d.id
   }
 
   disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
@@ -1640,8 +1636,8 @@ resource "yandex_mdb_mysql_cluster" "%s" {
   }
 
   host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.foo_a.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.foo_d.id
   }
 
   restore {
@@ -1654,4 +1650,183 @@ resource "yandex_mdb_mysql_cluster" "%s" {
   deletion_protection   = var.deletion_protection
 }
 `, resourceName)
+}
+
+// Requires an endpoint and folder where MySQL 9.7 creation is enabled.
+func TestAccMDBMySQLCluster_mysql97(t *testing.T) {
+	t.Parallel()
+	for _, resourceType := range []string{"yandex_mdb_mysql_cluster", "yandex_mdb_mysql_cluster_v2"} {
+		// Restore "8.4" after the MDB semi-sync fix for HA upgrades to 9.7.
+		for _, initialVersion := range []string{"9.7"} {
+			t.Run(resourceType+"/from_"+initialVersion, func(t *testing.T) {
+				suite := testSuite{acceptance.New(t)}
+				name := acctest.RandomWithPrefix("tf-mysql97")
+				resourceName := resourceType + ".mysql97"
+				var cluster mysql.Cluster
+				var clusterID string
+				checkID := func(s *terraform.State) error {
+					id := s.RootModule().Resources[resourceName].Primary.ID
+					if clusterID == "" {
+						clusterID = id
+					} else if clusterID != id {
+						return fmt.Errorf("cluster was recreated: %s -> %s", clusterID, id)
+					}
+					return nil
+				}
+				importStep := resource.TestStep{
+					ResourceName: resourceName, ImportState: true, ImportStateVerify: true,
+					ImportStateVerifyIgnore: []string{"health"},
+				}
+				if resourceType == "yandex_mdb_mysql_cluster" {
+					importStep.ImportStateVerifyIgnore = append(importStep.ImportStateVerifyIgnore,
+						"host", "user", "database", "allow_regeneration_host")
+				} else {
+					importStep.ImportStateVerifyIgnore = append(importStep.ImportStateVerifyIgnore, "hosts")
+				}
+				updatedConfig := testAccMySQL97Config(resourceType, name, "9.7", 200, true)
+				resetConfig := testAccMySQL97Config(resourceType, name, "9.7", 200, false)
+				resource.Test(t, resource.TestCase{
+					PreCheck:                 func() { acceptance.PreCheck(t) },
+					ProtoV6ProviderFactories: suite.Protocol6Factories(),
+					CheckDestroy: func(s *terraform.State) error {
+						cfg, err := suite.Config()
+						if err != nil {
+							return err
+						}
+						for _, rs := range s.RootModule().Resources {
+							if rs.Type != resourceType {
+								continue
+							}
+							_, err := mysqlsdk.NewClusterClient(cfg.SDK).Get(context.Background(), &mysql.GetClusterRequest{ClusterId: rs.Primary.ID})
+							if status.Code(err) != codes.NotFound {
+								return fmt.Errorf("expected deleted MySQL cluster %s, got error: %v", rs.Primary.ID, err)
+							}
+						}
+						return nil
+					},
+					Steps: []resource.TestStep{
+						{
+							Config: testAccMySQL97Config(resourceType, name, initialVersion, 100, true),
+							Check: resource.ComposeTestCheckFunc(
+								suite.testAccCheckMDBMySQLClusterExists(resourceName, &cluster), checkID,
+								resource.TestCheckResourceAttr(resourceName, "version", initialVersion),
+								resource.TestCheckResourceAttr(resourceName, "mysql_config.max_connections", "100"),
+							),
+						},
+						importStep,
+						{
+							Config: updatedConfig,
+							ConfigPlanChecks: resource.ConfigPlanChecks{
+								PreApply: []plancheck.PlanCheck{plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionUpdate)},
+							},
+							Check: resource.ComposeTestCheckFunc(
+								suite.testAccCheckMDBMySQLClusterExists(resourceName, &cluster), checkID,
+								resource.TestCheckResourceAttr(resourceName, "version", "9.7"),
+								resource.TestCheckResourceAttr(resourceName, "mysql_config.max_connections", "200"),
+								resource.TestCheckResourceAttr(resourceName, "mysql_config.replica_parallel_workers", "4"),
+								resource.TestCheckResourceAttr(resourceName, "mysql_config.rpl_semi_sync_source_wait_for_replica_count", "1"),
+								resource.TestCheckResourceAttr(resourceName, "mysql_config.innodb_redo_log_capacity", "536870912"),
+								resource.TestCheckResourceAttr(resourceName, "mysql_config.sql_mode", "INTERPRET_UTF8_AS_UTF8MB4"),
+							),
+						},
+						importStep,
+						{
+							Config: resetConfig,
+							Check: resource.ComposeTestCheckFunc(
+								suite.testAccCheckMDBMySQLClusterExists(resourceName, &cluster), checkID,
+								resource.TestCheckResourceAttr(resourceName, "mysql_config.%", "1"),
+								resource.TestCheckResourceAttr(resourceName, "mysql_config.max_connections", "200"),
+								func(*terraform.State) error {
+									cfg := cluster.GetConfig().GetMysqlConfig_9_7().GetUserConfig()
+									if cfg == nil || cfg.GetMaxConnections().GetValue() != 200 ||
+										cfg.ReplicaParallelWorkers != nil || cfg.RplSemiSyncSourceWaitForReplicaCount != nil ||
+										cfg.InnodbRedoLogCapacity != nil || len(cfg.SqlMode) != 0 {
+										return fmt.Errorf("settings were not reset in the API: %v", cfg)
+									}
+									return nil
+								},
+							),
+						},
+						importStep,
+					},
+				})
+			})
+		}
+	}
+}
+
+func testAccMySQL97Config(resourceType, name, version string, maxConnections int, withVersionSettings bool) string {
+	// A semi-sync acknowledgement count of one requires an HA replica.
+	hosts := `
+  host {
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mysql97.id
+  }
+  host {
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.mysql97_a.id
+  }`
+	if resourceType == "yandex_mdb_mysql_cluster_v2" {
+		hosts = `
+  hosts = {
+    main = {
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mysql97.id
+    }
+    replica = {
+      zone      = "ru-central1-a"
+      subnet_id = yandex_vpc_subnet.mysql97_a.id
+    }
+  }`
+	}
+	settings := ""
+	if withVersionSettings {
+		// The API minimum is 256 MiB per log file; the upgrade preserves two files as 512 MiB total capacity.
+		if version == "8.4" {
+			settings = `
+    slave_parallel_workers                   = 4
+    rpl_semi_sync_master_wait_for_slave_count = 1
+    innodb_log_file_size                     = 268435456`
+			if resourceType == "yandex_mdb_mysql_cluster" {
+				// The legacy resource reads the effective sql_mode back into state on 8.4.
+				settings += `
+    sql_mode                                 = "STRICT_TRANS_TABLES"`
+			}
+		} else {
+			settings = `
+    replica_parallel_workers                   = 4
+    rpl_semi_sync_source_wait_for_replica_count = 1
+    innodb_redo_log_capacity                   = 536870912
+    sql_mode                                  = "INTERPRET_UTF8_AS_UTF8MB4"`
+		}
+	}
+	return fmt.Sprintf(`
+resource "yandex_vpc_network" "mysql97" {}
+resource "yandex_vpc_subnet" "mysql97" {
+  zone           = "ru-central1-d"
+  network_id     = yandex_vpc_network.mysql97.id
+  v4_cidr_blocks = ["10.97.0.0/24"]
+}
+resource "yandex_vpc_subnet" "mysql97_a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.mysql97.id
+  v4_cidr_blocks = ["10.97.1.0/24"]
+}
+resource %q "mysql97" {
+  name        = %q
+  environment = "PRESTABLE"
+  network_id  = yandex_vpc_network.mysql97.id
+  version     = %q
+  resources {
+    resource_preset_id = "s2.micro"
+    disk_type_id       = "network-ssd"
+    disk_size          = 16
+  }
+  mysql_config = {
+    max_connections = %d
+    %s
+  }
+  %s
+}
+`, resourceType, name, version, maxConnections, settings, hosts)
 }

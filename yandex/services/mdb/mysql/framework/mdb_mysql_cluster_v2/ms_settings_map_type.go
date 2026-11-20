@@ -2,6 +2,7 @@ package mdb_mysql_cluster_v2
 
 import (
 	"fmt"
+	"maps"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -10,13 +11,21 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 )
 
-type MsSettingsAttributeInfoProvider struct{}
+type MsSettingsAttributeInfoProvider struct {
+	legacySQLModes bool
+}
 
 func (p *MsSettingsAttributeInfoProvider) GetSettingsEnumNames() map[string]map[int32]string {
+	if p.legacySQLModes {
+		return msLegacySettingsEnumNames
+	}
 	return msSettingsEnumNames
 }
 
 func (p *MsSettingsAttributeInfoProvider) GetSettingsEnumValues() map[string]map[string]int32 {
+	if p.legacySQLModes {
+		return msLegacySettingsEnumValues
+	}
 	return msSettingsEnumValues
 }
 
@@ -29,7 +38,7 @@ var msSettingsEnumNames = map[string]map[int32]string{
 	"transaction_isolation":         config.MysqlConfig8_0_TransactionIsolation_name,
 	"binlog_row_image":              config.MysqlConfig8_0_BinlogRowImage_name,
 	"slave_parallel_type":           config.MysqlConfig8_0_SlaveParallelType_name,
-	"sql_mode.element":              config.MysqlConfig8_0_SQLMode_name,
+	"sql_mode.element":              config.MysqlConfig9_7_SQLMode_name,
 	"log_slow_rate_type":            config.MysqlConfig8_0_LogSlowRateType_name,
 	"log_slow_filter_type":          config.MysqlConfig8_0_LogSlowFilterType_name,
 	"audit_log_policy":              config.MysqlConfig8_0_AuditLogPolicy_name,
@@ -41,7 +50,7 @@ var msSettingsEnumValues = map[string]map[string]int32{
 	"transaction_isolation":         config.MysqlConfig8_0_TransactionIsolation_value,
 	"binlog_row_image":              config.MysqlConfig8_0_BinlogRowImage_value,
 	"slave_parallel_type":           config.MysqlConfig8_0_SlaveParallelType_value,
-	"sql_mode.element":              config.MysqlConfig8_0_SQLMode_value,
+	"sql_mode.element":              config.MysqlConfig9_7_SQLMode_value,
 	"log_slow_rate_type":            config.MysqlConfig8_0_LogSlowRateType_value,
 	"log_slow_filter_type":          config.MysqlConfig8_0_LogSlowFilterType_value,
 	"audit_log_policy":              config.MysqlConfig8_0_AuditLogPolicy_value,
@@ -52,7 +61,20 @@ var listAttributes = map[string]struct{}{
 	"sql_mode": {},
 }
 
+var msLegacySettingsEnumNames = func() map[string]map[int32]string {
+	names := maps.Clone(msSettingsEnumNames)
+	names["sql_mode.element"] = config.MysqlConfig8_0_SQLMode_name
+	return names
+}()
+
+var msLegacySettingsEnumValues = func() map[string]map[string]int32 {
+	values := maps.Clone(msSettingsEnumValues)
+	values["sql_mode.element"] = config.MysqlConfig8_0_SQLMode_value
+	return values
+}()
+
 var msAttrProvider = &MsSettingsAttributeInfoProvider{}
+var msLegacyAttrProvider = &MsSettingsAttributeInfoProvider{legacySQLModes: true}
 
 func NewMsSettingsMapType() mdbcommon.SettingsMapType {
 	return mdbcommon.NewSettingsMapType(msAttrProvider)

@@ -12,6 +12,7 @@ import (
 	"google.golang.org/genproto/googleapis/type/timeofday"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
+	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
@@ -471,5 +472,19 @@ func TestYandexProvider_MDBMySQLClusterConfigMsConfigExpand(t *testing.T) {
 				conf,
 			)
 		}
+	}
+}
+
+func TestMySQL97SQLModeRejectedByOlderVersions(t *testing.T) {
+	t.Parallel()
+	for _, version := range []string{"5.7", "8.0", "8.4"} {
+		t.Run(version, func(t *testing.T) {
+			var diags diag.Diagnostics
+			settings := NewMsSettingsMapValueMust(map[string]attr.Value{
+				"sql_mode": types.StringValue("INTERPRET_UTF8_AS_UTF8MB4"),
+			})
+			expandMySQLConfig(context.Background(), version, settings, &diags)
+			require.True(t, diags.HasError(), "9.7 SQL mode must not be sent to MySQL %s", version)
+		})
 	}
 }

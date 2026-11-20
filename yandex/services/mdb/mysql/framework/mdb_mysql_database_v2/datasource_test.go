@@ -162,7 +162,7 @@ resource "yandex_mdb_mysql_cluster_v2" "foo" {
 
   hosts = {
     "host1" = {
-      zone      = "ru-central1-a"
+      zone      = "ru-central1-d"
       subnet_id = yandex_vpc_subnet.foo.id
     }
   }
@@ -198,7 +198,7 @@ resource "yandex_mdb_mysql_cluster_v2" "foo" {
 
   hosts = {
     "host1" = {
-      zone      = "ru-central1-a"
+      zone      = "ru-central1-d"
       subnet_id = yandex_vpc_subnet.foo.id
     }
   }

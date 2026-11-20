@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -105,7 +108,17 @@ func flattenMySQLConfig(ctx context.Context, c mysql.ClusterConfig_MysqlConfig, 
 	}
 
 	attrsPresent := make(map[string]attr.Value)
+	userConfig, hasProtoConfig := uc.(proto.Message)
 	for attr, val := range attrs {
+		if hasProtoConfig {
+			message := userConfig.ProtoReflect()
+			field := message.Descriptor().Fields().ByName(protoreflect.Name(attr))
+			// Explicit zero-valued wrappers are settings, not absent values.
+			if field != nil && field.HasPresence() && message.Has(field) {
+				attrsPresent[attr] = val
+				continue
+			}
+		}
 		if ok := mdbcommon.IsAttrZeroValue(val, diags); !ok {
 			attrsPresent[attr] = val
 		}
@@ -115,7 +128,11 @@ func flattenMySQLConfig(ctx context.Context, c mysql.ClusterConfig_MysqlConfig, 
 		}
 	}
 
-	mv, d := NewMsSettingsMapValue(attrsPresent)
+	provider := msLegacyAttrProvider
+	if _, ok := c.(*mysql.ClusterConfig_MysqlConfig_9_7); ok {
+		provider = msAttrProvider
+	}
+	mv, d := mdbcommon.NewSettingsMapValue(attrsPresent, provider)
 	diags.Append(d...)
 	return mv
 }

@@ -57,18 +57,6 @@ resource "yandex_kms_symmetric_key" "disk_encrypt" {}
 const msVPCDependencies = `
 resource "yandex_vpc_network" "mdb-ms-test-net" {}
 
-resource "yandex_vpc_subnet" "mdb-ms-test-subnet-a" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.mdb-ms-test-net.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "mdb-ms-test-subnet-b" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.mdb-ms-test-net.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
 resource "yandex_vpc_subnet" "mdb-ms-test-subnet-d" {
   zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.mdb-ms-test-net.id
@@ -1275,7 +1263,7 @@ func TestAccMDBMySQLCluster_HostTests(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -1289,7 +1277,7 @@ func TestAccMDBMySQLCluster_HostTests(t *testing.T) {
 				Config: testAccMDBMySQLClusterHostsStep2(clusterName, version),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBMySQLCluster(clusterResource, &cluster, 1),
@@ -1301,7 +1289,7 @@ func TestAccMDBMySQLCluster_HostTests(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
@@ -1316,7 +1304,7 @@ func TestAccMDBMySQLCluster_HostTests(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
@@ -1403,7 +1391,7 @@ func TestAccMDBMySQLCluster_restoreFromSourceCluster(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact("MySQL Cluster Restore Test")),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(false)),
 				},
@@ -1446,7 +1434,7 @@ func TestAccMDBMySQLCluster_restore(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact("MySQL Cluster Restore Test")),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(true)),
 				},
@@ -1871,8 +1859,8 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
 
   hosts = {
     "na" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-d.id
     }
   }
 
@@ -1907,8 +1895,8 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
 
   hosts = {
     "host" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-d.id
     }
   }
 
@@ -1958,6 +1946,12 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
 
 func testAccMDBMySQLClusterHostsStep0(name, version, hosts string) string {
 	return fmt.Sprintf(msVPCDependencies+`
+resource "yandex_vpc_subnet" "mdb-ms-test-subnet-a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.mdb-ms-test-net.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+
 resource "yandex_mdb_mysql_cluster_v2" "cluster_host_tests" {
 	name        = "%s"
 	description = "MySQL Cluster Hosts Terraform Test"
@@ -1985,8 +1979,8 @@ func testAccMDBMySQLClusterHostsStep1(name, version string) string {
       subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-a.id
     }
     "nb" = {
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-d.id
     }
     "nd" = {
       zone      = "ru-central1-d"
@@ -2001,8 +1995,8 @@ func testAccMDBMySQLClusterHostsStep2(name, version string) string {
 	return testAccMDBMySQLClusterHostsStep0(name, version, `
   hosts = {
     "nb" = {
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-d.id
     }
   }
 `)
@@ -2018,8 +2012,8 @@ func testAccMDBMySQLClusterHostsStep3(name, version string) string {
       assign_public_ip = true
     }
     "nb" = {
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-d.id
     }
     "nd" = {
       zone      = "ru-central1-d"
@@ -2040,8 +2034,8 @@ func testAccMDBMySQLClusterHostsStep4(name, version string) string {
       assign_public_ip = false
     }
     "nb" = {
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-d.id
       assign_public_ip = true
     }
     "nd" = {
@@ -2141,8 +2135,8 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
 
   hosts = {
     "host1" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-d.id
     }
   }
 }
@@ -2204,8 +2198,8 @@ resource "yandex_mdb_mysql_cluster_v2" "%s" {
 
   hosts = {
     "host" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-ms-test-subnet-d.id
     }
   }
 

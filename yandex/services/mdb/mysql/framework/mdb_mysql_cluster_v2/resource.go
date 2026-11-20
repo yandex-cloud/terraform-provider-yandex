@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64default"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
@@ -30,6 +29,7 @@ import (
 	provider_config "github.com/yandex-cloud/terraform-provider-yandex/internal/provider/framework/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	utils "github.com/yandex-cloud/terraform-provider-yandex/pkg/wrappers"
+	mysqlcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/mysql/common"
 )
 
 const (
@@ -162,6 +162,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 						"5.7",
 						"8.0",
 						"8.4",
+						"9.7",
 					),
 				},
 			},
@@ -369,7 +370,7 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 				Computed:    true,
 				Description: "MySQL cluster configuration. For detailed information specific to your MySQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).",
 				PlanModifiers: []planmodifier.Map{
-					mapplanmodifier.UseStateForUnknown(),
+					mysqlConfigStateForUnknown{},
 				},
 			},
 			"disk_encryption_key_id": schema.StringAttribute{
@@ -717,17 +718,28 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
+	// Validate settings for the target version before starting an irreversible upgrade.
+	updateRequest, d := prepareUpdateRequest(ctx, &state, &plan)
+	resp.Diagnostics.Append(d...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	if updateVersionRequest != nil && len(updateVersionRequest.UpdateMask.GetPaths()) > 0 {
 		mysqlApi.UpdateCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, updateVersionRequest)
 		if resp.Diagnostics.HasError() {
 			return
 		}
-	}
-
-	updateRequest, d := prepareUpdateRequest(ctx, &state, &plan)
-	resp.Diagnostics.Append(d...)
-	if resp.Diagnostics.HasError() {
-		return
+		if updateRequest != nil && len(updateRequest.UpdateMask.GetPaths()) > 0 {
+			cluster := mysqlApi.GetCluster(ctx, r.providerConfig.SDKv2, &resp.Diagnostics, plan.Id.ValueString())
+			if resp.Diagnostics.HasError() {
+				return
+			}
+			if err := mysqlcommon.RemoveUnchangedSettings(updateRequest, cluster.GetConfig()); err != nil {
+				resp.Diagnostics.AddError("Failed to compare settings after MySQL upgrade", err.Error())
+				return
+			}
+		}
 	}
 
 	if updateRequest != nil && len(updateRequest.UpdateMask.GetPaths()) > 0 {
@@ -831,7 +843,13 @@ func (r *clusterResource) refreshResourceState(ctx context.Context, state *Clust
 	](ctx, cluster.MaintenanceWindow, respDiagnostics)
 	state.SecurityGroupIds = mdbcommon.FlattenSetString(ctx, cluster.SecurityGroupIds, respDiagnostics)
 
-	cfg := flattenConfig(ctx, state.MySQLConfig, cluster.GetConfig(), respDiagnostics)
+	settings := state.MySQLConfig
+	if state.Version.ValueString() != cluster.GetConfig().GetVersion() {
+		// An upgrade may succeed even if the following settings update fails.
+		// Refresh both the version and its settings schema before the next plan.
+		settings = NewMsSettingsMapNull()
+	}
+	cfg := flattenConfig(ctx, settings, cluster.GetConfig(), respDiagnostics)
 
 	state.Version = cfg.Version
 	state.Resources = cfg.Resources

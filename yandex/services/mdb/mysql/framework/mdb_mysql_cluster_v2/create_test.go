@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	msconfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
 	mdbv1 "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/v1"
@@ -17,6 +18,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/genproto/googleapis/type/timeofday"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -790,4 +792,55 @@ func TestYandexProvider_MDBMySQLClusterPrepareRestoreRequest(t *testing.T) {
 func parceTime(time string) time.Time {
 	v, _ := mdbcommon.ParseStringToTime(time)
 	return v
+}
+
+func TestMySQL97CreateAndRefresh(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	plan := baseCluster
+	plan.Version = types.StringValue("9.7")
+	plan.MySQLConfig = NewMsSettingsMapValueMust(map[string]attr.Value{
+		"max_connections":                             types.StringValue("100"),
+		"replica_parallel_workers":                    types.StringValue("4"),
+		"rpl_semi_sync_source_wait_for_replica_count": types.StringValue("1"),
+		"innodb_redo_log_capacity":                    types.StringValue("268435456"),
+		"innodb_print_all_deadlocks":                  types.StringValue("false"),
+		"sql_mode":                                    types.StringValue("STRICT_TRANS_TABLES,INTERPRET_UTF8_AS_UTF8MB4"),
+	})
+	req, diags := prepareCreateRequest(ctx, &plan, &config.State{}, []*mysql.HostSpec{{ZoneId: "ru-central1-a"}})
+	require.False(t, diags.HasError(), "%v", diags)
+	require.Equal(t, "9.7", req.ConfigSpec.Version)
+	want := &msconfig.MysqlConfig9_7{
+		MaxConnections:                       wrapperspb.Int64(100),
+		ReplicaParallelWorkers:               wrapperspb.Int64(4),
+		RplSemiSyncSourceWaitForReplicaCount: wrapperspb.Int64(1),
+		InnodbRedoLogCapacity:                wrapperspb.Int64(268435456),
+		InnodbPrintAllDeadlocks:              wrapperspb.Bool(false),
+		SqlMode: []msconfig.MysqlConfig9_7_SQLMode{
+			msconfig.MysqlConfig9_7_STRICT_TRANS_TABLES,
+			msconfig.MysqlConfig9_7_INTERPRET_UTF8_AS_UTF8MB4,
+		},
+	}
+	require.True(t, proto.Equal(want, req.ConfigSpec.GetMysqlConfig_9_7()), "got %v", req.ConfigSpec)
+
+	// The API may return an explicitly configured zero on import or an initial
+	// read. Keep it distinct from an absent wrapper in the Terraform state.
+	want.LongQueryTime = wrapperspb.Double(0)
+	expectedSettings := plan.MySQLConfig.Elements()
+	expectedSettings["long_query_time"] = types.StringValue("0")
+	plan.MySQLConfig = NewMsSettingsMapValueMust(expectedSettings)
+	state := plan
+	state.MySQLConfig = flattenMySQLConfig(ctx, &mysql.ClusterConfig_MysqlConfig_9_7{
+		MysqlConfig_9_7: &msconfig.MysqlConfigSet9_7{UserConfig: want},
+	}, &diags)
+	require.False(t, diags.HasError(), "%v", diags)
+	require.True(t, plan.MySQLConfig.Equal(state.MySQLConfig), "refreshed settings: %v", state.MySQLConfig)
+	update, diags := prepareUpdateRequest(ctx, &state, &plan)
+	require.False(t, diags.HasError(), "%v", diags)
+	require.Empty(t, update.UpdateMask.Paths)
+
+	plan.MySQLConfig = NewMsSettingsMapNull()
+	req, diags = prepareCreateRequest(ctx, &plan, &config.State{}, nil)
+	require.False(t, diags.HasError(), "%v", diags)
+	require.True(t, proto.Equal(&msconfig.MysqlConfig9_7{}, req.ConfigSpec.GetMysqlConfig_9_7()))
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
+	"github.com/stretchr/testify/require"
 )
 
 func builTestMaintenanceWindowConfigSchema(blockName string) schema.Schema {
@@ -365,5 +366,19 @@ func TestYandexProvider_MDBMySQLClusterRestoreAttributeValidators(t *testing.T) 
 				)
 			}
 		})
+	}
+}
+
+func TestMySQL97VersionValidation(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	resp := resource.SchemaResponse{}
+	NewMySQLClusterResourceV2().Schema(ctx, resource.SchemaRequest{}, &resp)
+	require.False(t, resp.Diagnostics.HasError(), "%v", resp.Diagnostics)
+	version := resp.Schema.Attributes["version"].(schema.StringAttribute)
+	for _, v := range version.Validators {
+		response := validator.StringResponse{}
+		v.ValidateString(ctx, validator.StringRequest{Path: path.Root("version"), ConfigValue: types.StringValue("9.7")}, &response)
+		require.False(t, response.Diagnostics.HasError(), "%v", response.Diagnostics)
 	}
 }

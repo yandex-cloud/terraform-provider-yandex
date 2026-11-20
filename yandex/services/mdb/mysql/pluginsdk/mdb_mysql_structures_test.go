@@ -1,14 +1,23 @@
 package pluginsdk
 
 import (
+	"context"
+	"encoding/json"
 	"reflect"
 	"testing"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/stretchr/testify/assert"
 
+	ctyjson "github.com/hashicorp/go-cty/cty/json"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/stretchr/testify/require"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	config "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1/config"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func TestFlattenMySQLSettingsEmpty(t *testing.T) {
@@ -325,4 +334,166 @@ func TestMySQLLoopDetector(t *testing.T) {
 		},
 	})
 	assert.EqualError(t, err, "there is no replication chain from HA-hosts to following hosts: 'rc1a-two, rc1a-three' (probably, there is a loop in replication_source chain)")
+}
+
+func mysql97TestConfig(version string, settings map[string]interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"name":                  "mysql97-test",
+		"environment":           "PRESTABLE",
+		"network_id":            "test-network",
+		"version":               version,
+		"access":                []interface{}{map[string]interface{}{}},
+		"backup_window_start":   []interface{}{map[string]interface{}{"hours": 0, "minutes": 0}},
+		"connection_manager":    []interface{}{map[string]interface{}{"enabled": true}},
+		"disk_size_autoscaling": []interface{}{map[string]interface{}{}},
+		"maintenance_window":    []interface{}{map[string]interface{}{"type": "ANYTIME"}},
+		"performance_diagnostics": []interface{}{map[string]interface{}{
+			"enabled": false, "sessions_sampling_interval": 60, "statements_sampling_interval": 600,
+		}},
+		"resources": []interface{}{map[string]interface{}{
+			"resource_preset_id": "s2.micro",
+			"disk_type_id":       "network-ssd",
+			"disk_size":          16,
+		}},
+		"host":         []interface{}{map[string]interface{}{"zone": "ru-central1-a"}},
+		"mysql_config": settings,
+	}
+}
+
+func mysql97ResourceConfig(t *testing.T, raw map[string]interface{}) *terraform.ResourceConfig {
+	t.Helper()
+	cfg := terraform.NewResourceConfigRaw(raw)
+	// ResourceConfigRaw omits the raw cty value that Terraform supplies to diff suppression.
+	data, err := json.Marshal(raw)
+	require.NoError(t, err)
+	var value ctyjson.SimpleJSONValue
+	require.NoError(t, json.Unmarshal(data, &value))
+	cfg.CtyValue = value.Value
+	return cfg
+}
+
+func TestMySQL97ConfigRoundTrip(t *testing.T) {
+	t.Parallel()
+	r := ResourceYandexMDBMySQLCluster()
+	settings := map[string]interface{}{
+		"max_connections":                             "100",
+		"replica_parallel_workers":                    "4",
+		"rpl_semi_sync_source_wait_for_replica_count": "1",
+		"innodb_redo_log_capacity":                    "268435456",
+		"innodb_print_all_deadlocks":                  "false",
+		"long_query_time":                             "0",
+		"sql_mode":                                    "STRICT_TRANS_TABLES,INTERPRET_UTF8_AS_UTF8MB4",
+	}
+	_, errs := r.Schema["mysql_config"].ValidateFunc(settings, "mysql_config")
+	require.Empty(t, errs)
+
+	d := schema.TestResourceDataRaw(t, r.Schema, mysql97TestConfig("9.7", settings))
+	spec, err := expandMySQLConfigSpec(d)
+	require.NoError(t, err)
+	require.Equal(t, "9.7", spec.Version)
+	want := &config.MysqlConfig9_7{
+		MaxConnections:                       wrapperspb.Int64(100),
+		ReplicaParallelWorkers:               wrapperspb.Int64(4),
+		RplSemiSyncSourceWaitForReplicaCount: wrapperspb.Int64(1),
+		InnodbRedoLogCapacity:                wrapperspb.Int64(268435456),
+		InnodbPrintAllDeadlocks:              wrapperspb.Bool(false),
+		LongQueryTime:                        wrapperspb.Double(0),
+		SqlMode: []config.MysqlConfig9_7_SQLMode{
+			config.MysqlConfig9_7_STRICT_TRANS_TABLES,
+			config.MysqlConfig9_7_INTERPRET_UTF8_AS_UTF8MB4,
+		},
+	}
+	require.True(t, proto.Equal(want, spec.GetMysqlConfig_9_7()), "got %v", spec)
+
+	flat, err := FlattenMySQLConfig(&mysql.ClusterConfig{
+		MysqlConfig: &mysql.ClusterConfig_MysqlConfig_9_7{
+			MysqlConfig_9_7: &config.MysqlConfigSet9_7{UserConfig: want, EffectiveConfig: want},
+		},
+	})
+	require.NoError(t, err)
+	for key, value := range settings {
+		require.Equal(t, value, flat[key], key)
+	}
+	require.Len(t, flat, len(settings))
+
+	// A refreshed state must not introduce a new configuration diff.
+	d.SetId("test-cluster")
+	require.NoError(t, d.Set("mysql_config", flat))
+	diff, err := r.Diff(context.Background(), d.State(), mysql97ResourceConfig(t, mysql97TestConfig("9.7", settings)), nil)
+	require.NoError(t, err)
+	require.True(t, diff.Empty(), "unexpected diff: %v", diff)
+}
+
+func TestMySQL97ConfigWithoutUserSettings(t *testing.T) {
+	t.Parallel()
+	r := ResourceYandexMDBMySQLCluster()
+	d := schema.TestResourceDataRaw(t, r.Schema, mysql97TestConfig("9.7", nil))
+	spec, err := expandMySQLConfigSpec(d)
+	require.NoError(t, err)
+	require.Equal(t, "9.7", spec.Version)
+
+	flat, err := FlattenMySQLConfig(&mysql.ClusterConfig{
+		MysqlConfig: &mysql.ClusterConfig_MysqlConfig_9_7{
+			MysqlConfig_9_7: &config.MysqlConfigSet9_7{
+				EffectiveConfig: &config.MysqlConfig9_7{
+					SqlMode: []config.MysqlConfig9_7_SQLMode{config.MysqlConfig9_7_INTERPRET_UTF8_AS_UTF8MB4},
+				},
+			},
+		},
+	})
+	require.NoError(t, err)
+	require.Empty(t, flat, "default and effective settings must not become user settings")
+}
+
+func TestMySQL97SQLModeRejectedByOlderVersions(t *testing.T) {
+	t.Parallel()
+	for _, version := range []string{"5.7", "8.0", "8.4"} {
+		t.Run(version, func(t *testing.T) {
+			d := schema.TestResourceDataRaw(t, ResourceYandexMDBMySQLCluster().Schema,
+				mysql97TestConfig(version, map[string]interface{}{"sql_mode": "INTERPRET_UTF8_AS_UTF8MB4"}))
+			_, err := expandMySQLConfigSpec(d)
+			require.Error(t, err)
+		})
+	}
+}
+
+func TestMySQL97RejectsRemovedSettings(t *testing.T) {
+	t.Parallel()
+	for _, name := range []string{"slave_parallel_workers", "rpl_semi_sync_master_wait_for_slave_count", "innodb_log_file_size"} {
+		t.Run(name, func(t *testing.T) {
+			d := schema.TestResourceDataRaw(t, ResourceYandexMDBMySQLCluster().Schema,
+				mysql97TestConfig("9.7", map[string]interface{}{name: "4"}))
+			_, err := expandMySQLConfigSpec(d)
+			require.ErrorContains(t, err, name)
+		})
+	}
+}
+
+func TestMySQL97SettingsRejectedByOlderVersions(t *testing.T) {
+	t.Parallel()
+	for _, version := range []string{"5.7", "8.0", "8.4"} {
+		for name, value := range map[string]string{
+			"replica_parallel_workers":                    "4",
+			"rpl_semi_sync_source_wait_for_replica_count": "1",
+			"innodb_redo_log_capacity":                    "268435456",
+		} {
+			t.Run(version+"/"+name, func(t *testing.T) {
+				r := ResourceYandexMDBMySQLCluster()
+				settings := map[string]interface{}{name: value}
+				_, errors := r.Schema["mysql_config"].ValidateFunc(settings, "mysql_config")
+				require.Empty(t, errors, "the union schema alone cannot validate a version-specific setting")
+				d := schema.TestResourceDataRaw(t, r.Schema, mysql97TestConfig(version, settings))
+				_, err := expandMySQLConfigSpec(d)
+				require.ErrorContains(t, err, "unsupported MySQL "+version+" setting")
+				require.ErrorContains(t, err, name)
+
+				data := mysqlUpdateData(t,
+					mysql97TestConfig(version, map[string]interface{}{"max_connections": "100"}),
+					mysql97TestConfig(version, settings))
+				_, err = prepareMySQLClusterUpdateRequest(data, &providerconfig.Config{})
+				require.ErrorContains(t, err, "unsupported MySQL "+version+" setting")
+				require.ErrorContains(t, err, name)
+			})
+		}
+	}
 }

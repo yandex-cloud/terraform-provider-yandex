@@ -77,6 +77,7 @@ var msVersionConfig = map[string]mysql.ConfigSpec_MysqlConfig{
 	"5.7": &mysql.ConfigSpec_MysqlConfig_5_7{},
 	"8.0": &mysql.ConfigSpec_MysqlConfig_8_0{},
 	"8.4": &mysql.ConfigSpec_MysqlConfig_8_4{},
+	"9.7": &mysql.ConfigSpec_MysqlConfig_9_7{},
 }
 
 func expandMySQLConfig(
@@ -96,7 +97,15 @@ func expandMySQLConfig(
 		return nil
 	}
 
+	if version != "9.7" {
+		legacyConfig, d := mdbcommon.NewSettingsMapType(msLegacyAttrProvider).ValueFromMap(ctx, config.MapValue)
+		diags.Append(d...)
+		config = legacyConfig.(mdbcommon.SettingsMapValue)
+	}
 	attrs := config.PrimitiveElements(ctx, diags)
+	if diags.HasError() {
+		return nil
+	}
 	a.Fill(ctx, msConf, attrs, diags)
 
 	return msConf.(mysql.ConfigSpec_MysqlConfig)

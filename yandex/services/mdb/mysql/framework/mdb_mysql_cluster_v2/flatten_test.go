@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -484,5 +486,117 @@ func TestYandexProvider_MDBMySQLClusterConfigFlatten(t *testing.T) {
 				)
 			}
 		}
+	}
+}
+
+func TestYandexProvider_MDBMySQLClusterConfigExplicitZeroFlatten(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		version     string
+		zeroConfig  mysql.ClusterConfig_MysqlConfig
+		emptyConfig mysql.ClusterConfig_MysqlConfig
+	}{
+		{
+			version: "5.7",
+			zeroConfig: &mysql.ClusterConfig_MysqlConfig_5_7{
+				MysqlConfig_5_7: &config.MysqlConfigSet5_7{
+					UserConfig: &config.MysqlConfig5_7{
+						SlaveParallelWorkers:    wrapperspb.Int64(0),
+						LongQueryTime:           wrapperspb.Double(0),
+						InnodbPrintAllDeadlocks: wrapperspb.Bool(false),
+					},
+				},
+			},
+			emptyConfig: &mysql.ClusterConfig_MysqlConfig_5_7{MysqlConfig_5_7: &config.MysqlConfigSet5_7{UserConfig: &config.MysqlConfig5_7{}}},
+		},
+		{
+			version: "8.0",
+			zeroConfig: &mysql.ClusterConfig_MysqlConfig_8_0{
+				MysqlConfig_8_0: &config.MysqlConfigSet8_0{
+					UserConfig: &config.MysqlConfig8_0{
+						SlaveParallelWorkers:    wrapperspb.Int64(0),
+						LongQueryTime:           wrapperspb.Double(0),
+						InnodbPrintAllDeadlocks: wrapperspb.Bool(false),
+					},
+				},
+			},
+			emptyConfig: &mysql.ClusterConfig_MysqlConfig_8_0{MysqlConfig_8_0: &config.MysqlConfigSet8_0{UserConfig: &config.MysqlConfig8_0{}}},
+		},
+		{
+			version: "8.4",
+			zeroConfig: &mysql.ClusterConfig_MysqlConfig_8_4{
+				MysqlConfig_8_4: &config.MysqlConfigSet8_4{
+					UserConfig: &config.MysqlConfig8_4{
+						SlaveParallelWorkers:    wrapperspb.Int64(0),
+						LongQueryTime:           wrapperspb.Double(0),
+						InnodbPrintAllDeadlocks: wrapperspb.Bool(false),
+					},
+				},
+			},
+			emptyConfig: &mysql.ClusterConfig_MysqlConfig_8_4{MysqlConfig_8_4: &config.MysqlConfigSet8_4{UserConfig: &config.MysqlConfig8_4{}}},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.version, func(t *testing.T) {
+			ctx := context.Background()
+			var diags diag.Diagnostics
+			actual := flattenMySQLConfig(ctx, tc.zeroConfig, &diags)
+			require.False(t, diags.HasError(), "%v", diags)
+			expected := NewMsSettingsMapValueMust(map[string]attr.Value{
+				"slave_parallel_workers":     types.StringValue("0"),
+				"long_query_time":            types.StringValue("0"),
+				"innodb_print_all_deadlocks": types.StringValue("false"),
+			})
+			require.True(t, expected.Equal(actual), "explicit zero settings were lost: %v", actual)
+
+			actual = flattenMySQLConfig(ctx, tc.emptyConfig, &diags)
+			require.False(t, diags.HasError(), "%v", diags)
+			require.Empty(t, actual.Elements(), "absent wrappers must not become explicit zero settings")
+		})
+	}
+}
+
+func TestYandexProvider_MDBMySQLClusterZeroSettingsAfterImport(t *testing.T) {
+	t.Parallel()
+	for _, reset := range []bool{false, true} {
+		name := "unchanged_configuration"
+		if reset {
+			name = "remove_zero_setting"
+		}
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			var diags diag.Diagnostics
+			// An imported resource has no mysql_config in its incoming state.
+			imported := flattenConfig(ctx, NewMsSettingsMapNull(), &mysql.ClusterConfig{
+				Version:   "8.0",
+				Resources: &mysql.Resources{ResourcePresetId: "s2.micro", DiskTypeId: "network-ssd", DiskSize: 16 * 1024 * 1024 * 1024},
+				MysqlConfig: &mysql.ClusterConfig_MysqlConfig_8_0{MysqlConfig_8_0: &config.MysqlConfigSet8_0{UserConfig: &config.MysqlConfig8_0{
+					MaxConnections: wrapperspb.Int64(100), SlaveParallelWorkers: wrapperspb.Int64(0),
+				}}},
+			}, &diags)
+			require.False(t, diags.HasError(), "%v", diags)
+			state := baseCluster
+			state.Version = types.StringValue("8.0")
+			state.MySQLConfig = imported.MySQLConfig
+			plan := state
+			settings := map[string]attr.Value{"max_connections": types.StringValue("100")}
+			if !reset {
+				settings["slave_parallel_workers"] = types.StringValue("0")
+			}
+			plan.MySQLConfig = NewMsSettingsMapValueMust(settings)
+
+			request, diags := prepareUpdateRequest(ctx, &state, &plan)
+			require.False(t, diags.HasError(), "%v", diags)
+			if !reset {
+				require.Empty(t, request.UpdateMask.Paths, "an unchanged zero setting must not trigger an update after import")
+				return
+			}
+			require.Contains(t, request.UpdateMask.Paths, "config_spec.mysql_config_8_0.slave_parallel_workers",
+				"removing an imported zero setting must reset it in the API")
+			require.True(t, request.UpdateMask.IsValid(request))
+			require.Nil(t, request.ConfigSpec.GetMysqlConfig_8_0().SlaveParallelWorkers)
+			require.Equal(t, int64(100), request.ConfigSpec.GetMysqlConfig_8_0().GetMaxConnections().GetValue())
+		})
 	}
 }

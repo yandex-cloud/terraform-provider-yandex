@@ -24,15 +24,9 @@ const mysqlUserV2VPCDependencies = `
 resource "yandex_vpc_network" "foo" {}
 
 resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "bar" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.foo.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
 }
 `
 
@@ -178,6 +172,12 @@ func testAccCheckMDBMySQLClusterHasUserV2(
 
 func clusterConfigForUserTests(clusterName string) string {
 	return fmt.Sprintf(mysqlUserV2VPCDependencies+`
+resource "yandex_vpc_subnet" "bar" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.foo.id
+  v4_cidr_blocks = ["10.2.0.0/24"]
+}
+
 resource "yandex_mdb_mysql_cluster_v2" "foo" {
   name        = "%s"
   description = "MySQL User V2 Terraform Test"
@@ -193,11 +193,11 @@ resource "yandex_mdb_mysql_cluster_v2" "foo" {
 
   hosts = {
     "host1" = {
-      zone      = "ru-central1-a"
+      zone      = "ru-central1-d"
       subnet_id = yandex_vpc_subnet.foo.id
     }
     "host2" = {
-      zone      = "ru-central1-b"
+      zone      = "ru-central1-a"
       subnet_id = yandex_vpc_subnet.bar.id
     }
   }

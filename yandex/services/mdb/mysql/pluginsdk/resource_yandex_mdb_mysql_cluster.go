@@ -18,6 +18,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
 	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+	mysqlcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/mysql/common"
 )
 
 const (
@@ -69,7 +70,7 @@ func ResourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"version": {
 				Type:        schema.TypeString,
-				Description: "Version of the MySQL cluster. (allowed versions are: 5.7, 8.0, 8.4).",
+				Description: "Version of the MySQL cluster. (allowed versions are: 5.7, 8.0, 8.4, 9.7).",
 				Required:    true,
 			},
 			"resources": {
@@ -373,10 +374,10 @@ func ResourceYandexMDBMySQLCluster() *schema.Resource {
 			},
 			"mysql_config": {
 				Type:             schema.TypeMap,
-				Description:      "MySQL cluster configuration. For detailed information specific to your MySQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).",
+				Description:      "MySQL cluster configuration. For MySQL 9.7, this map contains user-defined settings; removing a key resets it to the default. For detailed information specific to your MySQL version, please refer to the [API proto specifications](https://github.com/yandex-cloud/cloudapi/tree/master/yandex/cloud/mdb/mysql/v1/config).",
 				Optional:         true,
 				Computed:         true,
-				DiffSuppressFunc: sdkcommon.GenerateMapSchemaDiffSuppressFunc(mdbMySQLSettingsFieldsInfo),
+				DiffSuppressFunc: suppressMySQLConfigDiff,
 				ValidateFunc:     sdkcommon.GenerateMapSchemaValidateFunc(mdbMySQLSettingsFieldsInfo),
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -973,7 +974,6 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 	"backup_window_start":               "config_spec.backup_window_start",
 	"resources":                         "config_spec.resources",
 	"backup_retain_period_days":         "config_spec.backup_retain_period_days",
-	"version":                           "config_spec.version",
 	"performance_diagnostics.0.enabled": "config_spec.performance_diagnostics.enabled",
 	"performance_diagnostics.0.sessions_sampling_interval":   "config_spec.performance_diagnostics.sessions_sampling_interval",
 	"performance_diagnostics.0.statements_sampling_interval": "config_spec.performance_diagnostics.statements_sampling_interval",
@@ -985,29 +985,57 @@ var mdbMysqlUpdateFieldsMap = map[string]string{
 
 func updateMysqlClusterParams(d *schema.ResourceData, meta interface{}) error {
 	config := meta.(*providerconfig.Config)
+	// Validate the target settings before starting the upgrade.
 	request, err := prepareMySQLClusterUpdateRequest(d, config)
 	if err != nil {
 		return err
 	}
 
-	if len(request.UpdateMask.Paths) == 0 {
+	if !d.HasChange("version") && len(request.UpdateMask.Paths) == 0 {
 		return nil
 	}
 
 	ctx, cancel := config.ContextWithTimeout(d.Timeout(schema.TimeoutUpdate))
 	defer cancel()
 
+	if d.HasChange("version") {
+		versionRequest := &mysql.UpdateClusterRequest{
+			ClusterId:  d.Id(),
+			ConfigSpec: &mysql.ConfigSpec{Version: d.Get("version").(string)},
+			UpdateMask: &field_mask.FieldMask{Paths: []string{"config_spec.version"}},
+		}
+		if err := requestMySQLClusterUpdate(ctx, config, versionRequest); err != nil {
+			return err
+		}
+		if len(request.UpdateMask.Paths) > 0 {
+			cluster, err := mysqlsdk.NewClusterClient(config.SDK).Get(ctx, &mysql.GetClusterRequest{ClusterId: d.Id()})
+			if err != nil {
+				return fmt.Errorf("error reading MySQL Cluster %q after upgrade: %w", d.Id(), err)
+			}
+			if err := mysqlcommon.RemoveUnchangedSettings(request, cluster.GetConfig()); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(request.UpdateMask.Paths) == 0 {
+		return nil
+	}
+	return requestMySQLClusterUpdate(ctx, config, request)
+}
+
+func requestMySQLClusterUpdate(ctx context.Context, config *providerconfig.Config, request *mysql.UpdateClusterRequest) error {
 	op, err := sdkcommon.RetryConflictingOperationV2(ctx, config, func() (sdkcommon.SdkV2Operation, error) {
 		log.Printf("[DEBUG] Sending MySQL cluster update request: %+v", request)
 		return mysqlsdk.NewClusterClient(config.SDK).Update(ctx, request)
 	})
 	if err != nil {
-		return fmt.Errorf("error while requesting API to update MySQL Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while requesting API to update MySQL Cluster %q: %s", request.ClusterId, err)
 	}
 
 	_, err = op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("error while updating MySQL Cluster %q: %s", d.Id(), err)
+		return fmt.Errorf("error while updating MySQL Cluster %q: %s", request.ClusterId, err)
 	}
 
 	return nil
@@ -1038,6 +1066,8 @@ func prepareMySQLClusterUpdateRequest(d *schema.ResourceData, config *providerco
 		return nil, fmt.Errorf("error expanding mysql_config while updating MySQL cluster: %s", err)
 	}
 
+	// Version upgrades use a separate request after all settings are validated.
+	configSpec.Version = ""
 	updatePaths := []string{}
 	for field, path := range mdbMysqlUpdateFieldsMap {
 		if d.HasChange(field) {
@@ -1053,13 +1083,31 @@ func prepareMySQLClusterUpdateRequest(d *schema.ResourceData, config *providerco
 		d, "connection_manager", "config_spec.connection_manager.",
 	)...)
 
-	if d.HasChange("mysql_config") {
-		version := d.Get("version").(string)
-		myFieldName, err := getMySQLConfigFieldName(version)
+	version := d.Get("version").(string)
+	if d.HasChange("version") && version == "9.7" {
+		if _, configured := mdbcommon.LookupRawConfigPath(d, "mysql_config"); configured {
+			updatePaths = append(updatePaths, mysqlcommon.MySQL97UpgradeSettingsPaths()...)
+		}
+	} else if d.HasChange("mysql_config") {
+		myFieldName, err := mysqlcommon.MySQLConfigFieldName(version)
 		if err != nil {
 			return nil, err
 		}
-		updatePaths = append(updatePaths, fmt.Sprintf("config_spec.%s", myFieldName))
+		old, current := d.GetChange("mysql_config")
+		settings := make(map[string]struct{})
+		for name := range old.(map[string]interface{}) {
+			// Settings removed entirely from the target schema cannot be reset.
+			mask := &field_mask.FieldMask{Paths: []string{myFieldName + "." + name}}
+			if mask.IsValid(configSpec) {
+				settings[name] = struct{}{}
+			}
+		}
+		for name := range current.(map[string]interface{}) {
+			settings[name] = struct{}{}
+		}
+		for name := range settings {
+			updatePaths = append(updatePaths, fmt.Sprintf("config_spec.%s.%s", myFieldName, name))
+		}
 	}
 
 	return &mysql.UpdateClusterRequest{

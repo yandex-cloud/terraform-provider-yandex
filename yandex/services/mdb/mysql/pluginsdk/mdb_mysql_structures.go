@@ -21,6 +21,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/hashcode"
 	sdkcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/internal/sdkcommon"
 	providerconfig "github.com/yandex-cloud/terraform-provider-yandex/yandex/providerconfig"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 func parseMysqlEnv(e string) (mysql.Cluster_Environment, error) {
@@ -29,19 +30,6 @@ func parseMysqlEnv(e string) (mysql.Cluster_Environment, error) {
 		return 0, fmt.Errorf("value for 'environment' must be one of %s, not `%s`", sdkcommon.GetJoinedKeys(sdkcommon.GetEnumValueMapKeys(mysql.Cluster_Environment_value)), e)
 	}
 	return mysql.Cluster_Environment(v), nil
-}
-
-func getMySQLConfigFieldName(version string) (string, error) {
-	switch version {
-	case "5.7":
-		return "mysql_config_5_7", nil
-	case "8.0":
-		return "mysql_config_8_0", nil
-	case "8.4":
-		return "mysql_config_8_4", nil
-	default:
-		return "", fmt.Errorf("Unsupported MySQL version: %s", version)
-	}
 }
 
 func expandMysqlDatabases(d *schema.ResourceData) ([]*mysql.DatabaseSpec, error) {
@@ -1332,8 +1320,16 @@ func convertSQLModes84ToInt32(sqlModes []config.MysqlConfig8_4_SQLMode) []int32 
 	return modes
 }
 
-func flattenMySQLSettingsSQLMode(settings map[string]string, modes []int32) (map[string]string, error) {
-	sqlMode, err := mdbMySQLSettingsFieldsInfo.IntSliceToString("sql_mode", modes)
+func convertSQLModes97ToInt32(sqlModes []config.MysqlConfig9_7_SQLMode) []int32 {
+	modes := make([]int32, 0, len(sqlModes))
+	for _, v := range sqlModes {
+		modes = append(modes, int32(v))
+	}
+	return modes
+}
+
+func flattenMySQLSettingsSQLMode(settings map[string]string, modes []int32, fieldsInfo *sdkcommon.ObjectFieldsInfo) (map[string]string, error) {
+	sqlMode, err := fieldsInfo.IntSliceToString("sql_mode", modes)
 	if err != nil {
 		return nil, err
 	}
@@ -1354,7 +1350,14 @@ func flattenMySQLSettingsSQLMode(settings map[string]string, modes []int32) (map
 func FlattenMySQLConfig(c *mysql.ClusterConfig) (map[string]string, error) {
 	var userConfig interface{}
 	var sqlModes []int32
+	sqlModeFieldsInfo := mdbMySQLLegacySQLModeFieldsInfo
 
+	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_9_7); ok {
+		sqlModeFieldsInfo = mdbMySQLSettingsFieldsInfo
+		userConfig = cf.MysqlConfig_9_7.GetUserConfig()
+		// Keep only user settings so removing sql_mode can reset it to the default.
+		sqlModes = convertSQLModes97ToInt32(cf.MysqlConfig_9_7.GetUserConfig().GetSqlMode())
+	}
 	if cf, ok := c.MysqlConfig.(*mysql.ClusterConfig_MysqlConfig_8_4); ok {
 		userConfig = cf.MysqlConfig_8_4.UserConfig
 		sqlModes = convertSQLModes84ToInt32(cf.MysqlConfig_8_4.EffectiveConfig.SqlMode)
@@ -1373,7 +1376,7 @@ func FlattenMySQLConfig(c *mysql.ClusterConfig) (map[string]string, error) {
 		return nil, err
 	}
 
-	settings, err = flattenMySQLSettingsSQLMode(settings, sqlModes)
+	settings, err = flattenMySQLSettingsSQLMode(settings, sqlModes, sqlModeFieldsInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -1401,11 +1404,32 @@ func expandMySQLConfigSpec(d *schema.ResourceData) (*mysql.ConfigSpec, error) {
 }
 
 func expandMySQLConfigSpecSettings(d *schema.ResourceData, configSpec *mysql.ConfigSpec) error {
-	if _, ok := d.GetOkExists("mysql_config"); !ok {
+	if _, ok := d.GetOkExists("mysql_config"); !ok && configSpec.Version != "9.7" {
 		return nil
 	}
 
 	version := configSpec.Version
+	_, configured := mdbcommon.LookupRawConfigPath(d, "mysql_config")
+	if d.Id() == "" || configured {
+		var fields protoreflect.FieldDescriptors
+		switch version {
+		case "5.7":
+			fields = (&config.MysqlConfig5_7{}).ProtoReflect().Descriptor().Fields()
+		case "8.0":
+			fields = (&config.MysqlConfig8_0{}).ProtoReflect().Descriptor().Fields()
+		case "8.4":
+			fields = (&config.MysqlConfig8_4{}).ProtoReflect().Descriptor().Fields()
+		case "9.7":
+			fields = (&config.MysqlConfig9_7{}).ProtoReflect().Descriptor().Fields()
+		}
+		if fields != nil {
+			for name := range d.Get("mysql_config").(map[string]interface{}) {
+				if fields.ByName(protoreflect.Name(name)) == nil {
+					return fmt.Errorf("unsupported MySQL %s setting %q", version, name)
+				}
+			}
+		}
+	}
 	sdlModes, err := expandMySQLSqlModes(d)
 	if err != nil {
 		return err
@@ -1462,15 +1486,40 @@ func expandMySQLConfigSpecSettings(d *schema.ResourceData, configSpec *mysql.Con
 		return nil
 	}
 
-	return fmt.Errorf("unknown MySQL version: %s but '5.7', '8.0' and '8.4' are only available", version)
+	if version == "9.7" {
+		cfg := &mysql.ConfigSpec_MysqlConfig_9_7{
+			MysqlConfig_9_7: &config.MysqlConfig9_7{},
+		}
+		for _, v := range sdlModes {
+			cfg.MysqlConfig_9_7.SqlMode = append(cfg.MysqlConfig_9_7.SqlMode, config.MysqlConfig9_7_SQLMode(v))
+		}
+		configSpec.MysqlConfig = cfg
+		return sdkcommon.ExpandResourceGenerate(mdbMySQLSettingsFieldsInfo, d, cfg.MysqlConfig_9_7, "mysql_config.", true)
+	}
+
+	return fmt.Errorf("unknown MySQL version: %s but '5.7', '8.0', '8.4' and '9.7' are only available", version)
 }
 
 func expandMySQLSqlModes(d *schema.ResourceData) ([]int32, error) {
 	sqlMode, ok := d.GetOkExists("mysql_config.sql_mode")
 	if ok {
-		return mdbMySQLSettingsFieldsInfo.StringToIntSlice("sql_mode", sqlMode.(string))
+		fieldsInfo := mdbMySQLLegacySQLModeFieldsInfo
+		if d.Get("version").(string) == "9.7" {
+			fieldsInfo = mdbMySQLSettingsFieldsInfo
+		}
+		return fieldsInfo.StringToIntSlice("sql_mode", sqlMode.(string))
 	}
 	return []int32{}, nil
+}
+
+func suppressMySQLConfigDiff(k, old, new string, d *schema.ResourceData) bool {
+	// Unlike older versions, 9.7 exposes only user settings, including sql_mode.
+	// A removed setting must reach the API to reset its user-defined value.
+	if d.Get("version").(string) == "9.7" && old != "" && new == "" {
+		_, configured := mdbcommon.LookupRawConfigPath(d, "mysql_config")
+		return !configured
+	}
+	return sdkcommon.GenerateMapSchemaDiffSuppressFunc(mdbMySQLSettingsFieldsInfo)(k, old, new, d)
 }
 
 func expandMyPerformanceDiagnostics(d *schema.ResourceData) *mysql.PerformanceDiagnostics {
@@ -1585,8 +1634,13 @@ func isPasswordAuthPlugin(authPlugin mysql.AuthPlugin) bool {
 	}
 }
 
+// Keep the existing enum mapping for older versions: SQL mode numbers differ in 5.7.
+var mdbMySQLLegacySQLModeFieldsInfo = sdkcommon.NewObjectFieldsInfo().
+	AddSkipEnumGeneratedNames("sql_mode", config.MysqlConfig8_0_SQLMode_name, sdkcommon.DefaultStringOfEnumsCheck("sql_mode"), defaultStringCompare)
+
 // todo проверить настройки
 var mdbMySQLSettingsFieldsInfo = sdkcommon.NewObjectFieldsInfo().
+	AddType(config.MysqlConfig9_7{}, []reflect.Type{}).
 	AddType(config.MysqlConfig8_4{}, []reflect.Type{}).
 	AddType(config.MysqlConfig8_0{}, []reflect.Type{}).
 	AddType(config.MysqlConfig5_7{}, []reflect.Type{}).
@@ -1598,4 +1652,4 @@ var mdbMySQLSettingsFieldsInfo = sdkcommon.NewObjectFieldsInfo().
 	AddEnumGeneratedNames("log_slow_filter_type", config.MysqlConfig8_0_LogSlowFilterType_name).
 	AddEnumGeneratedNames("audit_log_policy", config.MysqlConfig8_0_AuditLogPolicy_name).
 	AddEnumGeneratedNames("innodb_change_buffering", config.MysqlConfig8_0_InnodbChangeBuffering_name).
-	AddSkipEnumGeneratedNames("sql_mode", config.MysqlConfig8_0_SQLMode_name, sdkcommon.DefaultStringOfEnumsCheck("sql_mode"), defaultStringCompare)
+	AddSkipEnumGeneratedNames("sql_mode", config.MysqlConfig9_7_SQLMode_name, sdkcommon.DefaultStringOfEnumsCheck("sql_mode"), defaultStringCompare)

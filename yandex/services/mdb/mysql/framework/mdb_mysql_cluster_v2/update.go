@@ -9,6 +9,7 @@ import (
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/mysql/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
+	mysqlcommon "github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/mysql/common"
 	"google.golang.org/genproto/protobuf/field_mask"
 )
 
@@ -29,19 +30,6 @@ func prepareVersionUpdateRequest(state, plan *Cluster) (*mysql.UpdateClusterRequ
 		},
 		UpdateMask: &field_mask.FieldMask{Paths: []string{"config_spec.version"}},
 	}, diags
-}
-
-func getMySQLConfigFieldName(version string) (string, error) {
-	switch version {
-	case "5.7":
-		return "mysql_config_5_7", nil
-	case "8.0":
-		return "mysql_config_8_0", nil
-	case "8.4":
-		return "mysql_config_8_4", nil
-	default:
-		return "", fmt.Errorf("Unsupported MySQL version: %s", version)
-	}
 }
 
 func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.UpdateClusterRequest, diag.Diagnostics) {
@@ -187,20 +175,46 @@ func prepareUpdateRequest(ctx context.Context, state, plan *Cluster) (*mysql.Upd
 		}
 	}
 
-	if !plan.MySQLConfig.Equal(state.MySQLConfig) {
+	version := plan.Version.ValueString()
+	versionChanged := !plan.Version.Equal(state.Version)
+	settingsChanged := !plan.MySQLConfig.IsUnknown() && !plan.MySQLConfig.Equal(state.MySQLConfig)
+	var mysqlConfig mysql.ConfigSpec_MysqlConfig
+	if !plan.MySQLConfig.IsUnknown() && (settingsChanged || versionChanged) {
+		mysqlConfig = expandMySQLConfig(ctx, version, plan.MySQLConfig, &diags)
+		if diags.HasError() {
+			return nil, diags
+		}
+	}
+	if versionChanged && version == "9.7" {
+		if !plan.MySQLConfig.IsUnknown() && !plan.MySQLConfig.IsNull() {
+			updConf = true
+			config.SetMysqlConfig(mysqlConfig)
+			request.UpdateMask.Paths = append(request.UpdateMask.Paths, mysqlcommon.MySQL97UpgradeSettingsPaths()...)
+		}
+	} else if settingsChanged {
 		updConf = true
-		config.SetMysqlConfig(expandMySQLConfig(ctx, plan.Version.ValueString(), plan.MySQLConfig, &diags))
+		config.SetMysqlConfig(mysqlConfig)
+
+		myFieldName, err := mysqlcommon.MySQLConfigFieldName(version)
+		if err != nil {
+			diags.AddError("Invalid version", fmt.Sprintf("Details: %v", err))
+			return nil, diags
+		}
 
 		attrsState := mdbcommon.GetAttrNamesSetFromMap(state.MySQLConfig.MapValue, &diags)
 		attrsPlan := mdbcommon.GetAttrNamesSetFromMap(plan.MySQLConfig.MapValue, &diags)
 
+		if versionChanged {
+			for attr := range attrsState {
+				mask := &field_mask.FieldMask{Paths: []string{fmt.Sprintf("%s.%s", myFieldName, attr)}}
+				if !mask.IsValid(config) {
+					delete(attrsState, attr)
+				}
+			}
+		}
+
 		maps.Copy(attrsPlan, attrsState)
 		for attr := range attrsPlan {
-			myFieldName, err := getMySQLConfigFieldName(plan.Version.ValueString())
-			if err != nil {
-				diags.AddError("Invalid version", fmt.Sprintf("Details: %v", err))
-				return nil, diags
-			}
 			request.UpdateMask.Paths = append(request.UpdateMask.Paths, fmt.Sprintf("config_spec.%s.%s", myFieldName, attr))
 		}
 	}
