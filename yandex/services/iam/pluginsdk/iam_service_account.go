@@ -57,7 +57,7 @@ func (u *ServiceAccountIamUpdater) SetResourceIamPolicy(ctx context.Context, pol
 		AccessBindings: policy.Bindings,
 	}
 
-	ctx, cancel := context.WithTimeout(u.Config.Context(), YandexIAMServiceAccountDefaultTimeout)
+	ctx, cancel := context.WithTimeout(ctx, YandexIAMServiceAccountDefaultTimeout)
 	defer cancel()
 
 	op, err := client.SetAccessBindings(ctx, req)
