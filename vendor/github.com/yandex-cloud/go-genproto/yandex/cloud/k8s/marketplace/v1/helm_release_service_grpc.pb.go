@@ -38,10 +38,12 @@ type HelmReleaseServiceClient interface {
 	// Returns the specified Helm release.
 	Get(ctx context.Context, in *GetHelmReleaseRequest, opts ...grpc.CallOption) (*HelmRelease, error)
 	// Installs Helm release into specified Kubernetes Cluster.
+	// (-- api-linter: yc::1702::method-verb-prefix=disabled --)
 	Install(ctx context.Context, in *InstallHelmReleaseRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Updates Helm release.
 	Update(ctx context.Context, in *UpdateHelmReleaseRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Uninstalls Helm release.
+	// (-- api-linter: yc::1702::method-verb-prefix=disabled --)
 	Uninstall(ctx context.Context, in *UninstallHelmReleaseRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 }
 
@@ -114,10 +116,12 @@ type HelmReleaseServiceServer interface {
 	// Returns the specified Helm release.
 	Get(context.Context, *GetHelmReleaseRequest) (*HelmRelease, error)
 	// Installs Helm release into specified Kubernetes Cluster.
+	// (-- api-linter: yc::1702::method-verb-prefix=disabled --)
 	Install(context.Context, *InstallHelmReleaseRequest) (*operation.Operation, error)
 	// Updates Helm release.
 	Update(context.Context, *UpdateHelmReleaseRequest) (*operation.Operation, error)
 	// Uninstalls Helm release.
+	// (-- api-linter: yc::1702::method-verb-prefix=disabled --)
 	Uninstall(context.Context, *UninstallHelmReleaseRequest) (*operation.Operation, error)
 }
 

@@ -28,6 +28,7 @@ const (
 	InstanceService_Delete_FullMethodName                = "/yandex.cloud.gitlab.v1.InstanceService/Delete"
 	InstanceService_Start_FullMethodName                 = "/yandex.cloud.gitlab.v1.InstanceService/Start"
 	InstanceService_Stop_FullMethodName                  = "/yandex.cloud.gitlab.v1.InstanceService/Stop"
+	InstanceService_ListBackups_FullMethodName           = "/yandex.cloud.gitlab.v1.InstanceService/ListBackups"
 	InstanceService_GetBackupDownloadUrls_FullMethodName = "/yandex.cloud.gitlab.v1.InstanceService/GetBackupDownloadUrls"
 )
 
@@ -56,6 +57,8 @@ type InstanceServiceClient interface {
 	Start(ctx context.Context, in *StartInstanceRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 	// Stops the specified GitLab instance.
 	Stop(ctx context.Context, in *StopInstanceRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Retrieves the list of backups for the specified GitLab instance.
+	ListBackups(ctx context.Context, in *ListInstanceBackupsRequest, opts ...grpc.CallOption) (*ListInstanceBackupsResponse, error)
 	// Returns temporary download URLs for a completed backup and its GitLab secrets file.
 	GetBackupDownloadUrls(ctx context.Context, in *GetBackupDownloadUrlsRequest, opts ...grpc.CallOption) (*GetBackupDownloadUrlsResponse, error)
 }
@@ -148,6 +151,16 @@ func (c *instanceServiceClient) Stop(ctx context.Context, in *StopInstanceReques
 	return out, nil
 }
 
+func (c *instanceServiceClient) ListBackups(ctx context.Context, in *ListInstanceBackupsRequest, opts ...grpc.CallOption) (*ListInstanceBackupsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListInstanceBackupsResponse)
+	err := c.cc.Invoke(ctx, InstanceService_ListBackups_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *instanceServiceClient) GetBackupDownloadUrls(ctx context.Context, in *GetBackupDownloadUrlsRequest, opts ...grpc.CallOption) (*GetBackupDownloadUrlsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetBackupDownloadUrlsResponse)
@@ -183,6 +196,8 @@ type InstanceServiceServer interface {
 	Start(context.Context, *StartInstanceRequest) (*operation.Operation, error)
 	// Stops the specified GitLab instance.
 	Stop(context.Context, *StopInstanceRequest) (*operation.Operation, error)
+	// Retrieves the list of backups for the specified GitLab instance.
+	ListBackups(context.Context, *ListInstanceBackupsRequest) (*ListInstanceBackupsResponse, error)
 	// Returns temporary download URLs for a completed backup and its GitLab secrets file.
 	GetBackupDownloadUrls(context.Context, *GetBackupDownloadUrlsRequest) (*GetBackupDownloadUrlsResponse, error)
 }
@@ -217,6 +232,9 @@ func (UnimplementedInstanceServiceServer) Start(context.Context, *StartInstanceR
 }
 func (UnimplementedInstanceServiceServer) Stop(context.Context, *StopInstanceRequest) (*operation.Operation, error) {
 	return nil, status.Error(codes.Unimplemented, "method Stop not implemented")
+}
+func (UnimplementedInstanceServiceServer) ListBackups(context.Context, *ListInstanceBackupsRequest) (*ListInstanceBackupsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListBackups not implemented")
 }
 func (UnimplementedInstanceServiceServer) GetBackupDownloadUrls(context.Context, *GetBackupDownloadUrlsRequest) (*GetBackupDownloadUrlsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBackupDownloadUrls not implemented")
@@ -385,6 +403,24 @@ func _InstanceService_Stop_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InstanceService_ListBackups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListInstanceBackupsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InstanceServiceServer).ListBackups(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InstanceService_ListBackups_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InstanceServiceServer).ListBackups(ctx, req.(*ListInstanceBackupsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _InstanceService_GetBackupDownloadUrls_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetBackupDownloadUrlsRequest)
 	if err := dec(in); err != nil {
@@ -441,6 +477,10 @@ var InstanceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Stop",
 			Handler:    _InstanceService_Stop_Handler,
+		},
+		{
+			MethodName: "ListBackups",
+			Handler:    _InstanceService_ListBackups_Handler,
 		},
 		{
 			MethodName: "GetBackupDownloadUrls",

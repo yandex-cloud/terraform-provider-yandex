@@ -8,6 +8,7 @@ package compute
 
 import (
 	context "context"
+	access "github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -20,13 +21,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ReservedInstancePoolService_Get_FullMethodName            = "/yandex.cloud.compute.v1.ReservedInstancePoolService/Get"
-	ReservedInstancePoolService_List_FullMethodName           = "/yandex.cloud.compute.v1.ReservedInstancePoolService/List"
-	ReservedInstancePoolService_Create_FullMethodName         = "/yandex.cloud.compute.v1.ReservedInstancePoolService/Create"
-	ReservedInstancePoolService_Update_FullMethodName         = "/yandex.cloud.compute.v1.ReservedInstancePoolService/Update"
-	ReservedInstancePoolService_Delete_FullMethodName         = "/yandex.cloud.compute.v1.ReservedInstancePoolService/Delete"
-	ReservedInstancePoolService_ListOperations_FullMethodName = "/yandex.cloud.compute.v1.ReservedInstancePoolService/ListOperations"
-	ReservedInstancePoolService_ListInstances_FullMethodName  = "/yandex.cloud.compute.v1.ReservedInstancePoolService/ListInstances"
+	ReservedInstancePoolService_Get_FullMethodName                  = "/yandex.cloud.compute.v1.ReservedInstancePoolService/Get"
+	ReservedInstancePoolService_List_FullMethodName                 = "/yandex.cloud.compute.v1.ReservedInstancePoolService/List"
+	ReservedInstancePoolService_Create_FullMethodName               = "/yandex.cloud.compute.v1.ReservedInstancePoolService/Create"
+	ReservedInstancePoolService_Update_FullMethodName               = "/yandex.cloud.compute.v1.ReservedInstancePoolService/Update"
+	ReservedInstancePoolService_Delete_FullMethodName               = "/yandex.cloud.compute.v1.ReservedInstancePoolService/Delete"
+	ReservedInstancePoolService_ListOperations_FullMethodName       = "/yandex.cloud.compute.v1.ReservedInstancePoolService/ListOperations"
+	ReservedInstancePoolService_ListInstances_FullMethodName        = "/yandex.cloud.compute.v1.ReservedInstancePoolService/ListInstances"
+	ReservedInstancePoolService_ListAccessBindings_FullMethodName   = "/yandex.cloud.compute.v1.ReservedInstancePoolService/ListAccessBindings"
+	ReservedInstancePoolService_SetAccessBindings_FullMethodName    = "/yandex.cloud.compute.v1.ReservedInstancePoolService/SetAccessBindings"
+	ReservedInstancePoolService_UpdateAccessBindings_FullMethodName = "/yandex.cloud.compute.v1.ReservedInstancePoolService/UpdateAccessBindings"
 )
 
 // ReservedInstancePoolServiceClient is the client API for ReservedInstancePoolService service.
@@ -51,6 +55,12 @@ type ReservedInstancePoolServiceClient interface {
 	ListOperations(ctx context.Context, in *ListReservedInstancePoolOperationsRequest, opts ...grpc.CallOption) (*ListReservedInstancePoolOperationsResponse, error)
 	// Retrieves the list of instances, using the specified reserved instance pool.
 	ListInstances(ctx context.Context, in *ListReservedInstancePoolInstancesRequest, opts ...grpc.CallOption) (*ListReservedInstancePoolInstancesResponse, error)
+	// Lists access bindings for the reserved instance pool.
+	ListAccessBindings(ctx context.Context, in *access.ListAccessBindingsRequest, opts ...grpc.CallOption) (*access.ListAccessBindingsResponse, error)
+	// Sets access bindings for the reserved instance pool.
+	SetAccessBindings(ctx context.Context, in *access.SetAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error)
+	// Updates access bindings for the reserved instance pool.
+	UpdateAccessBindings(ctx context.Context, in *access.UpdateAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error)
 }
 
 type reservedInstancePoolServiceClient struct {
@@ -131,6 +141,36 @@ func (c *reservedInstancePoolServiceClient) ListInstances(ctx context.Context, i
 	return out, nil
 }
 
+func (c *reservedInstancePoolServiceClient) ListAccessBindings(ctx context.Context, in *access.ListAccessBindingsRequest, opts ...grpc.CallOption) (*access.ListAccessBindingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(access.ListAccessBindingsResponse)
+	err := c.cc.Invoke(ctx, ReservedInstancePoolService_ListAccessBindings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reservedInstancePoolServiceClient) SetAccessBindings(ctx context.Context, in *access.SetAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, ReservedInstancePoolService_SetAccessBindings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *reservedInstancePoolServiceClient) UpdateAccessBindings(ctx context.Context, in *access.UpdateAccessBindingsRequest, opts ...grpc.CallOption) (*operation.Operation, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(operation.Operation)
+	err := c.cc.Invoke(ctx, ReservedInstancePoolService_UpdateAccessBindings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ReservedInstancePoolServiceServer is the server API for ReservedInstancePoolService service.
 // All implementations should embed UnimplementedReservedInstancePoolServiceServer
 // for forward compatibility.
@@ -153,6 +193,12 @@ type ReservedInstancePoolServiceServer interface {
 	ListOperations(context.Context, *ListReservedInstancePoolOperationsRequest) (*ListReservedInstancePoolOperationsResponse, error)
 	// Retrieves the list of instances, using the specified reserved instance pool.
 	ListInstances(context.Context, *ListReservedInstancePoolInstancesRequest) (*ListReservedInstancePoolInstancesResponse, error)
+	// Lists access bindings for the reserved instance pool.
+	ListAccessBindings(context.Context, *access.ListAccessBindingsRequest) (*access.ListAccessBindingsResponse, error)
+	// Sets access bindings for the reserved instance pool.
+	SetAccessBindings(context.Context, *access.SetAccessBindingsRequest) (*operation.Operation, error)
+	// Updates access bindings for the reserved instance pool.
+	UpdateAccessBindings(context.Context, *access.UpdateAccessBindingsRequest) (*operation.Operation, error)
 }
 
 // UnimplementedReservedInstancePoolServiceServer should be embedded to have
@@ -182,6 +228,15 @@ func (UnimplementedReservedInstancePoolServiceServer) ListOperations(context.Con
 }
 func (UnimplementedReservedInstancePoolServiceServer) ListInstances(context.Context, *ListReservedInstancePoolInstancesRequest) (*ListReservedInstancePoolInstancesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListInstances not implemented")
+}
+func (UnimplementedReservedInstancePoolServiceServer) ListAccessBindings(context.Context, *access.ListAccessBindingsRequest) (*access.ListAccessBindingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAccessBindings not implemented")
+}
+func (UnimplementedReservedInstancePoolServiceServer) SetAccessBindings(context.Context, *access.SetAccessBindingsRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetAccessBindings not implemented")
+}
+func (UnimplementedReservedInstancePoolServiceServer) UpdateAccessBindings(context.Context, *access.UpdateAccessBindingsRequest) (*operation.Operation, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateAccessBindings not implemented")
 }
 func (UnimplementedReservedInstancePoolServiceServer) testEmbeddedByValue() {}
 
@@ -329,6 +384,60 @@ func _ReservedInstancePoolService_ListInstances_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReservedInstancePoolService_ListAccessBindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(access.ListAccessBindingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReservedInstancePoolServiceServer).ListAccessBindings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReservedInstancePoolService_ListAccessBindings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReservedInstancePoolServiceServer).ListAccessBindings(ctx, req.(*access.ListAccessBindingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReservedInstancePoolService_SetAccessBindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(access.SetAccessBindingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReservedInstancePoolServiceServer).SetAccessBindings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReservedInstancePoolService_SetAccessBindings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReservedInstancePoolServiceServer).SetAccessBindings(ctx, req.(*access.SetAccessBindingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ReservedInstancePoolService_UpdateAccessBindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(access.UpdateAccessBindingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReservedInstancePoolServiceServer).UpdateAccessBindings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReservedInstancePoolService_UpdateAccessBindings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReservedInstancePoolServiceServer).UpdateAccessBindings(ctx, req.(*access.UpdateAccessBindingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ReservedInstancePoolService_ServiceDesc is the grpc.ServiceDesc for ReservedInstancePoolService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -363,6 +472,18 @@ var ReservedInstancePoolService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListInstances",
 			Handler:    _ReservedInstancePoolService_ListInstances_Handler,
+		},
+		{
+			MethodName: "ListAccessBindings",
+			Handler:    _ReservedInstancePoolService_ListAccessBindings_Handler,
+		},
+		{
+			MethodName: "SetAccessBindings",
+			Handler:    _ReservedInstancePoolService_SetAccessBindings_Handler,
+		},
+		{
+			MethodName: "UpdateAccessBindings",
+			Handler:    _ReservedInstancePoolService_UpdateAccessBindings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

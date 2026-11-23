@@ -11,6 +11,7 @@ import (
 
 type InstanceClientIterator interface {
 	Iterator(context.Context, *gitlab.ListInstancesRequest, ...grpc.CallOption) *iterator.Iterator[*gitlab.ListInstancesRequest, *gitlab.Instance]
+	BackupsIterator(context.Context, *gitlab.ListInstanceBackupsRequest, ...grpc.CallOption) *iterator.Iterator[*gitlab.ListInstanceBackupsRequest, *gitlab.Backup]
 }
 
 type instanceServiceListInternal struct {
@@ -29,5 +30,24 @@ func (c instanceClient) Iterator(ctx context.Context, req *gitlab.ListInstancesR
 				return nil, err
 			}
 			return instanceServiceListInternal{resp}, nil
+		}, opts...)
+}
+
+type instanceServiceListBackupsInternal struct {
+	*gitlab.ListInstanceBackupsResponse
+}
+
+func (r instanceServiceListBackupsInternal) Items() []*gitlab.Backup {
+	return r.ListInstanceBackupsResponse.Backups
+}
+
+func (c instanceClient) BackupsIterator(ctx context.Context, req *gitlab.ListInstanceBackupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*gitlab.ListInstanceBackupsRequest, *gitlab.Backup] {
+	return iterator.NewIterator[*gitlab.ListInstanceBackupsRequest, *gitlab.Backup](ctx, req,
+		func(ctx context.Context, req *gitlab.ListInstanceBackupsRequest, opts ...grpc.CallOption) (iterator.PageResponse[*gitlab.Backup], error) {
+			resp, err := c.ListBackups(ctx, req, opts...)
+			if err != nil {
+				return nil, err
+			}
+			return instanceServiceListBackupsInternal{resp}, nil
 		}, opts...)
 }

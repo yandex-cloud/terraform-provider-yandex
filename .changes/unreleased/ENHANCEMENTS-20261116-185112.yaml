@@ -1,4 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mysql: support MySQL 9.7 creation, upgrades and configuration in yandex_mdb_mysql_cluster
-  and yandex_mdb_mysql_cluster_v2'
-time: 2026-11-16T18:51:12.33829+03:00

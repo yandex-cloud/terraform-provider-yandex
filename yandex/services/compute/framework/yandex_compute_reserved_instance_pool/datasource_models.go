@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	compute "github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 )
 
 type yandexComputeReservedInstancePoolDatasourceModel struct {
@@ -25,6 +26,7 @@ type yandexComputeReservedInstancePoolDatasourceModel struct {
 	Labels                 types.Map      `tfsdk:"labels"`
 	Name                   types.String   `tfsdk:"name"`
 	NetworkSettings        types.Object   `tfsdk:"network_settings"`
+	PlacementPolicy        types.Object   `tfsdk:"placement_policy"`
 	PlatformId             types.String   `tfsdk:"platform_id"`
 	ProductIds             types.List     `tfsdk:"product_ids"`
 	ReservedInstancePoolId types.String   `tfsdk:"reserved_instance_pool_id"`
@@ -68,6 +70,9 @@ func (m *yandexComputeReservedInstancePoolDatasourceModel) GetName() types.Strin
 }
 func (m *yandexComputeReservedInstancePoolDatasourceModel) GetNetworkSettings() types.Object {
 	return m.NetworkSettings
+}
+func (m *yandexComputeReservedInstancePoolDatasourceModel) GetPlacementPolicy() types.Object {
+	return m.PlacementPolicy
 }
 func (m *yandexComputeReservedInstancePoolDatasourceModel) GetPlatformId() types.String {
 	return m.PlatformId
@@ -127,6 +132,9 @@ func (m *yandexComputeReservedInstancePoolDatasourceModel) SetName(target types.
 func (m *yandexComputeReservedInstancePoolDatasourceModel) SetNetworkSettings(target types.Object) {
 	m.NetworkSettings = target
 }
+func (m *yandexComputeReservedInstancePoolDatasourceModel) SetPlacementPolicy(target types.Object) {
+	m.PlacementPolicy = target
+}
 func (m *yandexComputeReservedInstancePoolDatasourceModel) SetPlatformId(target types.String) {
 	m.PlatformId = target
 }
@@ -165,6 +173,7 @@ func NewYandexComputeReservedInstancePoolDatasourceModel() yandexComputeReserved
 		Labels:                 types.MapNull(types.StringType),
 		Name:                   types.StringNull(),
 		NetworkSettings:        types.ObjectNull(yandexComputeReservedInstancePoolNetworkSettingsModelType.AttrTypes),
+		PlacementPolicy:        types.ObjectNull(yandexComputeReservedInstancePoolPlacementPolicyModelType.AttrTypes),
 		PlatformId:             types.StringNull(),
 		ProductIds:             types.ListNull(types.StringType),
 		ReservedInstancePoolId: types.StringNull(),
@@ -210,6 +219,9 @@ func yandexComputeReservedInstancePoolDatasourceModelFillUnknown(target yandexCo
 	if target.NetworkSettings.IsUnknown() || target.NetworkSettings.IsNull() {
 		target.NetworkSettings = types.ObjectNull(yandexComputeReservedInstancePoolNetworkSettingsModelType.AttrTypes)
 	}
+	if target.PlacementPolicy.IsUnknown() || target.PlacementPolicy.IsNull() {
+		target.PlacementPolicy = types.ObjectNull(yandexComputeReservedInstancePoolPlacementPolicyModelType.AttrTypes)
+	}
 	if target.PlatformId.IsUnknown() || target.PlatformId.IsNull() {
 		target.PlatformId = types.StringNull()
 	}
@@ -250,6 +262,7 @@ var yandexComputeReservedInstancePoolDatasourceModelType = types.ObjectType{
 		"labels":                    types.MapType{ElemType: types.StringType},
 		"name":                      types.StringType,
 		"network_settings":          yandexComputeReservedInstancePoolNetworkSettingsModelType,
+		"placement_policy":          yandexComputeReservedInstancePoolPlacementPolicyModelType,
 		"platform_id":               types.StringType,
 		"product_ids":               types.ListType{ElemType: types.StringType},
 		"reserved_instance_pool_id": types.StringType,
@@ -282,6 +295,7 @@ func flattenYandexComputeReservedInstancePoolDatasource(ctx context.Context,
 		Labels:                 flattenYandexComputeReservedInstancePoolLabels(ctx, yandexComputeReservedInstancePoolDatasource.GetLabels(), state.Labels, diags),
 		Name:                   types.StringValue(yandexComputeReservedInstancePoolDatasource.GetName()),
 		NetworkSettings:        flattenYandexComputeReservedInstancePoolNetworkSettings(ctx, yandexComputeReservedInstancePoolDatasource.GetNetworkSettings(), diags),
+		PlacementPolicy:        flattenYandexComputeReservedInstancePoolPlacementPolicy(ctx, yandexComputeReservedInstancePoolDatasource.GetPlacementPolicy(), converter.ExpandObject(ctx, state.PlacementPolicy, yandexComputeReservedInstancePoolPlacementPolicyModel{}, diags).(yandexComputeReservedInstancePoolPlacementPolicyModel), diags),
 		PlatformId:             types.StringValue(yandexComputeReservedInstancePoolDatasource.GetPlatformId()),
 		ProductIds:             flattenYandexComputeReservedInstancePoolProductIds(ctx, yandexComputeReservedInstancePoolDatasource.GetProductIds(), state.ProductIds, diags),
 		ReservedInstancePoolId: types.StringValue(yandexComputeReservedInstancePoolDatasource.GetId()),

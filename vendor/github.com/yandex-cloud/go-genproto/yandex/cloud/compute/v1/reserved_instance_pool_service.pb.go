@@ -7,6 +7,7 @@
 package compute
 
 import (
+	access "github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	_ "github.com/yandex-cloud/go-genproto/yandex/cloud/api"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -270,6 +271,10 @@ type CreateReservedInstancePoolRequest struct {
 	GpuSettings *GpuSettings `protobuf:"bytes,8,opt,name=gpu_settings,json=gpuSettings,proto3" json:"gpu_settings,omitempty"`
 	// Spec is used to determine which License IDs should be allowed for instances created in the pool.
 	BootDiskSpec *BootDiskSpec `protobuf:"bytes,9,opt,name=boot_disk_spec,json=bootDiskSpec,proto3" json:"boot_disk_spec,omitempty"`
+	// Placement policy configuration.
+	// Placement policies have limitations when used with pools.
+	// For details, see [Reserved Instance Pools](/docs/compute/concepts/reserved-pools).
+	PlacementPolicy *PlacementPolicy `protobuf:"bytes,13,opt,name=placement_policy,json=placementPolicy,proto3" json:"placement_policy,omitempty"`
 	// Network settings.
 	NetworkSettings *NetworkSettings `protobuf:"bytes,10,opt,name=network_settings,json=networkSettings,proto3" json:"network_settings,omitempty"`
 	// Desired size of the pool (number of slots for instances in this pool).
@@ -372,6 +377,13 @@ func (x *CreateReservedInstancePoolRequest) GetGpuSettings() *GpuSettings {
 func (x *CreateReservedInstancePoolRequest) GetBootDiskSpec() *BootDiskSpec {
 	if x != nil {
 		return x.BootDiskSpec
+	}
+	return nil
+}
+
+func (x *CreateReservedInstancePoolRequest) GetPlacementPolicy() *PlacementPolicy {
+	if x != nil {
+		return x.PlacementPolicy
 	}
 	return nil
 }
@@ -1002,7 +1014,7 @@ var File_yandex_cloud_compute_v1_reserved_instance_pool_service_proto protorefle
 
 const file_yandex_cloud_compute_v1_reserved_instance_pool_service_proto_rawDesc = "" +
 	"\n" +
-	"<yandex/cloud/compute/v1/reserved_instance_pool_service.proto\x12\x17yandex.cloud.compute.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a yandex/cloud/api/operation.proto\x1a&yandex/cloud/compute/v1/instance.proto\x1a.yandex/cloud/compute/v1/instance_service.proto\x1a4yandex/cloud/compute/v1/reserved_instance_pool.proto\x1a&yandex/cloud/operation/operation.proto\"[\n" +
+	"<yandex/cloud/compute/v1/reserved_instance_pool_service.proto\x12\x17yandex.cloud.compute.v1\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a yandex/cloud/access/access.proto\x1a yandex/cloud/api/operation.proto\x1a&yandex/cloud/compute/v1/instance.proto\x1a.yandex/cloud/compute/v1/instance_service.proto\x1a4yandex/cloud/compute/v1/reserved_instance_pool.proto\x1a&yandex/cloud/operation/operation.proto\"[\n" +
 	"\x1eGetReservedInstancePoolRequest\x129\n" +
 	"\x19reserved_instance_pool_id\x18\x01 \x01(\tR\x16reservedInstancePoolId\"\xae\x01\n" +
 	" ListReservedInstancePoolsRequest\x12\x1b\n" +
@@ -1014,7 +1026,7 @@ const file_yandex_cloud_compute_v1_reserved_instance_pool_service_proto_rawDesc 
 	"\border_by\x18\x05 \x01(\tR\aorderBy\"\xb2\x01\n" +
 	"!ListReservedInstancePoolsResponse\x12e\n" +
 	"\x17reserved_instance_pools\x18\x01 \x03(\v2-.yandex.cloud.compute.v1.ReservedInstancePoolR\x15reservedInstancePools\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xd0\x05\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xa5\x06\n" +
 	"!CreateReservedInstancePoolRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12^\n" +
@@ -1026,6 +1038,7 @@ const file_yandex_cloud_compute_v1_reserved_instance_pool_service_proto_rawDesc 
 	"\x0eresources_spec\x18\a \x01(\v2&.yandex.cloud.compute.v1.ResourcesSpecR\rresourcesSpec\x12G\n" +
 	"\fgpu_settings\x18\b \x01(\v2$.yandex.cloud.compute.v1.GpuSettingsR\vgpuSettings\x12K\n" +
 	"\x0eboot_disk_spec\x18\t \x01(\v2%.yandex.cloud.compute.v1.BootDiskSpecR\fbootDiskSpec\x12S\n" +
+	"\x10placement_policy\x18\r \x01(\v2(.yandex.cloud.compute.v1.PlacementPolicyR\x0fplacementPolicy\x12S\n" +
 	"\x10network_settings\x18\n" +
 	" \x01(\v2(.yandex.cloud.compute.v1.NetworkSettingsR\x0fnetworkSettings\x12\x12\n" +
 	"\x04size\x18\v \x01(\x03R\x04size\x125\n" +
@@ -1072,7 +1085,7 @@ const file_yandex_cloud_compute_v1_reserved_instance_pool_service_proto_rawDesc 
 	"page_token\x18\x03 \x01(\tR\tpageToken\"\x94\x01\n" +
 	")ListReservedInstancePoolInstancesResponse\x12?\n" +
 	"\tinstances\x18\x01 \x03(\v2!.yandex.cloud.compute.v1.InstanceR\tinstances\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\x9e\f\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xf4\x11\n" +
 	"\x1bReservedInstancePoolService\x12\xb4\x01\n" +
 	"\x03Get\x127.yandex.cloud.compute.v1.GetReservedInstancePoolRequest\x1a-.yandex.cloud.compute.v1.ReservedInstancePool\"E\x82\xd3\xe4\x93\x02?\x12=/compute/v1/reservedInstancePools/{reserved_instance_pool_id}\x12\xa8\x01\n" +
 	"\x04List\x129.yandex.cloud.compute.v1.ListReservedInstancePoolsRequest\x1a:.yandex.cloud.compute.v1.ListReservedInstancePoolsResponse\")\x82\xd3\xe4\x93\x02#\x12!/compute/v1/reservedInstancePools\x12\xd3\x01\n" +
@@ -1083,7 +1096,12 @@ const file_yandex_cloud_compute_v1_reserved_instance_pool_service_proto_rawDesc 
 	"\x06Delete\x12:.yandex.cloud.compute.v1.DeleteReservedInstancePoolRequest\x1a!.yandex.cloud.operation.Operation\"\x91\x01\xb2\xd2*H\n" +
 	"\"DeleteReservedInstancePoolMetadata\x12\"DeleteReservedInstancePoolResponse\x82\xd3\xe4\x93\x02?*=/compute/v1/reservedInstancePools/{reserved_instance_pool_id}\x12\xeb\x01\n" +
 	"\x0eListOperations\x12B.yandex.cloud.compute.v1.ListReservedInstancePoolOperationsRequest\x1aC.yandex.cloud.compute.v1.ListReservedInstancePoolOperationsResponse\"P\x82\xd3\xe4\x93\x02J\x12H/compute/v1/reservedInstancePools/{reserved_instance_pool_id}/operations\x12\xe7\x01\n" +
-	"\rListInstances\x12A.yandex.cloud.compute.v1.ListReservedInstancePoolInstancesRequest\x1aB.yandex.cloud.compute.v1.ListReservedInstancePoolInstancesResponse\"O\x82\xd3\xe4\x93\x02I\x12G/compute/v1/reservedInstancePools/{reserved_instance_pool_id}/instancesBb\n" +
+	"\rListInstances\x12A.yandex.cloud.compute.v1.ListReservedInstancePoolInstancesRequest\x1aB.yandex.cloud.compute.v1.ListReservedInstancePoolInstancesResponse\"O\x82\xd3\xe4\x93\x02I\x12G/compute/v1/reservedInstancePools/{reserved_instance_pool_id}/instances\x12\xc1\x01\n" +
+	"\x12ListAccessBindings\x12..yandex.cloud.access.ListAccessBindingsRequest\x1a/.yandex.cloud.access.ListAccessBindingsResponse\"J\x82\xd3\xe4\x93\x02D\x12B/compute/v1/reservedInstancePools/{resource_id}:listAccessBindings\x12\x80\x02\n" +
+	"\x11SetAccessBindings\x12-.yandex.cloud.access.SetAccessBindingsRequest\x1a!.yandex.cloud.operation.Operation\"\x98\x01\xb2\xd2*H\n" +
+	" access.SetAccessBindingsMetadata\x12$access.AccessBindingsOperationResult\x82\xd3\xe4\x93\x02F:\x01*\"A/compute/v1/reservedInstancePools/{resource_id}:setAccessBindings\x12\x8c\x02\n" +
+	"\x14UpdateAccessBindings\x120.yandex.cloud.access.UpdateAccessBindingsRequest\x1a!.yandex.cloud.operation.Operation\"\x9e\x01\xb2\xd2*K\n" +
+	"#access.UpdateAccessBindingsMetadata\x12$access.AccessBindingsOperationResult\x82\xd3\xe4\x93\x02I:\x01*\"D/compute/v1/reservedInstancePools/{resource_id}:updateAccessBindingsBb\n" +
 	"\x1byandex.cloud.api.compute.v1ZCgithub.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1;computeb\x06proto3"
 
 var (
@@ -1114,16 +1132,21 @@ var file_yandex_cloud_compute_v1_reserved_instance_pool_service_proto_goTypes = 
 	(*ListReservedInstancePoolOperationsResponse)(nil), // 11: yandex.cloud.compute.v1.ListReservedInstancePoolOperationsResponse
 	(*ListReservedInstancePoolInstancesRequest)(nil),   // 12: yandex.cloud.compute.v1.ListReservedInstancePoolInstancesRequest
 	(*ListReservedInstancePoolInstancesResponse)(nil),  // 13: yandex.cloud.compute.v1.ListReservedInstancePoolInstancesResponse
-	nil,                           // 14: yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.LabelsEntry
-	nil,                           // 15: yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest.LabelsEntry
-	(*ReservedInstancePool)(nil),  // 16: yandex.cloud.compute.v1.ReservedInstancePool
-	(*ResourcesSpec)(nil),         // 17: yandex.cloud.compute.v1.ResourcesSpec
-	(*GpuSettings)(nil),           // 18: yandex.cloud.compute.v1.GpuSettings
-	(*BootDiskSpec)(nil),          // 19: yandex.cloud.compute.v1.BootDiskSpec
-	(*NetworkSettings)(nil),       // 20: yandex.cloud.compute.v1.NetworkSettings
-	(*fieldmaskpb.FieldMask)(nil), // 21: google.protobuf.FieldMask
-	(*operation.Operation)(nil),   // 22: yandex.cloud.operation.Operation
-	(*Instance)(nil),              // 23: yandex.cloud.compute.v1.Instance
+	nil,                                        // 14: yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.LabelsEntry
+	nil,                                        // 15: yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest.LabelsEntry
+	(*ReservedInstancePool)(nil),               // 16: yandex.cloud.compute.v1.ReservedInstancePool
+	(*ResourcesSpec)(nil),                      // 17: yandex.cloud.compute.v1.ResourcesSpec
+	(*GpuSettings)(nil),                        // 18: yandex.cloud.compute.v1.GpuSettings
+	(*BootDiskSpec)(nil),                       // 19: yandex.cloud.compute.v1.BootDiskSpec
+	(*PlacementPolicy)(nil),                    // 20: yandex.cloud.compute.v1.PlacementPolicy
+	(*NetworkSettings)(nil),                    // 21: yandex.cloud.compute.v1.NetworkSettings
+	(*fieldmaskpb.FieldMask)(nil),              // 22: google.protobuf.FieldMask
+	(*operation.Operation)(nil),                // 23: yandex.cloud.operation.Operation
+	(*Instance)(nil),                           // 24: yandex.cloud.compute.v1.Instance
+	(*access.ListAccessBindingsRequest)(nil),   // 25: yandex.cloud.access.ListAccessBindingsRequest
+	(*access.SetAccessBindingsRequest)(nil),    // 26: yandex.cloud.access.SetAccessBindingsRequest
+	(*access.UpdateAccessBindingsRequest)(nil), // 27: yandex.cloud.access.UpdateAccessBindingsRequest
+	(*access.ListAccessBindingsResponse)(nil),  // 28: yandex.cloud.access.ListAccessBindingsResponse
 }
 var file_yandex_cloud_compute_v1_reserved_instance_pool_service_proto_depIdxs = []int32{
 	16, // 0: yandex.cloud.compute.v1.ListReservedInstancePoolsResponse.reserved_instance_pools:type_name -> yandex.cloud.compute.v1.ReservedInstancePool
@@ -1131,30 +1154,37 @@ var file_yandex_cloud_compute_v1_reserved_instance_pool_service_proto_depIdxs = 
 	17, // 2: yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.resources_spec:type_name -> yandex.cloud.compute.v1.ResourcesSpec
 	18, // 3: yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.gpu_settings:type_name -> yandex.cloud.compute.v1.GpuSettings
 	19, // 4: yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.boot_disk_spec:type_name -> yandex.cloud.compute.v1.BootDiskSpec
-	20, // 5: yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.network_settings:type_name -> yandex.cloud.compute.v1.NetworkSettings
-	21, // 6: yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest.update_mask:type_name -> google.protobuf.FieldMask
-	15, // 7: yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest.labels:type_name -> yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest.LabelsEntry
-	22, // 8: yandex.cloud.compute.v1.ListReservedInstancePoolOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
-	23, // 9: yandex.cloud.compute.v1.ListReservedInstancePoolInstancesResponse.instances:type_name -> yandex.cloud.compute.v1.Instance
-	0,  // 10: yandex.cloud.compute.v1.ReservedInstancePoolService.Get:input_type -> yandex.cloud.compute.v1.GetReservedInstancePoolRequest
-	1,  // 11: yandex.cloud.compute.v1.ReservedInstancePoolService.List:input_type -> yandex.cloud.compute.v1.ListReservedInstancePoolsRequest
-	3,  // 12: yandex.cloud.compute.v1.ReservedInstancePoolService.Create:input_type -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest
-	5,  // 13: yandex.cloud.compute.v1.ReservedInstancePoolService.Update:input_type -> yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest
-	7,  // 14: yandex.cloud.compute.v1.ReservedInstancePoolService.Delete:input_type -> yandex.cloud.compute.v1.DeleteReservedInstancePoolRequest
-	10, // 15: yandex.cloud.compute.v1.ReservedInstancePoolService.ListOperations:input_type -> yandex.cloud.compute.v1.ListReservedInstancePoolOperationsRequest
-	12, // 16: yandex.cloud.compute.v1.ReservedInstancePoolService.ListInstances:input_type -> yandex.cloud.compute.v1.ListReservedInstancePoolInstancesRequest
-	16, // 17: yandex.cloud.compute.v1.ReservedInstancePoolService.Get:output_type -> yandex.cloud.compute.v1.ReservedInstancePool
-	2,  // 18: yandex.cloud.compute.v1.ReservedInstancePoolService.List:output_type -> yandex.cloud.compute.v1.ListReservedInstancePoolsResponse
-	22, // 19: yandex.cloud.compute.v1.ReservedInstancePoolService.Create:output_type -> yandex.cloud.operation.Operation
-	22, // 20: yandex.cloud.compute.v1.ReservedInstancePoolService.Update:output_type -> yandex.cloud.operation.Operation
-	22, // 21: yandex.cloud.compute.v1.ReservedInstancePoolService.Delete:output_type -> yandex.cloud.operation.Operation
-	11, // 22: yandex.cloud.compute.v1.ReservedInstancePoolService.ListOperations:output_type -> yandex.cloud.compute.v1.ListReservedInstancePoolOperationsResponse
-	13, // 23: yandex.cloud.compute.v1.ReservedInstancePoolService.ListInstances:output_type -> yandex.cloud.compute.v1.ListReservedInstancePoolInstancesResponse
-	17, // [17:24] is the sub-list for method output_type
-	10, // [10:17] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	20, // 5: yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.placement_policy:type_name -> yandex.cloud.compute.v1.PlacementPolicy
+	21, // 6: yandex.cloud.compute.v1.CreateReservedInstancePoolRequest.network_settings:type_name -> yandex.cloud.compute.v1.NetworkSettings
+	22, // 7: yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest.update_mask:type_name -> google.protobuf.FieldMask
+	15, // 8: yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest.labels:type_name -> yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest.LabelsEntry
+	23, // 9: yandex.cloud.compute.v1.ListReservedInstancePoolOperationsResponse.operations:type_name -> yandex.cloud.operation.Operation
+	24, // 10: yandex.cloud.compute.v1.ListReservedInstancePoolInstancesResponse.instances:type_name -> yandex.cloud.compute.v1.Instance
+	0,  // 11: yandex.cloud.compute.v1.ReservedInstancePoolService.Get:input_type -> yandex.cloud.compute.v1.GetReservedInstancePoolRequest
+	1,  // 12: yandex.cloud.compute.v1.ReservedInstancePoolService.List:input_type -> yandex.cloud.compute.v1.ListReservedInstancePoolsRequest
+	3,  // 13: yandex.cloud.compute.v1.ReservedInstancePoolService.Create:input_type -> yandex.cloud.compute.v1.CreateReservedInstancePoolRequest
+	5,  // 14: yandex.cloud.compute.v1.ReservedInstancePoolService.Update:input_type -> yandex.cloud.compute.v1.UpdateReservedInstancePoolRequest
+	7,  // 15: yandex.cloud.compute.v1.ReservedInstancePoolService.Delete:input_type -> yandex.cloud.compute.v1.DeleteReservedInstancePoolRequest
+	10, // 16: yandex.cloud.compute.v1.ReservedInstancePoolService.ListOperations:input_type -> yandex.cloud.compute.v1.ListReservedInstancePoolOperationsRequest
+	12, // 17: yandex.cloud.compute.v1.ReservedInstancePoolService.ListInstances:input_type -> yandex.cloud.compute.v1.ListReservedInstancePoolInstancesRequest
+	25, // 18: yandex.cloud.compute.v1.ReservedInstancePoolService.ListAccessBindings:input_type -> yandex.cloud.access.ListAccessBindingsRequest
+	26, // 19: yandex.cloud.compute.v1.ReservedInstancePoolService.SetAccessBindings:input_type -> yandex.cloud.access.SetAccessBindingsRequest
+	27, // 20: yandex.cloud.compute.v1.ReservedInstancePoolService.UpdateAccessBindings:input_type -> yandex.cloud.access.UpdateAccessBindingsRequest
+	16, // 21: yandex.cloud.compute.v1.ReservedInstancePoolService.Get:output_type -> yandex.cloud.compute.v1.ReservedInstancePool
+	2,  // 22: yandex.cloud.compute.v1.ReservedInstancePoolService.List:output_type -> yandex.cloud.compute.v1.ListReservedInstancePoolsResponse
+	23, // 23: yandex.cloud.compute.v1.ReservedInstancePoolService.Create:output_type -> yandex.cloud.operation.Operation
+	23, // 24: yandex.cloud.compute.v1.ReservedInstancePoolService.Update:output_type -> yandex.cloud.operation.Operation
+	23, // 25: yandex.cloud.compute.v1.ReservedInstancePoolService.Delete:output_type -> yandex.cloud.operation.Operation
+	11, // 26: yandex.cloud.compute.v1.ReservedInstancePoolService.ListOperations:output_type -> yandex.cloud.compute.v1.ListReservedInstancePoolOperationsResponse
+	13, // 27: yandex.cloud.compute.v1.ReservedInstancePoolService.ListInstances:output_type -> yandex.cloud.compute.v1.ListReservedInstancePoolInstancesResponse
+	28, // 28: yandex.cloud.compute.v1.ReservedInstancePoolService.ListAccessBindings:output_type -> yandex.cloud.access.ListAccessBindingsResponse
+	23, // 29: yandex.cloud.compute.v1.ReservedInstancePoolService.SetAccessBindings:output_type -> yandex.cloud.operation.Operation
+	23, // 30: yandex.cloud.compute.v1.ReservedInstancePoolService.UpdateAccessBindings:output_type -> yandex.cloud.operation.Operation
+	21, // [21:31] is the sub-list for method output_type
+	11, // [11:21] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_compute_v1_reserved_instance_pool_service_proto_init() }

@@ -15,6 +15,137 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/converter"
 )
 
+type yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel struct {
+	Key    types.String `tfsdk:"key"`
+	Op     types.String `tfsdk:"op"`
+	Values types.List   `tfsdk:"values"`
+}
+
+func (m *yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel) GetKey() types.String {
+	return m.Key
+}
+func (m *yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel) GetOp() types.String {
+	return m.Op
+}
+func (m *yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel) GetValues() types.List {
+	return m.Values
+}
+
+func (m *yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel) SetKey(target types.String) {
+	m.Key = target
+}
+func (m *yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel) SetOp(target types.String) {
+	m.Op = target
+}
+func (m *yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel) SetValues(target types.List) {
+	m.Values = target
+}
+
+func NewYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel() yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel {
+	return yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel{
+		Key:    types.StringNull(),
+		Op:     types.StringNull(),
+		Values: types.ListNull(types.StringType),
+	}
+}
+
+func yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelFillUnknown(target yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel) yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel {
+	if target.Key.IsUnknown() || target.Key.IsNull() {
+		target.Key = types.StringNull()
+	}
+	if target.Op.IsUnknown() || target.Op.IsNull() {
+		target.Op = types.StringNull()
+	}
+	if target.Values.IsUnknown() || target.Values.IsNull() {
+		target.Values = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"key":    types.StringType,
+		"op":     types.StringType,
+		"values": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct(ctx context.Context,
+	yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct *compute.PlacementPolicy_HostAffinityRule,
+	state yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct == nil {
+		return types.ObjectNull(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelType.AttrTypes, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel{
+		Key:    types.StringValue(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct.GetKey()),
+		Op:     types.StringValue(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct.GetOp().String()),
+		Values: flattenYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValues(ctx, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct.GetValues(), state.Values, diags),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct(ctx context.Context, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructState types.Object, diags *diag.Diagnostics) *compute.PlacementPolicy_HostAffinityRule {
+	if yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructState.IsNull() || yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructState.IsUnknown() {
+		return nil
+	}
+	var yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel
+	diags.Append(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructState.As(ctx, &yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel(ctx, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct, diags)
+}
+
+func expandYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel(ctx context.Context, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructState yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel, diags *diag.Diagnostics) *compute.PlacementPolicy_HostAffinityRule {
+	value := &compute.PlacementPolicy_HostAffinityRule{}
+	value.SetKey(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructState.Key.ValueString())
+	value.SetOp(compute.PlacementPolicy_HostAffinityRule_Operator(compute.PlacementPolicy_HostAffinityRule_Operator_value[yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructState.Op.ValueString()]))
+	value.SetValues(expandYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValues(ctx, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructState.Values, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValues(ctx context.Context, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValues []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValues == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesValues []attr.Value
+	for _, elem := range yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValues {
+		val := types.StringValue(elem)
+		yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesValues = append(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValues(ctx context.Context, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesState types.List, diags *diag.Diagnostics) []string {
+	if yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesState.IsNull() || yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesState.IsUnknown() {
+		return nil
+	}
+	if len(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesRes := make([]string, 0, len(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesState.Elements()))
+	yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesType := make([]types.String, 0, len(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesState.Elements()))
+	diags.Append(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesState.ElementsAs(ctx, &yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesType {
+		yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesRes = append(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesRes, elem.ValueString())
+	}
+	return yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructValuesRes
+}
+
 type yandexComputeReservedInstancePoolModel struct {
 	AllowOversubscription  types.Bool     `tfsdk:"allow_oversubscription"`
 	BootDiskSpec           types.Object   `tfsdk:"boot_disk_spec"`
@@ -28,6 +159,7 @@ type yandexComputeReservedInstancePoolModel struct {
 	Labels                 types.Map      `tfsdk:"labels"`
 	Name                   types.String   `tfsdk:"name"`
 	NetworkSettings        types.Object   `tfsdk:"network_settings"`
+	PlacementPolicy        types.Object   `tfsdk:"placement_policy"`
 	PlatformId             types.String   `tfsdk:"platform_id"`
 	ProductIds             types.List     `tfsdk:"product_ids"`
 	ReservedInstancePoolId types.String   `tfsdk:"reserved_instance_pool_id"`
@@ -74,6 +206,9 @@ func (m *yandexComputeReservedInstancePoolModel) GetName() types.String {
 }
 func (m *yandexComputeReservedInstancePoolModel) GetNetworkSettings() types.Object {
 	return m.NetworkSettings
+}
+func (m *yandexComputeReservedInstancePoolModel) GetPlacementPolicy() types.Object {
+	return m.PlacementPolicy
 }
 func (m *yandexComputeReservedInstancePoolModel) GetPlatformId() types.String {
 	return m.PlatformId
@@ -136,6 +271,9 @@ func (m *yandexComputeReservedInstancePoolModel) SetName(target types.String) {
 func (m *yandexComputeReservedInstancePoolModel) SetNetworkSettings(target types.Object) {
 	m.NetworkSettings = target
 }
+func (m *yandexComputeReservedInstancePoolModel) SetPlacementPolicy(target types.Object) {
+	m.PlacementPolicy = target
+}
 func (m *yandexComputeReservedInstancePoolModel) SetPlatformId(target types.String) {
 	m.PlatformId = target
 }
@@ -175,6 +313,7 @@ func NewYandexComputeReservedInstancePoolModel() yandexComputeReservedInstancePo
 		Labels:                 types.MapNull(types.StringType),
 		Name:                   types.StringNull(),
 		NetworkSettings:        types.ObjectNull(yandexComputeReservedInstancePoolNetworkSettingsModelType.AttrTypes),
+		PlacementPolicy:        types.ObjectNull(yandexComputeReservedInstancePoolPlacementPolicyModelType.AttrTypes),
 		PlatformId:             types.StringNull(),
 		ProductIds:             types.ListNull(types.StringType),
 		ReservedInstancePoolId: types.StringNull(),
@@ -223,6 +362,9 @@ func yandexComputeReservedInstancePoolModelFillUnknown(target yandexComputeReser
 	if target.NetworkSettings.IsUnknown() || target.NetworkSettings.IsNull() {
 		target.NetworkSettings = types.ObjectNull(yandexComputeReservedInstancePoolNetworkSettingsModelType.AttrTypes)
 	}
+	if target.PlacementPolicy.IsUnknown() || target.PlacementPolicy.IsNull() {
+		target.PlacementPolicy = types.ObjectNull(yandexComputeReservedInstancePoolPlacementPolicyModelType.AttrTypes)
+	}
 	if target.PlatformId.IsUnknown() || target.PlatformId.IsNull() {
 		target.PlatformId = types.StringNull()
 	}
@@ -264,6 +406,7 @@ var yandexComputeReservedInstancePoolModelType = types.ObjectType{
 		"labels":                    types.MapType{ElemType: types.StringType},
 		"name":                      types.StringType,
 		"network_settings":          yandexComputeReservedInstancePoolNetworkSettingsModelType,
+		"placement_policy":          yandexComputeReservedInstancePoolPlacementPolicyModelType,
 		"platform_id":               types.StringType,
 		"product_ids":               types.ListType{ElemType: types.StringType},
 		"reserved_instance_pool_id": types.StringType,
@@ -297,6 +440,7 @@ func flattenYandexComputeReservedInstancePool(ctx context.Context,
 		Labels:                 flattenYandexComputeReservedInstancePoolLabels(ctx, yandexComputeReservedInstancePool.GetLabels(), state.Labels, diags),
 		Name:                   types.StringValue(yandexComputeReservedInstancePool.GetName()),
 		NetworkSettings:        flattenYandexComputeReservedInstancePoolNetworkSettings(ctx, yandexComputeReservedInstancePool.GetNetworkSettings(), diags),
+		PlacementPolicy:        flattenYandexComputeReservedInstancePoolPlacementPolicy(ctx, yandexComputeReservedInstancePool.GetPlacementPolicy(), converter.ExpandObject(ctx, state.PlacementPolicy, yandexComputeReservedInstancePoolPlacementPolicyModel{}, diags).(yandexComputeReservedInstancePoolPlacementPolicyModel), diags),
 		PlatformId:             types.StringValue(yandexComputeReservedInstancePool.GetPlatformId()),
 		ProductIds:             flattenYandexComputeReservedInstancePoolProductIds(ctx, yandexComputeReservedInstancePool.GetProductIds(), state.ProductIds, diags),
 		ReservedInstancePoolId: types.StringValue(yandexComputeReservedInstancePool.GetId()),
@@ -336,6 +480,7 @@ func expandYandexComputeReservedInstancePoolModel(ctx context.Context, yandexCom
 	value.SetLabels(expandYandexComputeReservedInstancePoolLabels(ctx, yandexComputeReservedInstancePoolState.Labels, diags))
 	value.SetName(yandexComputeReservedInstancePoolState.Name.ValueString())
 	value.SetNetworkSettings(expandYandexComputeReservedInstancePoolNetworkSettings(ctx, yandexComputeReservedInstancePoolState.NetworkSettings, diags))
+	value.SetPlacementPolicy(expandYandexComputeReservedInstancePoolPlacementPolicy(ctx, yandexComputeReservedInstancePoolState.PlacementPolicy, diags))
 	value.SetPlatformId(yandexComputeReservedInstancePoolState.PlatformId.ValueString())
 	value.SetProductIds(expandYandexComputeReservedInstancePoolProductIds(ctx, yandexComputeReservedInstancePoolState.ProductIds, diags))
 	value.SetId(yandexComputeReservedInstancePoolState.ReservedInstancePoolId.ValueString())
@@ -807,6 +952,146 @@ func expandYandexComputeReservedInstancePoolNetworkSettingsModel(ctx context.Con
 		return nil
 	}
 	return value
+}
+
+type yandexComputeReservedInstancePoolPlacementPolicyModel struct {
+	HostAffinityRules       types.List   `tfsdk:"host_affinity_rules"`
+	PlacementGroupId        types.String `tfsdk:"placement_group_id"`
+	PlacementGroupPartition types.Int64  `tfsdk:"placement_group_partition"`
+}
+
+func (m *yandexComputeReservedInstancePoolPlacementPolicyModel) GetHostAffinityRules() types.List {
+	return m.HostAffinityRules
+}
+func (m *yandexComputeReservedInstancePoolPlacementPolicyModel) GetPlacementGroupId() types.String {
+	return m.PlacementGroupId
+}
+func (m *yandexComputeReservedInstancePoolPlacementPolicyModel) GetPlacementGroupPartition() types.Int64 {
+	return m.PlacementGroupPartition
+}
+
+func (m *yandexComputeReservedInstancePoolPlacementPolicyModel) SetHostAffinityRules(target types.List) {
+	m.HostAffinityRules = target
+}
+func (m *yandexComputeReservedInstancePoolPlacementPolicyModel) SetPlacementGroupId(target types.String) {
+	m.PlacementGroupId = target
+}
+func (m *yandexComputeReservedInstancePoolPlacementPolicyModel) SetPlacementGroupPartition(target types.Int64) {
+	m.PlacementGroupPartition = target
+}
+
+func NewYandexComputeReservedInstancePoolPlacementPolicyModel() yandexComputeReservedInstancePoolPlacementPolicyModel {
+	return yandexComputeReservedInstancePoolPlacementPolicyModel{
+		HostAffinityRules:       types.ListNull(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelType),
+		PlacementGroupId:        types.StringNull(),
+		PlacementGroupPartition: types.Int64Null(),
+	}
+}
+
+func yandexComputeReservedInstancePoolPlacementPolicyModelFillUnknown(target yandexComputeReservedInstancePoolPlacementPolicyModel) yandexComputeReservedInstancePoolPlacementPolicyModel {
+	if target.HostAffinityRules.IsUnknown() || target.HostAffinityRules.IsNull() {
+		target.HostAffinityRules = types.ListNull(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelType)
+	}
+	if target.PlacementGroupId.IsUnknown() || target.PlacementGroupId.IsNull() {
+		target.PlacementGroupId = types.StringNull()
+	}
+	if target.PlacementGroupPartition.IsUnknown() || target.PlacementGroupPartition.IsNull() {
+		target.PlacementGroupPartition = types.Int64Null()
+	}
+	return target
+}
+
+var yandexComputeReservedInstancePoolPlacementPolicyModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"host_affinity_rules":       types.ListType{ElemType: yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelType},
+		"placement_group_id":        types.StringType,
+		"placement_group_partition": types.Int64Type,
+	},
+}
+
+func flattenYandexComputeReservedInstancePoolPlacementPolicy(ctx context.Context,
+	yandexComputeReservedInstancePoolPlacementPolicy *compute.PlacementPolicy,
+	state yandexComputeReservedInstancePoolPlacementPolicyModel,
+	diags *diag.Diagnostics) types.Object {
+	if yandexComputeReservedInstancePoolPlacementPolicy == nil {
+		return types.ObjectNull(yandexComputeReservedInstancePoolPlacementPolicyModelType.AttrTypes)
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexComputeReservedInstancePoolPlacementPolicyModelType.AttrTypes, yandexComputeReservedInstancePoolPlacementPolicyModel{
+		HostAffinityRules:       flattenYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRules(ctx, yandexComputeReservedInstancePoolPlacementPolicy.GetHostAffinityRules(), state.HostAffinityRules, diags),
+		PlacementGroupId:        types.StringValue(yandexComputeReservedInstancePoolPlacementPolicy.GetPlacementGroupId()),
+		PlacementGroupPartition: types.Int64Value(int64(yandexComputeReservedInstancePoolPlacementPolicy.GetPlacementGroupPartition())),
+	})
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexComputeReservedInstancePoolPlacementPolicy(ctx context.Context, yandexComputeReservedInstancePoolPlacementPolicyState types.Object, diags *diag.Diagnostics) *compute.PlacementPolicy {
+	if yandexComputeReservedInstancePoolPlacementPolicyState.IsNull() || yandexComputeReservedInstancePoolPlacementPolicyState.IsUnknown() {
+		return nil
+	}
+	var yandexComputeReservedInstancePoolPlacementPolicy yandexComputeReservedInstancePoolPlacementPolicyModel
+	diags.Append(yandexComputeReservedInstancePoolPlacementPolicyState.As(ctx, &yandexComputeReservedInstancePoolPlacementPolicy, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexComputeReservedInstancePoolPlacementPolicyModel(ctx, yandexComputeReservedInstancePoolPlacementPolicy, diags)
+}
+
+func expandYandexComputeReservedInstancePoolPlacementPolicyModel(ctx context.Context, yandexComputeReservedInstancePoolPlacementPolicyState yandexComputeReservedInstancePoolPlacementPolicyModel, diags *diag.Diagnostics) *compute.PlacementPolicy {
+	value := &compute.PlacementPolicy{}
+	value.SetHostAffinityRules(expandYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRules(ctx, yandexComputeReservedInstancePoolPlacementPolicyState.HostAffinityRules, diags))
+	value.SetPlacementGroupId(yandexComputeReservedInstancePoolPlacementPolicyState.PlacementGroupId.ValueString())
+	value.SetPlacementGroupPartition((yandexComputeReservedInstancePoolPlacementPolicyState.PlacementGroupPartition.ValueInt64()))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRules(ctx context.Context, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRules []*compute.PlacementPolicy_HostAffinityRule, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRules == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelType)
+	}
+	if listState.IsNull() || listState.IsUnknown() {
+		listState = types.ListNull(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelType)
+	}
+	stateVals := make([]yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel, 0)
+	diags.Append(listState.ElementsAs(ctx, &stateVals, false)...)
+	var yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesValues []attr.Value
+	for i, elem := range yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRules {
+		state := NewYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel()
+		if len(stateVals) > i {
+			state = stateVals[i]
+		}
+		val := flattenYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStruct(ctx, elem, state, diags)
+		yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesValues = append(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesValues, val)
+	}
+
+	value, diag := types.ListValue(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModelType, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRules(ctx context.Context, yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesState types.List, diags *diag.Diagnostics) []*compute.PlacementPolicy_HostAffinityRule {
+	if yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesState.IsNull() || yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesState.IsUnknown() {
+		return nil
+	}
+	if len(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesState.Elements()) == 0 {
+		return []*compute.PlacementPolicy_HostAffinityRule{}
+	}
+	yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesRes := make([]*compute.PlacementPolicy_HostAffinityRule, 0, len(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesState.Elements()))
+	yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesType := make([]yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel, 0, len(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesState.Elements()))
+	diags.Append(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesState.ElementsAs(ctx, &yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesType {
+		yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesRes = append(yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesRes, expandYandexComputeReservedInstancePoolPlacementPolicyHostAffinityRuleStructModel(ctx, elem, diags))
+	}
+	return yandexComputeReservedInstancePoolPlacementPolicyHostAffinityRulesRes
 }
 
 func flattenYandexComputeReservedInstancePoolProductIds(ctx context.Context, yandexComputeReservedInstancePoolProductIds []string, listState types.List, diags *diag.Diagnostics) types.List {

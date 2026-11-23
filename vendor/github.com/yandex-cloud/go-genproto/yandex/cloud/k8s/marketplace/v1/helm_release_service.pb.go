@@ -13,6 +13,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -194,7 +195,9 @@ type InstallHelmReleaseRequest struct {
 	// The product version ID to install.
 	ProductVersionId string `protobuf:"bytes,2,opt,name=product_version_id,json=productVersionId,proto3" json:"product_version_id,omitempty"`
 	// User-defined values for the Helm chart during installation.
-	UserValues    []*ValueWithKey `protobuf:"bytes,3,rep,name=user_values,json=userValues,proto3" json:"user_values,omitempty"`
+	UserValues []*ValueWithKey `protobuf:"bytes,3,rep,name=user_values,json=userValues,proto3" json:"user_values,omitempty"`
+	// Federation ID stored as installation metadata. Omit or pass an empty string to store no ID.
+	FederationId  *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=federation_id,json=federationId,proto3" json:"federation_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -246,6 +249,13 @@ func (x *InstallHelmReleaseRequest) GetProductVersionId() string {
 func (x *InstallHelmReleaseRequest) GetUserValues() []*ValueWithKey {
 	if x != nil {
 		return x.UserValues
+	}
+	return nil
+}
+
+func (x *InstallHelmReleaseRequest) GetFederationId() *wrapperspb.StringValue {
+	if x != nil {
+		return x.FederationId
 	}
 	return nil
 }
@@ -320,7 +330,9 @@ type UpdateHelmReleaseRequest struct {
 	// The ID of the new product version for the release.
 	ProductVersionId string `protobuf:"bytes,2,opt,name=product_version_id,json=productVersionId,proto3" json:"product_version_id,omitempty"`
 	// Custom user values to apply during the update.
-	UserValues    []*ValueWithKey `protobuf:"bytes,3,rep,name=user_values,json=userValues,proto3" json:"user_values,omitempty"`
+	UserValues []*ValueWithKey `protobuf:"bytes,3,rep,name=user_values,json=userValues,proto3" json:"user_values,omitempty"`
+	// Federation ID stored as installation metadata. Omit to preserve the current ID or pass an empty string to clear it.
+	FederationId  *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=federation_id,json=federationId,proto3" json:"federation_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -372,6 +384,13 @@ func (x *UpdateHelmReleaseRequest) GetProductVersionId() string {
 func (x *UpdateHelmReleaseRequest) GetUserValues() []*ValueWithKey {
 	if x != nil {
 		return x.UserValues
+	}
+	return nil
+}
+
+func (x *UpdateHelmReleaseRequest) GetFederationId() *wrapperspb.StringValue {
+	if x != nil {
+		return x.FederationId
 	}
 	return nil
 }
@@ -663,7 +682,7 @@ var File_yandex_cloud_k8s_marketplace_v1_helm_release_service_proto protoreflect
 
 const file_yandex_cloud_k8s_marketplace_v1_helm_release_service_proto_rawDesc = "" +
 	"\n" +
-	":yandex/cloud/k8s/marketplace/v1/helm_release_service.proto\x12\x1fyandex.cloud.k8s.marketplace.v1\x1a\x1cgoogle/api/annotations.proto\x1a yandex/cloud/api/operation.proto\x1a2yandex/cloud/k8s/marketplace/v1/helm_release.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"\x91\x01\n" +
+	":yandex/cloud/k8s/marketplace/v1/helm_release_service.proto\x12\x1fyandex.cloud.k8s.marketplace.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a yandex/cloud/api/operation.proto\x1a2yandex/cloud/k8s/marketplace/v1/helm_release.proto\x1a&yandex/cloud/operation/operation.proto\x1a\x1dyandex/cloud/validation.proto\"\x91\x01\n" +
 	"\x17ListHelmReleasesRequest\x12#\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\x12'\n" +
@@ -675,23 +694,25 @@ const file_yandex_cloud_k8s_marketplace_v1_helm_release_service_proto_rawDesc = 
 	"\rhelm_releases\x18\x01 \x03(\v2,.yandex.cloud.k8s.marketplace.v1.HelmReleaseR\fhelmReleases\x12&\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"-\n" +
 	"\x15GetHelmReleaseRequest\x12\x14\n" +
-	"\x02id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\x02id\"\xbe\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\x02id\"\x81\x02\n" +
 	"\x19InstallHelmReleaseRequest\x12#\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\tclusterId\x12,\n" +
 	"\x12product_version_id\x18\x02 \x01(\tR\x10productVersionId\x12N\n" +
 	"\vuser_values\x18\x03 \x03(\v2-.yandex.cloud.k8s.marketplace.v1.ValueWithKeyR\n" +
-	"userValues\"\x91\x01\n" +
+	"userValues\x12A\n" +
+	"\rfederation_id\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\ffederationId\"\x91\x01\n" +
 	"\x1aInstallHelmReleaseMetadata\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12&\n" +
 	"\x0fhelm_release_id\x18\x02 \x01(\tR\rhelmReleaseId\x12,\n" +
-	"\x12product_version_id\x18\x03 \x01(\tR\x10productVersionId\"\xae\x01\n" +
+	"\x12product_version_id\x18\x03 \x01(\tR\x10productVersionId\"\xf1\x01\n" +
 	"\x18UpdateHelmReleaseRequest\x12\x14\n" +
 	"\x02id\x18\x01 \x01(\tB\x04\xe8\xc71\x01R\x02id\x12,\n" +
 	"\x12product_version_id\x18\x02 \x01(\tR\x10productVersionId\x12N\n" +
 	"\vuser_values\x18\x03 \x03(\v2-.yandex.cloud.k8s.marketplace.v1.ValueWithKeyR\n" +
-	"userValues\"\x90\x01\n" +
+	"userValues\x12A\n" +
+	"\rfederation_id\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\ffederationId\"\x90\x01\n" +
 	"\x19UpdateHelmReleaseMetadata\x12\x1d\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tR\tclusterId\x12&\n" +
@@ -747,28 +768,31 @@ var file_yandex_cloud_k8s_marketplace_v1_helm_release_service_proto_goTypes = []
 	(*ValueWithKey)(nil),                 // 9: yandex.cloud.k8s.marketplace.v1.ValueWithKey
 	(*Value)(nil),                        // 10: yandex.cloud.k8s.marketplace.v1.Value
 	(*HelmRelease)(nil),                  // 11: yandex.cloud.k8s.marketplace.v1.HelmRelease
-	(*operation.Operation)(nil),          // 12: yandex.cloud.operation.Operation
+	(*wrapperspb.StringValue)(nil),       // 12: google.protobuf.StringValue
+	(*operation.Operation)(nil),          // 13: yandex.cloud.operation.Operation
 }
 var file_yandex_cloud_k8s_marketplace_v1_helm_release_service_proto_depIdxs = []int32{
 	11, // 0: yandex.cloud.k8s.marketplace.v1.ListHelmReleasesResponse.helm_releases:type_name -> yandex.cloud.k8s.marketplace.v1.HelmRelease
 	9,  // 1: yandex.cloud.k8s.marketplace.v1.InstallHelmReleaseRequest.user_values:type_name -> yandex.cloud.k8s.marketplace.v1.ValueWithKey
-	9,  // 2: yandex.cloud.k8s.marketplace.v1.UpdateHelmReleaseRequest.user_values:type_name -> yandex.cloud.k8s.marketplace.v1.ValueWithKey
-	10, // 3: yandex.cloud.k8s.marketplace.v1.ValueWithKey.value:type_name -> yandex.cloud.k8s.marketplace.v1.Value
-	0,  // 4: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.List:input_type -> yandex.cloud.k8s.marketplace.v1.ListHelmReleasesRequest
-	2,  // 5: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Get:input_type -> yandex.cloud.k8s.marketplace.v1.GetHelmReleaseRequest
-	3,  // 6: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Install:input_type -> yandex.cloud.k8s.marketplace.v1.InstallHelmReleaseRequest
-	5,  // 7: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Update:input_type -> yandex.cloud.k8s.marketplace.v1.UpdateHelmReleaseRequest
-	7,  // 8: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Uninstall:input_type -> yandex.cloud.k8s.marketplace.v1.UninstallHelmReleaseRequest
-	1,  // 9: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.List:output_type -> yandex.cloud.k8s.marketplace.v1.ListHelmReleasesResponse
-	11, // 10: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Get:output_type -> yandex.cloud.k8s.marketplace.v1.HelmRelease
-	12, // 11: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Install:output_type -> yandex.cloud.operation.Operation
-	12, // 12: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Update:output_type -> yandex.cloud.operation.Operation
-	12, // 13: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Uninstall:output_type -> yandex.cloud.operation.Operation
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	12, // 2: yandex.cloud.k8s.marketplace.v1.InstallHelmReleaseRequest.federation_id:type_name -> google.protobuf.StringValue
+	9,  // 3: yandex.cloud.k8s.marketplace.v1.UpdateHelmReleaseRequest.user_values:type_name -> yandex.cloud.k8s.marketplace.v1.ValueWithKey
+	12, // 4: yandex.cloud.k8s.marketplace.v1.UpdateHelmReleaseRequest.federation_id:type_name -> google.protobuf.StringValue
+	10, // 5: yandex.cloud.k8s.marketplace.v1.ValueWithKey.value:type_name -> yandex.cloud.k8s.marketplace.v1.Value
+	0,  // 6: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.List:input_type -> yandex.cloud.k8s.marketplace.v1.ListHelmReleasesRequest
+	2,  // 7: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Get:input_type -> yandex.cloud.k8s.marketplace.v1.GetHelmReleaseRequest
+	3,  // 8: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Install:input_type -> yandex.cloud.k8s.marketplace.v1.InstallHelmReleaseRequest
+	5,  // 9: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Update:input_type -> yandex.cloud.k8s.marketplace.v1.UpdateHelmReleaseRequest
+	7,  // 10: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Uninstall:input_type -> yandex.cloud.k8s.marketplace.v1.UninstallHelmReleaseRequest
+	1,  // 11: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.List:output_type -> yandex.cloud.k8s.marketplace.v1.ListHelmReleasesResponse
+	11, // 12: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Get:output_type -> yandex.cloud.k8s.marketplace.v1.HelmRelease
+	13, // 13: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Install:output_type -> yandex.cloud.operation.Operation
+	13, // 14: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Update:output_type -> yandex.cloud.operation.Operation
+	13, // 15: yandex.cloud.k8s.marketplace.v1.HelmReleaseService.Uninstall:output_type -> yandex.cloud.operation.Operation
+	11, // [11:16] is the sub-list for method output_type
+	6,  // [6:11] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_k8s_marketplace_v1_helm_release_service_proto_init() }

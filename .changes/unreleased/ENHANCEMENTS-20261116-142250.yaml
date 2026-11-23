@@ -1,4 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb_kafka_connector: support MirrorCheckpoint connectors in the resource and
-  data source'
-time: 2026-11-16T14:22:50.293865+03:00

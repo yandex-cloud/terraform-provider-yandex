@@ -32,6 +32,11 @@ const (
 	Registry_ACTIVE Registry_Status = 2
 	// Registry is being deleted.
 	Registry_DELETING Registry_Status = 3
+	// Registry configuration is being migrated to Cloud Registry.
+	Registry_MIGRATING Registry_Status = 4
+	// Registry is ready to serve traffic through Cloud Registry.
+	// Image migration may still be in progress.
+	Registry_MIGRATED Registry_Status = 5
 )
 
 // Enum value maps for Registry_Status.
@@ -41,12 +46,16 @@ var (
 		1: "CREATING",
 		2: "ACTIVE",
 		3: "DELETING",
+		4: "MIGRATING",
+		5: "MIGRATED",
 	}
 	Registry_Status_value = map[string]int32{
 		"STATUS_UNSPECIFIED": 0,
 		"CREATING":           1,
 		"ACTIVE":             2,
 		"DELETING":           3,
+		"MIGRATING":          4,
+		"MIGRATED":           5,
 	}
 )
 
@@ -172,7 +181,7 @@ var File_yandex_cloud_containerregistry_v1_registry_proto protoreflect.FileDescr
 
 const file_yandex_cloud_containerregistry_v1_registry_proto_rawDesc = "" +
 	"\n" +
-	"0yandex/cloud/containerregistry/v1/registry.proto\x12!yandex.cloud.containerregistry.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa8\x03\n" +
+	"0yandex/cloud/containerregistry/v1/registry.proto\x12!yandex.cloud.containerregistry.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc5\x03\n" +
 	"\bRegistry\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x12\x12\n" +
@@ -183,13 +192,15 @@ const file_yandex_cloud_containerregistry_v1_registry_proto_rawDesc = "" +
 	"\x06labels\x18\x06 \x03(\v27.yandex.cloud.containerregistry.v1.Registry.LabelsEntryR\x06labels\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"H\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"e\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bCREATING\x10\x01\x12\n" +
 	"\n" +
 	"\x06ACTIVE\x10\x02\x12\f\n" +
-	"\bDELETING\x10\x03B\x80\x01\n" +
+	"\bDELETING\x10\x03\x12\r\n" +
+	"\tMIGRATING\x10\x04\x12\f\n" +
+	"\bMIGRATED\x10\x05B\x80\x01\n" +
 	"%yandex.cloud.api.containerregistry.v1ZWgithub.com/yandex-cloud/go-genproto/yandex/cloud/containerregistry/v1;containerregistryb\x06proto3"
 
 var (

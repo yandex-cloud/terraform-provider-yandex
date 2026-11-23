@@ -156,6 +156,10 @@ func (m *TlsListener) SetEnableHttp1(v bool) {
 	m.EnableHttp1 = v
 }
 
+func (m *TlsListener) SetDoNotRewriteRequestId(v bool) {
+	m.DoNotRewriteRequestId = v
+}
+
 func (m *SolidWafSettings) SetSolidWafProfileId(v string) {
 	m.SolidWafProfileId = v
 }

@@ -159,6 +159,7 @@ func (r *yandexComputeReservedInstancePoolResource) Create(ctx context.Context, 
 	createReq.SetResourcesSpec(expandYandexComputeReservedInstancePoolResourcesSpec(ctx, plan.ResourcesSpec, &diags))
 	createReq.SetGpuSettings(expandYandexComputeReservedInstancePoolGpuSettings(ctx, plan.GpuSettings, &diags))
 	createReq.SetBootDiskSpec(expandYandexComputeReservedInstancePoolBootDiskSpec(ctx, plan.BootDiskSpec, &diags))
+	createReq.SetPlacementPolicy(expandYandexComputeReservedInstancePoolPlacementPolicy(ctx, plan.PlacementPolicy, &diags))
 	createReq.SetNetworkSettings(expandYandexComputeReservedInstancePoolNetworkSettings(ctx, plan.NetworkSettings, &diags))
 	createReq.SetSize((plan.Size.ValueInt64()))
 	createReq.SetAllowOversubscription(plan.AllowOversubscription.ValueBool())

@@ -1418,14 +1418,18 @@ func expandYandexSwsDomainSolidWafSettingsSessionAffinityHeaderModel(ctx context
 }
 
 type yandexSwsDomainTlsListenerModel struct {
-	CertificateId types.String `tfsdk:"certificate_id"`
-	EnableHttp1   types.Bool   `tfsdk:"enable_http1"`
-	Enabled       types.Bool   `tfsdk:"enabled"`
-	Port          types.Int64  `tfsdk:"port"`
+	CertificateId         types.String `tfsdk:"certificate_id"`
+	DoNotRewriteRequestId types.Bool   `tfsdk:"do_not_rewrite_request_id"`
+	EnableHttp1           types.Bool   `tfsdk:"enable_http1"`
+	Enabled               types.Bool   `tfsdk:"enabled"`
+	Port                  types.Int64  `tfsdk:"port"`
 }
 
 func (m *yandexSwsDomainTlsListenerModel) GetCertificateId() types.String {
 	return m.CertificateId
+}
+func (m *yandexSwsDomainTlsListenerModel) GetDoNotRewriteRequestId() types.Bool {
+	return m.DoNotRewriteRequestId
 }
 func (m *yandexSwsDomainTlsListenerModel) GetEnableHttp1() types.Bool {
 	return m.EnableHttp1
@@ -1440,6 +1444,9 @@ func (m *yandexSwsDomainTlsListenerModel) GetPort() types.Int64 {
 func (m *yandexSwsDomainTlsListenerModel) SetCertificateId(target types.String) {
 	m.CertificateId = target
 }
+func (m *yandexSwsDomainTlsListenerModel) SetDoNotRewriteRequestId(target types.Bool) {
+	m.DoNotRewriteRequestId = target
+}
 func (m *yandexSwsDomainTlsListenerModel) SetEnableHttp1(target types.Bool) {
 	m.EnableHttp1 = target
 }
@@ -1452,16 +1459,20 @@ func (m *yandexSwsDomainTlsListenerModel) SetPort(target types.Int64) {
 
 func NewYandexSwsDomainTlsListenerModel() yandexSwsDomainTlsListenerModel {
 	return yandexSwsDomainTlsListenerModel{
-		CertificateId: types.StringNull(),
-		EnableHttp1:   types.BoolNull(),
-		Enabled:       types.BoolNull(),
-		Port:          types.Int64Null(),
+		CertificateId:         types.StringNull(),
+		DoNotRewriteRequestId: types.BoolNull(),
+		EnableHttp1:           types.BoolNull(),
+		Enabled:               types.BoolNull(),
+		Port:                  types.Int64Null(),
 	}
 }
 
 func yandexSwsDomainTlsListenerModelFillUnknown(target yandexSwsDomainTlsListenerModel) yandexSwsDomainTlsListenerModel {
 	if target.CertificateId.IsUnknown() || target.CertificateId.IsNull() {
 		target.CertificateId = types.StringNull()
+	}
+	if target.DoNotRewriteRequestId.IsUnknown() || target.DoNotRewriteRequestId.IsNull() {
+		target.DoNotRewriteRequestId = types.BoolNull()
 	}
 	if target.EnableHttp1.IsUnknown() || target.EnableHttp1.IsNull() {
 		target.EnableHttp1 = types.BoolNull()
@@ -1477,10 +1488,11 @@ func yandexSwsDomainTlsListenerModelFillUnknown(target yandexSwsDomainTlsListene
 
 var yandexSwsDomainTlsListenerModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"certificate_id": types.StringType,
-		"enable_http1":   types.BoolType,
-		"enabled":        types.BoolType,
-		"port":           types.Int64Type,
+		"certificate_id":            types.StringType,
+		"do_not_rewrite_request_id": types.BoolType,
+		"enable_http1":              types.BoolType,
+		"enabled":                   types.BoolType,
+		"port":                      types.Int64Type,
 	},
 }
 
@@ -1491,10 +1503,11 @@ func flattenYandexSwsDomainTlsListener(ctx context.Context,
 		return types.ObjectNull(yandexSwsDomainTlsListenerModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexSwsDomainTlsListenerModelType.AttrTypes, yandexSwsDomainTlsListenerModel{
-		CertificateId: types.StringValue(yandexSwsDomainTlsListener.GetCertificateId()),
-		EnableHttp1:   types.BoolValue(yandexSwsDomainTlsListener.GetEnableHttp1()),
-		Enabled:       types.BoolValue(yandexSwsDomainTlsListener.GetEnabled()),
-		Port:          types.Int64Value(int64(yandexSwsDomainTlsListener.GetPort())),
+		CertificateId:         types.StringValue(yandexSwsDomainTlsListener.GetCertificateId()),
+		DoNotRewriteRequestId: types.BoolValue(yandexSwsDomainTlsListener.GetDoNotRewriteRequestId()),
+		EnableHttp1:           types.BoolValue(yandexSwsDomainTlsListener.GetEnableHttp1()),
+		Enabled:               types.BoolValue(yandexSwsDomainTlsListener.GetEnabled()),
+		Port:                  types.Int64Value(int64(yandexSwsDomainTlsListener.GetPort())),
 	})
 	diags.Append(diag...)
 	return value
@@ -1515,6 +1528,7 @@ func expandYandexSwsDomainTlsListener(ctx context.Context, yandexSwsDomainTlsLis
 func expandYandexSwsDomainTlsListenerModel(ctx context.Context, yandexSwsDomainTlsListenerState yandexSwsDomainTlsListenerModel, diags *diag.Diagnostics) *load_balancer.TlsListener {
 	value := &load_balancer.TlsListener{}
 	value.SetCertificateId(yandexSwsDomainTlsListenerState.CertificateId.ValueString())
+	value.SetDoNotRewriteRequestId(yandexSwsDomainTlsListenerState.DoNotRewriteRequestId.ValueBool())
 	value.SetEnableHttp1(yandexSwsDomainTlsListenerState.EnableHttp1.ValueBool())
 	value.SetEnabled(yandexSwsDomainTlsListenerState.Enabled.ValueBool())
 	value.SetPort((yandexSwsDomainTlsListenerState.Port.ValueInt64()))

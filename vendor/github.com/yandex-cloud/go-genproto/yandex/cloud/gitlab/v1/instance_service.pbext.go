@@ -32,6 +32,26 @@ func (m *ListInstancesResponse) SetNextPageToken(v string) {
 	m.NextPageToken = v
 }
 
+func (m *ListInstanceBackupsRequest) SetInstanceId(v string) {
+	m.InstanceId = v
+}
+
+func (m *ListInstanceBackupsRequest) SetPageSize(v int64) {
+	m.PageSize = v
+}
+
+func (m *ListInstanceBackupsRequest) SetPageToken(v string) {
+	m.PageToken = v
+}
+
+func (m *ListInstanceBackupsResponse) SetBackups(v []*Backup) {
+	m.Backups = v
+}
+
+func (m *ListInstanceBackupsResponse) SetNextPageToken(v string) {
+	m.NextPageToken = v
+}
+
 func (m *CreateInstanceRequest) SetFolderId(v string) {
 	m.FolderId = v
 }

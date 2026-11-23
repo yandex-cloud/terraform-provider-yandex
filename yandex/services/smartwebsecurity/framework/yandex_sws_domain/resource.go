@@ -584,6 +584,9 @@ func (r *yandexSwsDomainResource) Update(ctx context.Context, req resource.Updat
 		if !yandexSwsDomainTlsListenerPlan.CertificateId.IsUnknown() && !yandexSwsDomainTlsListenerPlan.CertificateId.Equal(yandexSwsDomainTlsListenerState.CertificateId) {
 			updatePaths = append(updatePaths, "tls_listener.certificate_id")
 		}
+		if !yandexSwsDomainTlsListenerPlan.DoNotRewriteRequestId.IsUnknown() && !yandexSwsDomainTlsListenerPlan.DoNotRewriteRequestId.Equal(yandexSwsDomainTlsListenerState.DoNotRewriteRequestId) {
+			updatePaths = append(updatePaths, "tls_listener.do_not_rewrite_request_id")
+		}
 		if !yandexSwsDomainTlsListenerPlan.EnableHttp1.IsUnknown() && !yandexSwsDomainTlsListenerPlan.EnableHttp1.Equal(yandexSwsDomainTlsListenerState.EnableHttp1) {
 			updatePaths = append(updatePaths, "tls_listener.enable_http1")
 		}

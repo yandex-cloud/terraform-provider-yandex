@@ -4,6 +4,7 @@ package computesdk
 import (
 	"context"
 
+	access "github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	compute "github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	sdkop "github.com/yandex-cloud/go-sdk/v2/pkg/operation"
@@ -23,6 +24,9 @@ type ReservedInstancePoolClient interface {
 	Delete(context.Context, *compute.DeleteReservedInstancePoolRequest, ...grpc.CallOption) (*ReservedInstancePoolDeleteOperation, error)
 	ListOperations(context.Context, *compute.ListReservedInstancePoolOperationsRequest, ...grpc.CallOption) (*compute.ListReservedInstancePoolOperationsResponse, error)
 	ListInstances(context.Context, *compute.ListReservedInstancePoolInstancesRequest, ...grpc.CallOption) (*compute.ListReservedInstancePoolInstancesResponse, error)
+	ListAccessBindings(context.Context, *access.ListAccessBindingsRequest, ...grpc.CallOption) (*access.ListAccessBindingsResponse, error)
+	SetAccessBindings(context.Context, *access.SetAccessBindingsRequest, ...grpc.CallOption) (*ReservedInstancePoolSetAccessBindingsOperation, error)
+	UpdateAccessBindings(context.Context, *access.UpdateAccessBindingsRequest, ...grpc.CallOption) (*ReservedInstancePoolUpdateAccessBindingsOperation, error)
 }
 
 var _ ReservedInstancePoolClient = reservedInstancePoolClient{}
@@ -234,6 +238,117 @@ func (c reservedInstancePoolClient) ListInstances(ctx context.Context, in *compu
 	return compute.NewReservedInstancePoolServiceClient(connection).ListInstances(ctx, in, opts...)
 }
 
+// ListAccessBindings is an operation of Yandex.Cloud Compute ReservedInstancePool service.
+func (c reservedInstancePoolClient) ListAccessBindings(ctx context.Context, in *access.ListAccessBindingsRequest, opts ...grpc.CallOption) (*access.ListAccessBindingsResponse, error) {
+	connection, err := c.connector.GetConnection(ctx, ReservedInstancePoolListAccessBindings, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return compute.NewReservedInstancePoolServiceClient(connection).ListAccessBindings(ctx, in, opts...)
+}
+
+// ReservedInstancePoolSetAccessBindingsOperation is used to monitor the state of SetAccessBindings operations.
+type ReservedInstancePoolSetAccessBindingsOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *ReservedInstancePoolSetAccessBindingsOperation) Metadata() *access.SetAccessBindingsMetadata {
+	return o.Operation.Metadata().(*access.SetAccessBindingsMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *ReservedInstancePoolSetAccessBindingsOperation) Response() *access.AccessBindingsOperationResult {
+	return o.Operation.Response().(*access.AccessBindingsOperationResult)
+}
+
+// Wait polls the operation until it's done.
+func (o *ReservedInstancePoolSetAccessBindingsOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*access.AccessBindingsOperationResult, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*access.AccessBindingsOperationResult)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *ReservedInstancePoolSetAccessBindingsOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*access.AccessBindingsOperationResult, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*access.AccessBindingsOperationResult)
+	return response, err
+}
+
+// SetAccessBindings is an operation of Yandex.Cloud Compute ReservedInstancePool service.
+// It returns an object which should be used to monitor the operation state.
+func (c reservedInstancePoolClient) SetAccessBindings(ctx context.Context, in *access.SetAccessBindingsRequest, opts ...grpc.CallOption) (*ReservedInstancePoolSetAccessBindingsOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, ReservedInstancePoolSetAccessBindings, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := compute.NewReservedInstancePoolServiceClient(connection).SetAccessBindings(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll:         c.pollOperation,
+		MetadataType: (*access.SetAccessBindingsMetadata)(nil),
+		ResponseType: (*access.AccessBindingsOperationResult)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ReservedInstancePoolSetAccessBindingsOperation{*op}, nil
+}
+
+// ReservedInstancePoolUpdateAccessBindingsOperation is used to monitor the state of UpdateAccessBindings operations.
+type ReservedInstancePoolUpdateAccessBindingsOperation struct {
+	sdkop.Operation
+}
+
+// Metadata retrieves the operation metadata.
+func (o *ReservedInstancePoolUpdateAccessBindingsOperation) Metadata() *access.UpdateAccessBindingsMetadata {
+	return o.Operation.Metadata().(*access.UpdateAccessBindingsMetadata)
+}
+
+// Response retrieves the operation response.
+func (o *ReservedInstancePoolUpdateAccessBindingsOperation) Response() *access.AccessBindingsOperationResult {
+	return o.Operation.Response().(*access.AccessBindingsOperationResult)
+}
+
+// Wait polls the operation until it's done.
+func (o *ReservedInstancePoolUpdateAccessBindingsOperation) Wait(ctx context.Context, opts ...grpc.CallOption) (*access.AccessBindingsOperationResult, error) {
+	abstract, err := o.Operation.Wait(ctx, opts...)
+	response, _ := abstract.(*access.AccessBindingsOperationResult)
+	return response, err
+}
+
+// WaitInterval polls the operation until it's done with custom interval.
+func (o *ReservedInstancePoolUpdateAccessBindingsOperation) WaitInterval(ctx context.Context, pollInterval sdkop.PollIntervalFunc, opts ...grpc.CallOption) (*access.AccessBindingsOperationResult, error) {
+	abstract, err := o.Operation.WaitInterval(ctx, pollInterval, opts...)
+	response, _ := abstract.(*access.AccessBindingsOperationResult)
+	return response, err
+}
+
+// UpdateAccessBindings is an operation of Yandex.Cloud Compute ReservedInstancePool service.
+// It returns an object which should be used to monitor the operation state.
+func (c reservedInstancePoolClient) UpdateAccessBindings(ctx context.Context, in *access.UpdateAccessBindingsRequest, opts ...grpc.CallOption) (*ReservedInstancePoolUpdateAccessBindingsOperation, error) {
+	connection, err := c.connector.GetConnection(ctx, ReservedInstancePoolUpdateAccessBindings, opts...)
+	if err != nil {
+		return nil, err
+	}
+	pb, err := compute.NewReservedInstancePoolServiceClient(connection).UpdateAccessBindings(ctx, in, opts...)
+	if err != nil {
+		return nil, err
+	}
+	op, err := sdkop.NewOperation(pb, &sdkop.Concretization{
+		Poll:         c.pollOperation,
+		MetadataType: (*access.UpdateAccessBindingsMetadata)(nil),
+		ResponseType: (*access.AccessBindingsOperationResult)(nil),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &ReservedInstancePoolUpdateAccessBindingsOperation{*op}, nil
+}
+
 // pollOperation returns the current state of the polled operation.
 func (c reservedInstancePoolClient) pollOperation(ctx context.Context, operationId string, opts ...grpc.CallOption) (sdkop.YCOperation, error) {
 	connection, err := c.connector.GetConnection(ctx, ReservedInstancePoolOperationPoller, opts...)
@@ -244,12 +359,15 @@ func (c reservedInstancePoolClient) pollOperation(ctx context.Context, operation
 }
 
 var (
-	ReservedInstancePoolGet             = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.Get")
-	ReservedInstancePoolList            = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.List")
-	ReservedInstancePoolCreate          = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.Create")
-	ReservedInstancePoolUpdate          = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.Update")
-	ReservedInstancePoolDelete          = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.Delete")
-	ReservedInstancePoolListOperations  = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.ListOperations")
-	ReservedInstancePoolListInstances   = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.ListInstances")
-	ReservedInstancePoolOperationPoller = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
+	ReservedInstancePoolGet                  = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.Get")
+	ReservedInstancePoolList                 = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.List")
+	ReservedInstancePoolCreate               = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.Create")
+	ReservedInstancePoolUpdate               = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.Update")
+	ReservedInstancePoolDelete               = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.Delete")
+	ReservedInstancePoolListOperations       = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.ListOperations")
+	ReservedInstancePoolListInstances        = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.ListInstances")
+	ReservedInstancePoolListAccessBindings   = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.ListAccessBindings")
+	ReservedInstancePoolSetAccessBindings    = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.SetAccessBindings")
+	ReservedInstancePoolUpdateAccessBindings = protoreflect.FullName("yandex.cloud.compute.v1.ReservedInstancePoolService.UpdateAccessBindings")
+	ReservedInstancePoolOperationPoller      = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
 )

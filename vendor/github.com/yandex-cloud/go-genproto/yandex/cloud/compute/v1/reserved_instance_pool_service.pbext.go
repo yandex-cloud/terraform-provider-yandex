@@ -75,6 +75,10 @@ func (m *CreateReservedInstancePoolRequest) SetBootDiskSpec(v *BootDiskSpec) {
 	m.BootDiskSpec = v
 }
 
+func (m *CreateReservedInstancePoolRequest) SetPlacementPolicy(v *PlacementPolicy) {
+	m.PlacementPolicy = v
+}
+
 func (m *CreateReservedInstancePoolRequest) SetNetworkSettings(v *NetworkSettings) {
 	m.NetworkSettings = v
 }

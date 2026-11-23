@@ -1,6 +1,6 @@
 module github.com/yandex-cloud/terraform-provider-yandex
 
-go 1.25.10
+go 1.26.10
 
 require (
 	github.com/aws/aws-sdk-go v1.44.0
@@ -39,73 +39,18 @@ require (
 	github.com/pierrec/lz4 v2.6.1+incompatible
 	github.com/stretchr/objx v0.5.2
 	github.com/stretchr/testify v1.10.0
-	github.com/yandex-cloud/go-genproto v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/airflow v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/apploadbalancer v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/audittrails v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/backup v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/billing v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/cdn v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/cic v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/cloudrouter v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/compute v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/datacatalog v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/dataproc v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/datasphere v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/dns v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/gitlab v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/iot v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/k8s v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/k8s/marketplace v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/kms v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/loadbalancer v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/lockbox v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/logging v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/mdb/clickhouse v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/mdb/greenplum v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/mdb/kafka v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/mdb/mongodb v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/mdb/mysql v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/mdb/opensearch v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/mdb/postgresql v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/mdb/redis v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/mdb/spqr v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/metastore v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/monitoring v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/serverless/apigateway v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/serverless/containers v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/serverless/eventrouter v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/serverless/functions v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/serverless/triggers v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/serverless/workflows v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/smartcaptcha v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/smartwebsecurity v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/spark v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/storage v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/trino v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/vpc v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/ydb v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
-	github.com/yandex-cloud/go-sdk/v2 v2.0.0-tf.6673ffe9e2773453a77e9e3a4dcd38d851b8a11d
 	github.com/ydb-platform/terraform-provider-ydb v0.0.29
 	github.com/ydb-platform/ydb-go-genproto v0.0.0-20250519101544-1f330d77b70f
-	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.41.0
+	go.uber.org/zap v1.27.1
+	golang.org/x/crypto v0.55.0
 	golang.org/x/exp v0.0.0-20230809150735-7b3493d9a819
-	golang.org/x/net v0.43.0
-	golang.org/x/text v0.28.0
-	golang.org/x/tools v0.35.0
-	google.golang.org/genproto v0.0.0-20241021214115-324edc3d5d38
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250818200422-3122310a409c
-	google.golang.org/grpc v1.75.0
-	google.golang.org/protobuf v1.36.8
+	golang.org/x/net v0.58.0
+	golang.org/x/text v0.41.0
+	golang.org/x/tools v0.48.0
+	google.golang.org/genproto v0.0.0-20260128011058-8636f8732409
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d
+	google.golang.org/grpc v1.83.2
+	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -317,6 +262,47 @@ require (
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xen0n/gosmopolitan v1.2.1 // indirect
 	github.com/yagipy/maintidx v1.0.0 // indirect
+	github.com/yandex-cloud/go-genproto v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/airflow v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/apploadbalancer v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/audittrails v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/backup v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/billing v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/cdn v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/certificatemanager v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/cic v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/cloudregistry v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/cloudrouter v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/compute v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/connectionmanager v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/containerregistry v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/datacatalog v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/dataproc v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/datasphere v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/datatransfer v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/dns v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/gitlab v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/iot v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/k8s v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/kms v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/loadbalancer v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/lockbox v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/logging v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/mdb v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/metastore v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/monitoring v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/organizationmanager v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/resourcemanager v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/serverless v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/smartcaptcha v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/smartwebsecurity v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/spark v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/storage v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/trino v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/vpc v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/ydb v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/services/ytsaurus v0.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
+	github.com/yandex-cloud/go-sdk/v2 v2.0.0-tf.9951159a51784bf300c3236d6b5611eeb0ee7a72
 	github.com/ydb-platform/ydb-go-sdk/v3 v3.115.7 // indirect
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	github.com/ykadowak/zerologlint v0.1.2 // indirect
@@ -328,14 +314,14 @@ require (
 	go.tmz.dev/musttag v0.7.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20230224173230-c95f2b4c22f2 // indirect
-	golang.org/x/mod v0.26.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/term v0.34.0 // indirect
+	golang.org/x/mod v0.38.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/term v0.45.0 // indirect
 	golang.org/x/tools/go/expect v0.1.1-deprecated // indirect
 	golang.org/x/tools/go/packages/packagestest v0.1.1-deprecated // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250818200422-3122310a409c // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260803160001-6ac0973c030d // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	honnef.co/go/tools v0.4.3 // indirect

@@ -168,6 +168,85 @@ func YandexComputeReservedInstancePoolDatasourceSchema(ctx context.Context) sche
 				Computed: true,
 			},
 
+			"placement_policy": schema.SingleNestedAttribute{
+
+				Attributes: map[string]schema.Attribute{
+
+					"host_affinity_rules": schema.ListNestedAttribute{
+						NestedObject: schema.NestedAttributeObject{
+
+							Attributes: map[string]schema.Attribute{
+
+								"key": schema.StringAttribute{
+									MarkdownDescription: "Affinity label or one of reserved values - 'yc.hostId', 'yc.hostGroupId'",
+									Description: "Affinity label or one of reserved values - 'yc.hostId', 'yc.hostGroupId'" +
+										// proto paths: +
+										// -> yandex.cloud.compute.v1.ReservedInstancePool.placement_policy -> yandex.cloud.compute.v1.PlacementPolicy.host_affinity_rules -> yandex.cloud.compute.v1.PlacementPolicy.HostAffinityRule.key
+										"package: yandex.cloud.compute.v1\n" +
+										"filename: yandex/cloud/compute/v1/instance.proto\n",
+									Computed: true,
+								},
+
+								"op": schema.StringAttribute{
+									MarkdownDescription: "Include or exclude action",
+									Description: "Include or exclude action" +
+										// proto paths: +
+										// -> yandex.cloud.compute.v1.ReservedInstancePool.placement_policy -> yandex.cloud.compute.v1.PlacementPolicy.host_affinity_rules -> yandex.cloud.compute.v1.PlacementPolicy.HostAffinityRule.op
+										"package: yandex.cloud.compute.v1\n" +
+										"filename: yandex/cloud/compute/v1/instance.proto\n",
+									Computed: true,
+								},
+
+								"values": schema.ListAttribute{
+									ElementType:         types.StringType,
+									MarkdownDescription: "Affinity value or host ID or host group ID",
+									Description: "Affinity value or host ID or host group ID" +
+										// proto paths: +
+										// -> yandex.cloud.compute.v1.ReservedInstancePool.placement_policy -> yandex.cloud.compute.v1.PlacementPolicy.host_affinity_rules -> yandex.cloud.compute.v1.PlacementPolicy.HostAffinityRule.values
+										"package: yandex.cloud.compute.v1\n" +
+										"filename: yandex/cloud/compute/v1/instance.proto\n",
+									Computed: true,
+								},
+							},
+						},
+						MarkdownDescription: "List of affinity rules. Scheduler will attempt to allocate instances according to order of rules.",
+						Description: "List of affinity rules. Scheduler will attempt to allocate instances according to order of rules." +
+							// proto paths: +
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.placement_policy -> yandex.cloud.compute.v1.PlacementPolicy.host_affinity_rules
+							"package: yandex.cloud.compute.v1\n" +
+							"filename: yandex/cloud/compute/v1/instance.proto\n",
+						Computed: true,
+					},
+
+					"placement_group_id": schema.StringAttribute{
+						MarkdownDescription: "Placement group ID.",
+						Description: "Placement group ID." +
+							// proto paths: +
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.placement_policy -> yandex.cloud.compute.v1.PlacementPolicy.placement_group_id
+							"package: yandex.cloud.compute.v1\n" +
+							"filename: yandex/cloud/compute/v1/instance.proto\n",
+						Computed: true,
+					},
+
+					"placement_group_partition": schema.Int64Attribute{
+						MarkdownDescription: "Placement group partition",
+						Description: "Placement group partition" +
+							// proto paths: +
+							// -> yandex.cloud.compute.v1.ReservedInstancePool.placement_policy -> yandex.cloud.compute.v1.PlacementPolicy.placement_group_partition
+							"package: yandex.cloud.compute.v1\n" +
+							"filename: yandex/cloud/compute/v1/instance.proto\n",
+						Computed: true,
+					},
+				},
+				MarkdownDescription: "Placement policy configuration.",
+				Description: "Placement policy configuration." +
+					// proto paths: +
+					// -> yandex.cloud.compute.v1.ReservedInstancePool.placement_policy
+					"package: yandex.cloud.compute.v1\n" +
+					"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
+				Computed: true,
+			},
+
 			"platform_id": schema.StringAttribute{
 				MarkdownDescription: "ID of the hardware platform configuration for pool instances.",
 				Description: "ID of the hardware platform configuration for pool instances." +

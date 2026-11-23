@@ -381,6 +381,143 @@ func (SessionType) EnumDescriptor() ([]byte, []int) {
 	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescGZIP(), []int{5}
 }
 
+type AttributeFilter_CombineWith int32
+
+const (
+	// The combination operator is not specified.
+	AttributeFilter_COMBINE_WITH_UNSPECIFIED AttributeFilter_CombineWith = 0
+	// All rules must match.
+	AttributeFilter_AND AttributeFilter_CombineWith = 1
+	// At least one rule must match.
+	AttributeFilter_OR AttributeFilter_CombineWith = 2
+)
+
+// Enum value maps for AttributeFilter_CombineWith.
+var (
+	AttributeFilter_CombineWith_name = map[int32]string{
+		0: "COMBINE_WITH_UNSPECIFIED",
+		1: "AND",
+		2: "OR",
+	}
+	AttributeFilter_CombineWith_value = map[string]int32{
+		"COMBINE_WITH_UNSPECIFIED": 0,
+		"AND":                      1,
+		"OR":                       2,
+	}
+)
+
+func (x AttributeFilter_CombineWith) Enum() *AttributeFilter_CombineWith {
+	p := new(AttributeFilter_CombineWith)
+	*p = x
+	return p
+}
+
+func (x AttributeFilter_CombineWith) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AttributeFilter_CombineWith) Descriptor() protoreflect.EnumDescriptor {
+	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_enumTypes[6].Descriptor()
+}
+
+func (AttributeFilter_CombineWith) Type() protoreflect.EnumType {
+	return &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_enumTypes[6]
+}
+
+func (x AttributeFilter_CombineWith) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AttributeFilter_CombineWith.Descriptor instead.
+func (AttributeFilter_CombineWith) EnumDescriptor() ([]byte, []int) {
+	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescGZIP(), []int{3, 0}
+}
+
+type AttributeFilterRule_Operator int32
+
+const (
+	// The comparison operator is not specified.
+	AttributeFilterRule_OPERATOR_UNSPECIFIED AttributeFilterRule_Operator = 0
+	// The attribute equals the value.
+	AttributeFilterRule_EQUALS AttributeFilterRule_Operator = 1
+	// The attribute does not equal the value.
+	AttributeFilterRule_NOT_EQUALS AttributeFilterRule_Operator = 2
+	// The attribute starts with the value.
+	AttributeFilterRule_STARTS_WITH AttributeFilterRule_Operator = 3
+	// The attribute does not start with the value.
+	AttributeFilterRule_NOT_STARTS_WITH AttributeFilterRule_Operator = 4
+	// The attribute ends with the value.
+	AttributeFilterRule_ENDS_WITH AttributeFilterRule_Operator = 5
+	// The attribute does not end with the value.
+	AttributeFilterRule_NOT_ENDS_WITH AttributeFilterRule_Operator = 6
+	// The attribute contains the value.
+	AttributeFilterRule_CONTAINS AttributeFilterRule_Operator = 7
+	// The attribute does not contain the value.
+	AttributeFilterRule_NOT_CONTAINS AttributeFilterRule_Operator = 8
+	// The AD/DRSR model field is empty, or the LDAP attribute is absent.
+	AttributeFilterRule_IS_NULL AttributeFilterRule_Operator = 9
+	// The AD/DRSR model field is nonempty, or the LDAP attribute is present,
+	// including an attribute with an empty value.
+	AttributeFilterRule_IS_NOT_NULL AttributeFilterRule_Operator = 10
+)
+
+// Enum value maps for AttributeFilterRule_Operator.
+var (
+	AttributeFilterRule_Operator_name = map[int32]string{
+		0:  "OPERATOR_UNSPECIFIED",
+		1:  "EQUALS",
+		2:  "NOT_EQUALS",
+		3:  "STARTS_WITH",
+		4:  "NOT_STARTS_WITH",
+		5:  "ENDS_WITH",
+		6:  "NOT_ENDS_WITH",
+		7:  "CONTAINS",
+		8:  "NOT_CONTAINS",
+		9:  "IS_NULL",
+		10: "IS_NOT_NULL",
+	}
+	AttributeFilterRule_Operator_value = map[string]int32{
+		"OPERATOR_UNSPECIFIED": 0,
+		"EQUALS":               1,
+		"NOT_EQUALS":           2,
+		"STARTS_WITH":          3,
+		"NOT_STARTS_WITH":      4,
+		"ENDS_WITH":            5,
+		"NOT_ENDS_WITH":        6,
+		"CONTAINS":             7,
+		"NOT_CONTAINS":         8,
+		"IS_NULL":              9,
+		"IS_NOT_NULL":          10,
+	}
+)
+
+func (x AttributeFilterRule_Operator) Enum() *AttributeFilterRule_Operator {
+	p := new(AttributeFilterRule_Operator)
+	*p = x
+	return p
+}
+
+func (x AttributeFilterRule_Operator) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AttributeFilterRule_Operator) Descriptor() protoreflect.EnumDescriptor {
+	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_enumTypes[7].Descriptor()
+}
+
+func (AttributeFilterRule_Operator) Type() protoreflect.EnumType {
+	return &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_enumTypes[7]
+}
+
+func (x AttributeFilterRule_Operator) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AttributeFilterRule_Operator.Descriptor instead.
+func (AttributeFilterRule_Operator) EnumDescriptor() ([]byte, []int) {
+	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescGZIP(), []int{4, 0}
+}
+
 // Synchronization settings for a subject container.
 type SynchronizationSettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -667,8 +804,16 @@ type SynchronizationFilter struct {
 	Groups []string `protobuf:"bytes,2,rep,name=groups,proto3" json:"groups,omitempty"`
 	// List of organizational units to synchronize.
 	OrganizationUnits []string `protobuf:"bytes,3,rep,name=organization_units,json=organizationUnits,proto3" json:"organization_units,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Group attribute filter, combined with the existing group and organizational
+	// unit filters using AND. If omitted, groups are not restricted by their
+	// attributes. Adding, changing or removing this filter requires FULL_SYNC.
+	GroupAttributesFilter *AttributeFilter `protobuf:"bytes,4,opt,name=group_attributes_filter,json=groupAttributesFilter,proto3" json:"group_attributes_filter,omitempty"`
+	// User attribute filter, combined with the existing group and organizational
+	// unit filters using AND. If omitted, users are not restricted by their
+	// attributes. Adding, changing or removing this filter requires FULL_SYNC.
+	UserAttributesFilter *AttributeFilter `protobuf:"bytes,5,opt,name=user_attributes_filter,json=userAttributesFilter,proto3" json:"user_attributes_filter,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *SynchronizationFilter) Reset() {
@@ -722,6 +867,149 @@ func (x *SynchronizationFilter) GetOrganizationUnits() []string {
 	return nil
 }
 
+func (x *SynchronizationFilter) GetGroupAttributesFilter() *AttributeFilter {
+	if x != nil {
+		return x.GroupAttributesFilter
+	}
+	return nil
+}
+
+func (x *SynchronizationFilter) GetUserAttributesFilter() *AttributeFilter {
+	if x != nil {
+		return x.UserAttributesFilter
+	}
+	return nil
+}
+
+// Attribute rules for one object type. Nested expressions are not supported.
+type AttributeFilter struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Logical operator used to combine all rules.
+	CombineWith AttributeFilter_CombineWith `protobuf:"varint,1,opt,name=combine_with,json=combineWith,proto3,enum=yandex.cloud.organizationmanager.v1.idp.AttributeFilter_CombineWith" json:"combine_with,omitempty"`
+	// Rules to evaluate. A configured filter must contain between 1 and 50 rules.
+	Rules         []*AttributeFilterRule `protobuf:"bytes,2,rep,name=rules,proto3" json:"rules,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AttributeFilter) Reset() {
+	*x = AttributeFilter{}
+	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AttributeFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AttributeFilter) ProtoMessage() {}
+
+func (x *AttributeFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AttributeFilter.ProtoReflect.Descriptor instead.
+func (*AttributeFilter) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *AttributeFilter) GetCombineWith() AttributeFilter_CombineWith {
+	if x != nil {
+		return x.CombineWith
+	}
+	return AttributeFilter_COMBINE_WITH_UNSPECIFIED
+}
+
+func (x *AttributeFilter) GetRules() []*AttributeFilterRule {
+	if x != nil {
+		return x.Rules
+	}
+	return nil
+}
+
+// A comparison against a source attribute.
+//
+// AD/DRSR comparisons are case-insensitive and do not trim whitespace.
+// Null attributes do not match positive or negative string operators.
+// For multivalued LDAP attributes, positive operators require at least one
+// matching value; negative operators require a present attribute with no
+// matching values.
+type AttributeFilterRule struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Exact name of a supported AD/DRSR agent model field, or a native LDAP
+	// attribute name. No aliases or name conversions are applied.
+	Field string `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`
+	// Comparison operator.
+	Operator AttributeFilterRule_Operator `protobuf:"varint,2,opt,name=operator,proto3,enum=yandex.cloud.organizationmanager.v1.idp.AttributeFilterRule_Operator" json:"operator,omitempty"`
+	// Comparison value. An empty or omitted value means no comparison value.
+	// Must be nonempty for string operators and empty for IS_NULL and IS_NOT_NULL.
+	// Characters such as '*', '(' and ')' are literals, not LDAP filter or regular
+	// expression syntax.
+	Value         string `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AttributeFilterRule) Reset() {
+	*x = AttributeFilterRule{}
+	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AttributeFilterRule) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AttributeFilterRule) ProtoMessage() {}
+
+func (x *AttributeFilterRule) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AttributeFilterRule.ProtoReflect.Descriptor instead.
+func (*AttributeFilterRule) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *AttributeFilterRule) GetField() string {
+	if x != nil {
+		return x.Field
+	}
+	return ""
+}
+
+func (x *AttributeFilterRule) GetOperator() AttributeFilterRule_Operator {
+	if x != nil {
+		return x.Operator
+	}
+	return AttributeFilterRule_OPERATOR_UNSPECIFIED
+}
+
+func (x *AttributeFilterRule) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 // User attribute mapping configuration.
 type UserAttributeMapping struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -737,7 +1025,7 @@ type UserAttributeMapping struct {
 
 func (x *UserAttributeMapping) Reset() {
 	*x = UserAttributeMapping{}
-	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[3]
+	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -749,7 +1037,7 @@ func (x *UserAttributeMapping) String() string {
 func (*UserAttributeMapping) ProtoMessage() {}
 
 func (x *UserAttributeMapping) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[3]
+	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +1050,7 @@ func (x *UserAttributeMapping) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserAttributeMapping.ProtoReflect.Descriptor instead.
 func (*UserAttributeMapping) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescGZIP(), []int{3}
+	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UserAttributeMapping) GetSource() string {
@@ -801,7 +1089,7 @@ type GroupAttributeMapping struct {
 
 func (x *GroupAttributeMapping) Reset() {
 	*x = GroupAttributeMapping{}
-	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[4]
+	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -813,7 +1101,7 @@ func (x *GroupAttributeMapping) String() string {
 func (*GroupAttributeMapping) ProtoMessage() {}
 
 func (x *GroupAttributeMapping) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[4]
+	mi := &file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -826,7 +1114,7 @@ func (x *GroupAttributeMapping) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GroupAttributeMapping.ProtoReflect.Descriptor instead.
 func (*GroupAttributeMapping) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescGZIP(), []int{4}
+	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GroupAttributeMapping) GetSource() string {
@@ -881,11 +1169,39 @@ const file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_prot
 	"\x12password_attribute\x18\b \x01(\tR\x11passwordAttribute\x12b\n" +
 	"\x0fdelta_sync_mode\x18\t \x01(\x0e2:.yandex.cloud.organizationmanager.v1.idp.LdapDeltaSyncModeR\rdeltaSyncMode\x12E\n" +
 	"\x1fuse_recursive_membership_filter\x18\n" +
-	" \x01(\bR\x1cuseRecursiveMembershipFilter\"\xab\x01\n" +
+	" \x01(\bR\x1cuseRecursiveMembershipFilter\"\x8d\x03\n" +
 	"\x15SynchronizationFilter\x12%\n" +
 	"\x06domain\x18\x01 \x01(\tB\r\xe8\xc71\x01\x8a\xc81\x051-253R\x06domain\x12)\n" +
 	"\x06groups\x18\x02 \x03(\tB\x11\x82\xc81\x04<=10\x8a\xc81\x051-253R\x06groups\x12@\n" +
-	"\x12organization_units\x18\x03 \x03(\tB\x11\x82\xc81\x04<=10\x8a\xc81\x051-253R\x11organizationUnits\"\xe5\x01\n" +
+	"\x12organization_units\x18\x03 \x03(\tB\x11\x82\xc81\x04<=10\x8a\xc81\x051-253R\x11organizationUnits\x12p\n" +
+	"\x17group_attributes_filter\x18\x04 \x01(\v28.yandex.cloud.organizationmanager.v1.idp.AttributeFilterR\x15groupAttributesFilter\x12n\n" +
+	"\x16user_attributes_filter\x18\x05 \x01(\v28.yandex.cloud.organizationmanager.v1.idp.AttributeFilterR\x14userAttributesFilter\"\x9c\x02\n" +
+	"\x0fAttributeFilter\x12m\n" +
+	"\fcombine_with\x18\x01 \x01(\x0e2D.yandex.cloud.organizationmanager.v1.idp.AttributeFilter.CombineWithB\x04\xe8\xc71\x01R\vcombineWith\x12\\\n" +
+	"\x05rules\x18\x02 \x03(\v2<.yandex.cloud.organizationmanager.v1.idp.AttributeFilterRuleB\b\x82\xc81\x041-50R\x05rules\"<\n" +
+	"\vCombineWith\x12\x1c\n" +
+	"\x18COMBINE_WITH_UNSPECIFIED\x10\x00\x12\a\n" +
+	"\x03AND\x10\x01\x12\x06\n" +
+	"\x02OR\x10\x02\"\x8d\x03\n" +
+	"\x13AttributeFilterRule\x12#\n" +
+	"\x05field\x18\x01 \x01(\tB\r\xe8\xc71\x01\x8a\xc81\x051-256R\x05field\x12g\n" +
+	"\boperator\x18\x02 \x01(\x0e2E.yandex.cloud.organizationmanager.v1.idp.AttributeFilterRule.OperatorB\x04\xe8\xc71\x01R\boperator\x12\x1f\n" +
+	"\x05value\x18\x03 \x01(\tB\t\x8a\xc81\x05<=512R\x05value\"\xc6\x01\n" +
+	"\bOperator\x12\x18\n" +
+	"\x14OPERATOR_UNSPECIFIED\x10\x00\x12\n" +
+	"\n" +
+	"\x06EQUALS\x10\x01\x12\x0e\n" +
+	"\n" +
+	"NOT_EQUALS\x10\x02\x12\x0f\n" +
+	"\vSTARTS_WITH\x10\x03\x12\x13\n" +
+	"\x0fNOT_STARTS_WITH\x10\x04\x12\r\n" +
+	"\tENDS_WITH\x10\x05\x12\x11\n" +
+	"\rNOT_ENDS_WITH\x10\x06\x12\f\n" +
+	"\bCONTAINS\x10\a\x12\x10\n" +
+	"\fNOT_CONTAINS\x10\b\x12\v\n" +
+	"\aIS_NULL\x10\t\x12\x0f\n" +
+	"\vIS_NOT_NULL\x10\n" +
+	"\"\xe5\x01\n" +
 	"\x14UserAttributeMapping\x12!\n" +
 	"\x06source\x18\x01 \x01(\tB\t\x8a\xc81\x050-253R\x06source\x12Z\n" +
 	"\x06target\x18\x02 \x01(\x0e2<.yandex.cloud.organizationmanager.v1.idp.UserTargetAttributeB\x04\xe8\xc71\x01R\x06target\x12N\n" +
@@ -947,41 +1263,50 @@ func file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto
 	return file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDescData
 }
 
-var file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
+var file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_goTypes = []any{
-	(LdapDeltaSyncMode)(0),          // 0: yandex.cloud.organizationmanager.v1.idp.LdapDeltaSyncMode
-	(MappingType)(0),                // 1: yandex.cloud.organizationmanager.v1.idp.MappingType
-	(UserTargetAttribute)(0),        // 2: yandex.cloud.organizationmanager.v1.idp.UserTargetAttribute
-	(GroupTargetAttribute)(0),       // 3: yandex.cloud.organizationmanager.v1.idp.GroupTargetAttribute
-	(RemoveUserBehavior)(0),         // 4: yandex.cloud.organizationmanager.v1.idp.RemoveUserBehavior
-	(SessionType)(0),                // 5: yandex.cloud.organizationmanager.v1.idp.SessionType
-	(*SynchronizationSettings)(nil), // 6: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings
-	(*LdapSettings)(nil),            // 7: yandex.cloud.organizationmanager.v1.idp.LdapSettings
-	(*SynchronizationFilter)(nil),   // 8: yandex.cloud.organizationmanager.v1.idp.SynchronizationFilter
-	(*UserAttributeMapping)(nil),    // 9: yandex.cloud.organizationmanager.v1.idp.UserAttributeMapping
-	(*GroupAttributeMapping)(nil),   // 10: yandex.cloud.organizationmanager.v1.idp.GroupAttributeMapping
-	(*durationpb.Duration)(nil),     // 11: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil),   // 12: google.protobuf.Timestamp
+	(LdapDeltaSyncMode)(0),            // 0: yandex.cloud.organizationmanager.v1.idp.LdapDeltaSyncMode
+	(MappingType)(0),                  // 1: yandex.cloud.organizationmanager.v1.idp.MappingType
+	(UserTargetAttribute)(0),          // 2: yandex.cloud.organizationmanager.v1.idp.UserTargetAttribute
+	(GroupTargetAttribute)(0),         // 3: yandex.cloud.organizationmanager.v1.idp.GroupTargetAttribute
+	(RemoveUserBehavior)(0),           // 4: yandex.cloud.organizationmanager.v1.idp.RemoveUserBehavior
+	(SessionType)(0),                  // 5: yandex.cloud.organizationmanager.v1.idp.SessionType
+	(AttributeFilter_CombineWith)(0),  // 6: yandex.cloud.organizationmanager.v1.idp.AttributeFilter.CombineWith
+	(AttributeFilterRule_Operator)(0), // 7: yandex.cloud.organizationmanager.v1.idp.AttributeFilterRule.Operator
+	(*SynchronizationSettings)(nil),   // 8: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings
+	(*LdapSettings)(nil),              // 9: yandex.cloud.organizationmanager.v1.idp.LdapSettings
+	(*SynchronizationFilter)(nil),     // 10: yandex.cloud.organizationmanager.v1.idp.SynchronizationFilter
+	(*AttributeFilter)(nil),           // 11: yandex.cloud.organizationmanager.v1.idp.AttributeFilter
+	(*AttributeFilterRule)(nil),       // 12: yandex.cloud.organizationmanager.v1.idp.AttributeFilterRule
+	(*UserAttributeMapping)(nil),      // 13: yandex.cloud.organizationmanager.v1.idp.UserAttributeMapping
+	(*GroupAttributeMapping)(nil),     // 14: yandex.cloud.organizationmanager.v1.idp.GroupAttributeMapping
+	(*durationpb.Duration)(nil),       // 15: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil),     // 16: google.protobuf.Timestamp
 }
 var file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_depIdxs = []int32{
-	8,  // 0: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.filter:type_name -> yandex.cloud.organizationmanager.v1.idp.SynchronizationFilter
+	10, // 0: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.filter:type_name -> yandex.cloud.organizationmanager.v1.idp.SynchronizationFilter
 	4,  // 1: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.remove_user_behavior:type_name -> yandex.cloud.organizationmanager.v1.idp.RemoveUserBehavior
-	11, // 2: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.synchronization_interval:type_name -> google.protobuf.Duration
-	9,  // 3: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.user_attribute_mappings:type_name -> yandex.cloud.organizationmanager.v1.idp.UserAttributeMapping
-	10, // 4: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.group_attribute_mappings:type_name -> yandex.cloud.organizationmanager.v1.idp.GroupAttributeMapping
-	12, // 5: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.created_at:type_name -> google.protobuf.Timestamp
-	7,  // 6: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.ldap_settings:type_name -> yandex.cloud.organizationmanager.v1.idp.LdapSettings
+	15, // 2: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.synchronization_interval:type_name -> google.protobuf.Duration
+	13, // 3: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.user_attribute_mappings:type_name -> yandex.cloud.organizationmanager.v1.idp.UserAttributeMapping
+	14, // 4: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.group_attribute_mappings:type_name -> yandex.cloud.organizationmanager.v1.idp.GroupAttributeMapping
+	16, // 5: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.created_at:type_name -> google.protobuf.Timestamp
+	9,  // 6: yandex.cloud.organizationmanager.v1.idp.SynchronizationSettings.ldap_settings:type_name -> yandex.cloud.organizationmanager.v1.idp.LdapSettings
 	0,  // 7: yandex.cloud.organizationmanager.v1.idp.LdapSettings.delta_sync_mode:type_name -> yandex.cloud.organizationmanager.v1.idp.LdapDeltaSyncMode
-	2,  // 8: yandex.cloud.organizationmanager.v1.idp.UserAttributeMapping.target:type_name -> yandex.cloud.organizationmanager.v1.idp.UserTargetAttribute
-	1,  // 9: yandex.cloud.organizationmanager.v1.idp.UserAttributeMapping.type:type_name -> yandex.cloud.organizationmanager.v1.idp.MappingType
-	3,  // 10: yandex.cloud.organizationmanager.v1.idp.GroupAttributeMapping.target:type_name -> yandex.cloud.organizationmanager.v1.idp.GroupTargetAttribute
-	1,  // 11: yandex.cloud.organizationmanager.v1.idp.GroupAttributeMapping.type:type_name -> yandex.cloud.organizationmanager.v1.idp.MappingType
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	11, // 8: yandex.cloud.organizationmanager.v1.idp.SynchronizationFilter.group_attributes_filter:type_name -> yandex.cloud.organizationmanager.v1.idp.AttributeFilter
+	11, // 9: yandex.cloud.organizationmanager.v1.idp.SynchronizationFilter.user_attributes_filter:type_name -> yandex.cloud.organizationmanager.v1.idp.AttributeFilter
+	6,  // 10: yandex.cloud.organizationmanager.v1.idp.AttributeFilter.combine_with:type_name -> yandex.cloud.organizationmanager.v1.idp.AttributeFilter.CombineWith
+	12, // 11: yandex.cloud.organizationmanager.v1.idp.AttributeFilter.rules:type_name -> yandex.cloud.organizationmanager.v1.idp.AttributeFilterRule
+	7,  // 12: yandex.cloud.organizationmanager.v1.idp.AttributeFilterRule.operator:type_name -> yandex.cloud.organizationmanager.v1.idp.AttributeFilterRule.Operator
+	2,  // 13: yandex.cloud.organizationmanager.v1.idp.UserAttributeMapping.target:type_name -> yandex.cloud.organizationmanager.v1.idp.UserTargetAttribute
+	1,  // 14: yandex.cloud.organizationmanager.v1.idp.UserAttributeMapping.type:type_name -> yandex.cloud.organizationmanager.v1.idp.MappingType
+	3,  // 15: yandex.cloud.organizationmanager.v1.idp.GroupAttributeMapping.target:type_name -> yandex.cloud.organizationmanager.v1.idp.GroupTargetAttribute
+	1,  // 16: yandex.cloud.organizationmanager.v1.idp.GroupAttributeMapping.type:type_name -> yandex.cloud.organizationmanager.v1.idp.MappingType
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_init() }
@@ -994,8 +1319,8 @@ func file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDesc), len(file_yandex_cloud_organizationmanager_v1_idp_synchronization_settings_proto_rawDesc)),
-			NumEnums:      6,
-			NumMessages:   5,
+			NumEnums:      8,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

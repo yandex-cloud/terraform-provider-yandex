@@ -318,6 +318,10 @@ func (m *MetadataOptions) SetAwsV1HttpEndpoint(v MetadataOption) {
 	m.AwsV1HttpEndpoint = v
 }
 
+func (m *MetadataOptions) SetAwsV2HttpEndpoint(v MetadataOption) {
+	m.AwsV2HttpEndpoint = v
+}
+
 func (m *AsyncInvocationConfig) SetServiceAccountId(v string) {
 	m.ServiceAccountId = v
 }

@@ -483,7 +483,10 @@ type QueryStats struct {
 	// User CPU time used.
 	UserTime float64 `protobuf:"fixed64,49,opt,name=user_time,json=userTime,proto3" json:"user_time,omitempty"`
 	// System CPU time used.
-	SystemTime    float64 `protobuf:"fixed64,50,opt,name=system_time,json=systemTime,proto3" json:"system_time,omitempty"`
+	SystemTime float64 `protobuf:"fixed64,50,opt,name=system_time,json=systemTime,proto3" json:"system_time,omitempty"`
+	// Fraction of shared block accesses served from the PostgreSQL buffer cache, from 0 to 1.
+	// Returns 0 if the statement neither hit nor read any shared blocks.
+	CacheHitRatio float64 `protobuf:"fixed64,53,opt,name=cache_hit_ratio,json=cacheHitRatio,proto3" json:"cache_hit_ratio,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -868,6 +871,13 @@ func (x *QueryStats) GetSystemTime() float64 {
 	return 0
 }
 
+func (x *QueryStats) GetCacheHitRatio() float64 {
+	if x != nil {
+		return x.CacheHitRatio
+	}
+	return 0
+}
+
 type QueryStatement struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Primary keys in tables with the statistics on planning and execution of queries.
@@ -964,7 +974,7 @@ const file_yandex_cloud_mdb_postgresql_v1_perf_diag_proto_rawDesc = "" +
 	"\bdatabase\x18\x04 \x01(\tR\bdatabase\x12\x1a\n" +
 	"\btoplevel\x18\x05 \x01(\bR\btoplevel\x12\x19\n" +
 	"\bquery_id\x18\x06 \x01(\tR\aqueryId\x12\x17\n" +
-	"\aplan_id\x18\a \x01(\tR\x06planIdJ\x04\b\x03\x10\x04\"\xb9\x0e\n" +
+	"\aplan_id\x18\a \x01(\tR\x06planIdJ\x04\b\x03\x10\x04\"\xe7\x0e\n" +
 	"\n" +
 	"QueryStats\x12.\n" +
 	"\x04time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12\x14\n" +
@@ -1023,7 +1033,8 @@ const file_yandex_cloud_mdb_postgresql_v1_perf_diag_proto_rawDesc = "" +
 	"\x06writes\x180 \x01(\x03R\x06writes\x12\x1b\n" +
 	"\tuser_time\x181 \x01(\x01R\buserTime\x12\x1f\n" +
 	"\vsystem_time\x182 \x01(\x01R\n" +
-	"systemTime\"\x90\x01\n" +
+	"systemTime\x12&\n" +
+	"\x0fcache_hit_ratio\x185 \x01(\x01R\rcacheHitRatioJ\x04\b3\x105\"\x90\x01\n" +
 	"\x0eQueryStatement\x12<\n" +
 	"\x03key\x18\x01 \x01(\v2*.yandex.cloud.mdb.postgresql.v1.PrimaryKeyR\x03key\x12@\n" +
 	"\x05stats\x18\x02 \x01(\v2*.yandex.cloud.mdb.postgresql.v1.QueryStatsR\x05statsBs\n" +

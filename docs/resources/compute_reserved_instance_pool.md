@@ -66,6 +66,13 @@ filename: yandex/cloud/compute/v1/reserved_instance_pool.proto
 - `name` (String). Name of the pool. 1-63 characters long.
 - `network_settings` [Block]. Network Settings.
   - `type` (String). Network Type
+- `placement_policy` [Block]. Placement policy configuration.
+  - `host_affinity_rules` [Block]. List of affinity rules. Scheduler will attempt to allocate instances according to order of rules.
+    - `key` (String). Affinity label or one of reserved values - 'yc.hostId', 'yc.hostGroupId'
+    - `op` (String). Include or exclude action
+    - `values` (List Of String). Affinity value or host ID or host group ID
+  - `placement_group_id` (String). Placement group ID.
+  - `placement_group_partition` (Number). Placement group partition
 - `platform_id` (String). ID of the hardware platform configuration for pool instances.
 - `product_ids` (*Read-Only*) (List Of String). License IDs that indicate which licenses are attached to resource.
  License IDs are used to calculate additional charges for the use of the virtual machine.

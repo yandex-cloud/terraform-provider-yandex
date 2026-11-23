@@ -25,6 +25,7 @@ type InstanceClient interface {
 	Delete(context.Context, *gitlab.DeleteInstanceRequest, ...grpc.CallOption) (*InstanceDeleteOperation, error)
 	Start(context.Context, *gitlab.StartInstanceRequest, ...grpc.CallOption) (*InstanceStartOperation, error)
 	Stop(context.Context, *gitlab.StopInstanceRequest, ...grpc.CallOption) (*InstanceStopOperation, error)
+	ListBackups(context.Context, *gitlab.ListInstanceBackupsRequest, ...grpc.CallOption) (*gitlab.ListInstanceBackupsResponse, error)
 	GetBackupDownloadUrls(context.Context, *gitlab.GetBackupDownloadUrlsRequest, ...grpc.CallOption) (*gitlab.GetBackupDownloadUrlsResponse, error)
 }
 
@@ -381,6 +382,15 @@ func (c instanceClient) Stop(ctx context.Context, in *gitlab.StopInstanceRequest
 	return &InstanceStopOperation{*op}, nil
 }
 
+// ListBackups is an operation of Yandex.Cloud Gitlab Instance service.
+func (c instanceClient) ListBackups(ctx context.Context, in *gitlab.ListInstanceBackupsRequest, opts ...grpc.CallOption) (*gitlab.ListInstanceBackupsResponse, error) {
+	connection, err := c.connector.GetConnection(ctx, InstanceListBackups, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return gitlab.NewInstanceServiceClient(connection).ListBackups(ctx, in, opts...)
+}
+
 // GetBackupDownloadUrls is an operation of Yandex.Cloud Gitlab Instance service.
 func (c instanceClient) GetBackupDownloadUrls(ctx context.Context, in *gitlab.GetBackupDownloadUrlsRequest, opts ...grpc.CallOption) (*gitlab.GetBackupDownloadUrlsResponse, error) {
 	connection, err := c.connector.GetConnection(ctx, InstanceGetBackupDownloadUrls, opts...)
@@ -408,6 +418,7 @@ var (
 	InstanceDelete                = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Delete")
 	InstanceStart                 = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Start")
 	InstanceStop                  = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.Stop")
+	InstanceListBackups           = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.ListBackups")
 	InstanceGetBackupDownloadUrls = protoreflect.FullName("yandex.cloud.gitlab.v1.InstanceService.GetBackupDownloadUrls")
 	InstanceOperationPoller       = protoreflect.FullName("yandex.cloud.operation.OperationService.Get")
 )

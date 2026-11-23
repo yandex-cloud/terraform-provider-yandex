@@ -1450,6 +1450,8 @@ type MetadataOptions struct {
 	GceHttpEndpoint MetadataOption `protobuf:"varint,1,opt,name=gce_http_endpoint,json=gceHttpEndpoint,proto3,enum=yandex.cloud.serverless.containers.v1.MetadataOption" json:"gce_http_endpoint,omitempty"`
 	// Enabled access to AWS flavored metadata (IMDSv1)
 	AwsV1HttpEndpoint MetadataOption `protobuf:"varint,2,opt,name=aws_v1_http_endpoint,json=awsV1HttpEndpoint,proto3,enum=yandex.cloud.serverless.containers.v1.MetadataOption" json:"aws_v1_http_endpoint,omitempty"`
+	// Enabled access to AWS flavored metadata with a session token (IMDSv2)
+	AwsV2HttpEndpoint MetadataOption `protobuf:"varint,3,opt,name=aws_v2_http_endpoint,json=awsV2HttpEndpoint,proto3,enum=yandex.cloud.serverless.containers.v1.MetadataOption" json:"aws_v2_http_endpoint,omitempty"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -1494,6 +1496,13 @@ func (x *MetadataOptions) GetGceHttpEndpoint() MetadataOption {
 func (x *MetadataOptions) GetAwsV1HttpEndpoint() MetadataOption {
 	if x != nil {
 		return x.AwsV1HttpEndpoint
+	}
+	return MetadataOption_METADATA_OPTION_UNSPECIFIED
+}
+
+func (x *MetadataOptions) GetAwsV2HttpEndpoint() MetadataOption {
+	if x != nil {
+		return x.AwsV2HttpEndpoint
 	}
 	return MetadataOption_METADATA_OPTION_UNSPECIFIED
 }
@@ -1854,10 +1863,11 @@ const file_yandex_cloud_serverless_containers_v1_container_proto_rawDesc = "" +
 	"\n" +
 	"READ_WRITE\x10\x02B\x0e\n" +
 	"\x06target\x12\x04\xc0\xc11\x01J\x04\b\x01\x10\x02J\x04\b\x04\x10\n" +
-	"\"\xdc\x01\n" +
+	"\"\xc4\x02\n" +
 	"\x0fMetadataOptions\x12a\n" +
 	"\x11gce_http_endpoint\x18\x01 \x01(\x0e25.yandex.cloud.serverless.containers.v1.MetadataOptionR\x0fgceHttpEndpoint\x12f\n" +
-	"\x14aws_v1_http_endpoint\x18\x02 \x01(\x0e25.yandex.cloud.serverless.containers.v1.MetadataOptionR\x11awsV1HttpEndpoint\"E\n" +
+	"\x14aws_v1_http_endpoint\x18\x02 \x01(\x0e25.yandex.cloud.serverless.containers.v1.MetadataOptionR\x11awsV1HttpEndpoint\x12f\n" +
+	"\x14aws_v2_http_endpoint\x18\x03 \x01(\x0e25.yandex.cloud.serverless.containers.v1.MetadataOptionR\x11awsV2HttpEndpoint\"E\n" +
 	"\x15AsyncInvocationConfig\x12,\n" +
 	"\x12service_account_id\x18\x01 \x01(\tR\x10serviceAccountId*L\n" +
 	"\x0eMetadataOption\x12\x1f\n" +
@@ -1941,11 +1951,12 @@ var file_yandex_cloud_serverless_containers_v1_container_proto_depIdxs = []int32
 	25, // 26: yandex.cloud.serverless.containers.v1.Mount.ephemeral_disk_spec:type_name -> yandex.cloud.serverless.containers.v1.Mount.DiskSpec
 	0,  // 27: yandex.cloud.serverless.containers.v1.MetadataOptions.gce_http_endpoint:type_name -> yandex.cloud.serverless.containers.v1.MetadataOption
 	0,  // 28: yandex.cloud.serverless.containers.v1.MetadataOptions.aws_v1_http_endpoint:type_name -> yandex.cloud.serverless.containers.v1.MetadataOption
-	29, // [29:29] is the sub-list for method output_type
-	29, // [29:29] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	0,  // 29: yandex.cloud.serverless.containers.v1.MetadataOptions.aws_v2_http_endpoint:type_name -> yandex.cloud.serverless.containers.v1.MetadataOption
+	30, // [30:30] is the sub-list for method output_type
+	30, // [30:30] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_serverless_containers_v1_container_proto_init() }

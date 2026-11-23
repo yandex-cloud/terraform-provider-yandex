@@ -130,6 +130,10 @@ func (m *ChartWidget_VisualizationSettings) SetFillOpacity(v *wrapperspb.Int64Va
 	m.FillOpacity = v
 }
 
+func (m *ChartWidget_VisualizationSettings) SetTableSettings(v *TableSettings) {
+	m.TableSettings = v
+}
+
 type ChartWidget_VisualizationSettings_ColorSchemeSettings_Scheme = isChartWidget_VisualizationSettings_ColorSchemeSettings_Scheme
 
 func (m *ChartWidget_VisualizationSettings_ColorSchemeSettings) SetScheme(v ChartWidget_VisualizationSettings_ColorSchemeSettings_Scheme) {
@@ -362,6 +366,10 @@ func (m *ChartWidget_SeriesOverrides_SeriesOverrideSettings) SetFillOpacity(v *w
 	m.FillOpacity = v
 }
 
+func (m *ChartWidget_SeriesOverrides_SeriesOverrideSettings) SetUnitFormat(v UnitFormat) {
+	m.UnitFormat = v
+}
+
 type ChartWidget_OverrideMatcher_Type = isChartWidget_OverrideMatcher_Type
 
 func (m *ChartWidget_OverrideMatcher) SetType(v ChartWidget_OverrideMatcher_Type) {
@@ -392,6 +400,12 @@ func (m *ChartWidget_OverrideMatcher) SetValues(v *ChartWidget_ValueMatcher) {
 	}
 }
 
+func (m *ChartWidget_OverrideMatcher) SetColumn(v *ChartWidget_ColumnMatcher) {
+	m.Type = &ChartWidget_OverrideMatcher_Column{
+		Column: v,
+	}
+}
+
 func (m *ChartWidget_QueryMatcher) SetNames(v []string) {
 	m.Names = v
 }
@@ -406,6 +420,10 @@ func (m *ChartWidget_RegExpMatcher) SetRegExp(v string) {
 
 func (m *ChartWidget_ValueMatcher) SetValueType(v ChartWidget_ValuesType) {
 	m.ValueType = v
+}
+
+func (m *ChartWidget_ColumnMatcher) SetColumns(v []*TableSettings_ColumnRef) {
+	m.Columns = v
 }
 
 func (m *ChartWidget_NameHidingSettings) SetPositive(v bool) {

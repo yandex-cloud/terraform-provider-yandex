@@ -1,5 +1,33 @@
 # Release notes
 
+## 0.251.0 (November 23, 2026)
+
+##### BUG FIXES:
+* mdb_kafka_cluster: restore subnet_ids from cluster hosts during refresh and import, expose them in the data source, and avoid updates caused only by subnet order
+* clickhouse: replace unavailable ru-central1-b with ru-central1-d in resource acceptance tests and shared subnet fixtures
+
+##### ENHANCEMENTS:
+* compute: add `placement_policy.placement_group_partition` to `yandex_compute_reserved_instance_pool` data source
+* compute: add `placement_policy.placement_group_partition` to `yandex_compute_reserved_instance_pool` resource
+* compute: add `placement_policy` to `yandex_compute_reserved_instance_pool` resource
+* smartwebsecurity: add `tls_listener.do_not_rewrite_request_id` to `yandex_sws_domain` data source
+* compute: add `placement_policy.placement_group_id` to `yandex_compute_reserved_instance_pool` data source
+* compute: add `placement_policy.host_affinity_rules.key` to `yandex_compute_reserved_instance_pool` resource
+* compute: add `placement_policy.host_affinity_rules` to `yandex_compute_reserved_instance_pool` resource
+* smartwebsecurity: add `tls_listener.do_not_rewrite_request_id` to `yandex_sws_domain` resource
+* compute: add `placement_policy.host_affinity_rules.op` to `yandex_compute_reserved_instance_pool` data source
+* compute: add `placement_policy.host_affinity_rules.values` to `yandex_compute_reserved_instance_pool` data source
+* compute: add `placement_policy.host_affinity_rules` to `yandex_compute_reserved_instance_pool` data source
+* compute: add `placement_policy.placement_group_id` to `yandex_compute_reserved_instance_pool` resource
+* compute: add `placement_policy.host_affinity_rules.values` to `yandex_compute_reserved_instance_pool` resource
+* compute: add `placement_policy.host_affinity_rules.op` to `yandex_compute_reserved_instance_pool` resource
+* compute: add `placement_policy` to `yandex_compute_reserved_instance_pool` data source
+* compute: add `placement_policy.host_affinity_rules.key` to `yandex_compute_reserved_instance_pool` data source
+* mdb_kafka_connector: support MirrorCheckpoint connectors in the resource and data source
+* mysql: support MySQL 9.7 creation, upgrades and configuration in yandex_mdb_mysql_cluster and yandex_mdb_mysql_cluster_v2
+
+
+
 ## 0.250.0 (November 17, 2026)
 
 ##### ENHANCEMENTS:

@@ -41,3 +41,7 @@ func (m *HelmRelease) SetStatus(v HelmRelease_Status) {
 func (m *HelmRelease) SetCreatedAt(v *timestamppb.Timestamp) {
 	m.CreatedAt = v
 }
+
+func (m *HelmRelease) SetFederationId(v string) {
+	m.FederationId = v
+}

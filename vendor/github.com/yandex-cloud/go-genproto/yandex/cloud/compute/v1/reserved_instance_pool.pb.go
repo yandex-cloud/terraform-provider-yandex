@@ -49,6 +49,8 @@ type ReservedInstancePool struct {
 	// License IDs that indicate which licenses are attached to resource.
 	// License IDs are used to calculate additional charges for the use of the virtual machine.
 	ProductIds []string `protobuf:"bytes,12,rep,name=product_ids,json=productIds,proto3" json:"product_ids,omitempty"`
+	// Placement policy configuration.
+	PlacementPolicy *PlacementPolicy `protobuf:"bytes,19,opt,name=placement_policy,json=placementPolicy,proto3" json:"placement_policy,omitempty"`
 	// Network Settings.
 	NetworkSettings *NetworkSettings `protobuf:"bytes,13,opt,name=network_settings,json=networkSettings,proto3" json:"network_settings,omitempty"`
 	// Desired size of the pool (number of slots for instances in this pool).
@@ -177,6 +179,13 @@ func (x *ReservedInstancePool) GetGpuSettings() *GpuSettings {
 func (x *ReservedInstancePool) GetProductIds() []string {
 	if x != nil {
 		return x.ProductIds
+	}
+	return nil
+}
+
+func (x *ReservedInstancePool) GetPlacementPolicy() *PlacementPolicy {
+	if x != nil {
+		return x.PlacementPolicy
 	}
 	return nil
 }
@@ -521,7 +530,7 @@ var File_yandex_cloud_compute_v1_reserved_instance_pool_proto protoreflect.FileD
 
 const file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDesc = "" +
 	"\n" +
-	"4yandex/cloud/compute/v1/reserved_instance_pool.proto\x12\x17yandex.cloud.compute.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&yandex/cloud/compute/v1/instance.proto\x1a.yandex/cloud/compute/v1/instance_service.proto\"\x8c\t\n" +
+	"4yandex/cloud/compute/v1/reserved_instance_pool.proto\x12\x17yandex.cloud.compute.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&yandex/cloud/compute/v1/instance.proto\x1a.yandex/cloud/compute/v1/instance_service.proto\"\xe1\t\n" +
 	"\x14ReservedInstancePool\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\azone_id\x18\x02 \x01(\tR\x06zoneId\x12\x19\n" +
@@ -539,6 +548,7 @@ const file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDesc = "" +
 	"\fgpu_settings\x18\v \x01(\v2$.yandex.cloud.compute.v1.GpuSettingsR\vgpuSettings\x12\x1f\n" +
 	"\vproduct_ids\x18\f \x03(\tR\n" +
 	"productIds\x12S\n" +
+	"\x10placement_policy\x18\x13 \x01(\v2(.yandex.cloud.compute.v1.PlacementPolicyR\x0fplacementPolicy\x12S\n" +
 	"\x10network_settings\x18\r \x01(\v2(.yandex.cloud.compute.v1.NetworkSettingsR\x0fnetworkSettings\x12\x12\n" +
 	"\x04size\x18\x0e \x01(\x03R\x04size\x12%\n" +
 	"\x0ecommitted_size\x18\x0f \x01(\x03R\rcommittedSize\x125\n" +
@@ -594,22 +604,24 @@ var file_yandex_cloud_compute_v1_reserved_instance_pool_proto_goTypes = []any{
 	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
 	(*ResourcesSpec)(nil),         // 7: yandex.cloud.compute.v1.ResourcesSpec
 	(*GpuSettings)(nil),           // 8: yandex.cloud.compute.v1.GpuSettings
-	(*NetworkSettings)(nil),       // 9: yandex.cloud.compute.v1.NetworkSettings
+	(*PlacementPolicy)(nil),       // 9: yandex.cloud.compute.v1.PlacementPolicy
+	(*NetworkSettings)(nil),       // 10: yandex.cloud.compute.v1.NetworkSettings
 }
 var file_yandex_cloud_compute_v1_reserved_instance_pool_proto_depIdxs = []int32{
-	5, // 0: yandex.cloud.compute.v1.ReservedInstancePool.labels:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.LabelsEntry
-	6, // 1: yandex.cloud.compute.v1.ReservedInstancePool.created_at:type_name -> google.protobuf.Timestamp
-	7, // 2: yandex.cloud.compute.v1.ReservedInstancePool.resources_spec:type_name -> yandex.cloud.compute.v1.ResourcesSpec
-	8, // 3: yandex.cloud.compute.v1.ReservedInstancePool.gpu_settings:type_name -> yandex.cloud.compute.v1.GpuSettings
-	9, // 4: yandex.cloud.compute.v1.ReservedInstancePool.network_settings:type_name -> yandex.cloud.compute.v1.NetworkSettings
-	3, // 5: yandex.cloud.compute.v1.ReservedInstancePool.slot_stats:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.SlotStats
-	4, // 6: yandex.cloud.compute.v1.ReservedInstancePool.instance_stats:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.InstanceStats
-	1, // 7: yandex.cloud.compute.v1.BootDiskSpec.product_ids:type_name -> yandex.cloud.compute.v1.ProductIDs
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	5,  // 0: yandex.cloud.compute.v1.ReservedInstancePool.labels:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.LabelsEntry
+	6,  // 1: yandex.cloud.compute.v1.ReservedInstancePool.created_at:type_name -> google.protobuf.Timestamp
+	7,  // 2: yandex.cloud.compute.v1.ReservedInstancePool.resources_spec:type_name -> yandex.cloud.compute.v1.ResourcesSpec
+	8,  // 3: yandex.cloud.compute.v1.ReservedInstancePool.gpu_settings:type_name -> yandex.cloud.compute.v1.GpuSettings
+	9,  // 4: yandex.cloud.compute.v1.ReservedInstancePool.placement_policy:type_name -> yandex.cloud.compute.v1.PlacementPolicy
+	10, // 5: yandex.cloud.compute.v1.ReservedInstancePool.network_settings:type_name -> yandex.cloud.compute.v1.NetworkSettings
+	3,  // 6: yandex.cloud.compute.v1.ReservedInstancePool.slot_stats:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.SlotStats
+	4,  // 7: yandex.cloud.compute.v1.ReservedInstancePool.instance_stats:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.InstanceStats
+	1,  // 8: yandex.cloud.compute.v1.BootDiskSpec.product_ids:type_name -> yandex.cloud.compute.v1.ProductIDs
+	9,  // [9:9] is the sub-list for method output_type
+	9,  // [9:9] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_compute_v1_reserved_instance_pool_proto_init() }

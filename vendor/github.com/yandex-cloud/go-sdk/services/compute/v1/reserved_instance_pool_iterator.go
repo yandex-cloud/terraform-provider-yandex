@@ -4,6 +4,7 @@ package computesdk
 import (
 	"context"
 
+	access "github.com/yandex-cloud/go-genproto/yandex/cloud/access"
 	compute "github.com/yandex-cloud/go-genproto/yandex/cloud/compute/v1"
 	operation "github.com/yandex-cloud/go-genproto/yandex/cloud/operation"
 	"github.com/yandex-cloud/go-sdk/v2/pkg/iterator"
@@ -14,6 +15,7 @@ type ReservedInstancePoolClientIterator interface {
 	Iterator(context.Context, *compute.ListReservedInstancePoolsRequest, ...grpc.CallOption) *iterator.Iterator[*compute.ListReservedInstancePoolsRequest, *compute.ReservedInstancePool]
 	OperationsIterator(context.Context, *compute.ListReservedInstancePoolOperationsRequest, ...grpc.CallOption) *iterator.Iterator[*compute.ListReservedInstancePoolOperationsRequest, *operation.Operation]
 	InstancesIterator(context.Context, *compute.ListReservedInstancePoolInstancesRequest, ...grpc.CallOption) *iterator.Iterator[*compute.ListReservedInstancePoolInstancesRequest, *compute.Instance]
+	AccessBindingsIterator(context.Context, *access.ListAccessBindingsRequest, ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding]
 }
 
 type reservedInstancePoolServiceListInternal struct {
@@ -70,5 +72,24 @@ func (c reservedInstancePoolClient) InstancesIterator(ctx context.Context, req *
 				return nil, err
 			}
 			return reservedInstancePoolServiceListInstancesInternal{resp}, nil
+		}, opts...)
+}
+
+type reservedInstancePoolServiceListAccessBindingsInternal struct {
+	*access.ListAccessBindingsResponse
+}
+
+func (r reservedInstancePoolServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
+	return r.ListAccessBindingsResponse.AccessBindings
+}
+
+func (c reservedInstancePoolClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
+	return iterator.NewIterator[*access.ListAccessBindingsRequest, *access.AccessBinding](ctx, req,
+		func(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) (iterator.PageResponse[*access.AccessBinding], error) {
+			resp, err := c.ListAccessBindings(ctx, req, opts...)
+			if err != nil {
+				return nil, err
+			}
+			return reservedInstancePoolServiceListAccessBindingsInternal{resp}, nil
 		}, opts...)
 }

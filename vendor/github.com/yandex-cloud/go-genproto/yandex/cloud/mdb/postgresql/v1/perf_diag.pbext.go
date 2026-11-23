@@ -318,6 +318,10 @@ func (m *QueryStats) SetSystemTime(v float64) {
 	m.SystemTime = v
 }
 
+func (m *QueryStats) SetCacheHitRatio(v float64) {
+	m.CacheHitRatio = v
+}
+
 func (m *QueryStatement) SetKey(v *PrimaryKey) {
 	m.Key = v
 }

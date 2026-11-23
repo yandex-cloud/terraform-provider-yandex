@@ -121,7 +121,9 @@ type HelmRelease struct {
 	// Status of the Helm release.
 	Status HelmRelease_Status `protobuf:"varint,7,opt,name=status,proto3,enum=yandex.cloud.k8s.marketplace.v1.HelmRelease_Status" json:"status,omitempty"`
 	// Creation timestamp.
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// Workload identity federation ID recorded for the installation. Empty if no ID is recorded.
+	FederationId  string `protobuf:"bytes,11,opt,name=federation_id,json=federationId,proto3" json:"federation_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -219,11 +221,18 @@ func (x *HelmRelease) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *HelmRelease) GetFederationId() string {
+	if x != nil {
+		return x.FederationId
+	}
+	return ""
+}
+
 var File_yandex_cloud_k8s_marketplace_v1_helm_release_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_k8s_marketplace_v1_helm_release_proto_rawDesc = "" +
 	"\n" +
-	"2yandex/cloud/k8s/marketplace/v1/helm_release.proto\x12\x1fyandex.cloud.k8s.marketplace.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb2\x04\n" +
+	"2yandex/cloud/k8s/marketplace/v1/helm_release.proto\x12\x1fyandex.cloud.k8s.marketplace.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd7\x04\n" +
 	"\vHelmRelease\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\n" +
@@ -237,7 +246,8 @@ const file_yandex_cloud_k8s_marketplace_v1_helm_release_proto_rawDesc = "" +
 	" \x01(\tR\x0eproductVersion\x12K\n" +
 	"\x06status\x18\a \x01(\x0e23.yandex.cloud.k8s.marketplace.v1.HelmRelease.StatusR\x06status\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xba\x01\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12#\n" +
+	"\rfederation_id\x18\v \x01(\tR\ffederationId\"\xba\x01\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aUNKNOWN\x10\x01\x12\f\n" +

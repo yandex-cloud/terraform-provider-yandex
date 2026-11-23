@@ -253,8 +253,10 @@ type Listener_Protocol int32
 
 const (
 	Listener_PROTOCOL_UNSPECIFIED Listener_Protocol = 0
-	Listener_TCP                  Listener_Protocol = 1
-	Listener_UDP                  Listener_Protocol = 2
+	// Transmission Control Protocol.
+	Listener_TCP Listener_Protocol = 1
+	// User Datagram Protocol.
+	Listener_UDP Listener_Protocol = 2
 )
 
 // Enum value maps for Listener_Protocol.
@@ -384,6 +386,8 @@ type NetworkLoadBalancer struct {
 	// Type of the network load balancer. Only external network load balancers are available now.
 	Type NetworkLoadBalancer_Type `protobuf:"varint,10,opt,name=type,proto3,enum=yandex.cloud.loadbalancer.v1.NetworkLoadBalancer_Type" json:"type,omitempty"`
 	// Type of the session affinity. Only 5-tuple affinity is available now.
+	//
+	// Deprecated: Marked as deprecated in yandex/cloud/loadbalancer/v1/network_load_balancer.proto.
 	SessionAffinity NetworkLoadBalancer_SessionAffinity `protobuf:"varint,11,opt,name=session_affinity,json=sessionAffinity,proto3,enum=yandex.cloud.loadbalancer.v1.NetworkLoadBalancer_SessionAffinity" json:"session_affinity,omitempty"`
 	// List of listeners for the network load balancer.
 	Listeners []*Listener `protobuf:"bytes,12,rep,name=listeners,proto3" json:"listeners,omitempty"`
@@ -492,6 +496,7 @@ func (x *NetworkLoadBalancer) GetType() NetworkLoadBalancer_Type {
 	return NetworkLoadBalancer_TYPE_UNSPECIFIED
 }
 
+// Deprecated: Marked as deprecated in yandex/cloud/loadbalancer/v1/network_load_balancer.proto.
 func (x *NetworkLoadBalancer) GetSessionAffinity() NetworkLoadBalancer_SessionAffinity {
 	if x != nil {
 		return x.SessionAffinity
@@ -827,7 +832,7 @@ var File_yandex_cloud_loadbalancer_v1_network_load_balancer_proto protoreflect.F
 
 const file_yandex_cloud_loadbalancer_v1_network_load_balancer_proto_rawDesc = "" +
 	"\n" +
-	"8yandex/cloud/loadbalancer/v1/network_load_balancer.proto\x12\x1cyandex.cloud.loadbalancer.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/yandex/cloud/loadbalancer/v1/health_check.proto\"\xf5\t\n" +
+	"8yandex/cloud/loadbalancer/v1/network_load_balancer.proto\x12\x1cyandex.cloud.loadbalancer.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a/yandex/cloud/loadbalancer/v1/health_check.proto\"\xf9\t\n" +
 	"\x13NetworkLoadBalancer\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -839,8 +844,8 @@ const file_yandex_cloud_loadbalancer_v1_network_load_balancer_proto_rawDesc = ""
 	"\tregion_id\x18\a \x01(\tR\bregionId\x12P\n" +
 	"\x06status\x18\t \x01(\x0e28.yandex.cloud.loadbalancer.v1.NetworkLoadBalancer.StatusR\x06status\x12J\n" +
 	"\x04type\x18\n" +
-	" \x01(\x0e26.yandex.cloud.loadbalancer.v1.NetworkLoadBalancer.TypeR\x04type\x12l\n" +
-	"\x10session_affinity\x18\v \x01(\x0e2A.yandex.cloud.loadbalancer.v1.NetworkLoadBalancer.SessionAffinityR\x0fsessionAffinity\x12D\n" +
+	" \x01(\x0e26.yandex.cloud.loadbalancer.v1.NetworkLoadBalancer.TypeR\x04type\x12p\n" +
+	"\x10session_affinity\x18\v \x01(\x0e2A.yandex.cloud.loadbalancer.v1.NetworkLoadBalancer.SessionAffinityB\x02\x18\x01R\x0fsessionAffinity\x12D\n" +
 	"\tlisteners\x18\f \x03(\v2&.yandex.cloud.loadbalancer.v1.ListenerR\tlisteners\x12g\n" +
 	"\x16attached_target_groups\x18\r \x03(\v21.yandex.cloud.loadbalancer.v1.AttachedTargetGroupR\x14attachedTargetGroups\x12/\n" +
 	"\x13deletion_protection\x18\x0e \x01(\bR\x12deletionProtection\x12*\n" +

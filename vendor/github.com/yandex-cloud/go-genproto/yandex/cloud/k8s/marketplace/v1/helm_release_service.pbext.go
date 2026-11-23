@@ -2,6 +2,10 @@
 
 package k8s_marketplace
 
+import (
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+)
+
 func (m *ListHelmReleasesRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -38,6 +42,10 @@ func (m *InstallHelmReleaseRequest) SetUserValues(v []*ValueWithKey) {
 	m.UserValues = v
 }
 
+func (m *InstallHelmReleaseRequest) SetFederationId(v *wrapperspb.StringValue) {
+	m.FederationId = v
+}
+
 func (m *InstallHelmReleaseMetadata) SetClusterId(v string) {
 	m.ClusterId = v
 }
@@ -60,6 +68,10 @@ func (m *UpdateHelmReleaseRequest) SetProductVersionId(v string) {
 
 func (m *UpdateHelmReleaseRequest) SetUserValues(v []*ValueWithKey) {
 	m.UserValues = v
+}
+
+func (m *UpdateHelmReleaseRequest) SetFederationId(v *wrapperspb.StringValue) {
+	m.FederationId = v
 }
 
 func (m *UpdateHelmReleaseMetadata) SetClusterId(v string) {

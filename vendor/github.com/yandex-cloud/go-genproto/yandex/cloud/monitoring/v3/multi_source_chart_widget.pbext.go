@@ -210,6 +210,10 @@ func (m *MultiSourceChartWidget_VisualizationSettings) SetFillOpacity(v *wrapper
 	m.FillOpacity = v
 }
 
+func (m *MultiSourceChartWidget_VisualizationSettings) SetTableSettings(v *TableSettings) {
+	m.TableSettings = v
+}
+
 type MultiSourceChartWidget_VisualizationSettings_ColorSchemeSettings_Scheme = isMultiSourceChartWidget_VisualizationSettings_ColorSchemeSettings_Scheme
 
 func (m *MultiSourceChartWidget_VisualizationSettings_ColorSchemeSettings) SetScheme(v MultiSourceChartWidget_VisualizationSettings_ColorSchemeSettings_Scheme) {
@@ -442,6 +446,10 @@ func (m *MultiSourceChartWidget_SeriesOverrides_SeriesOverrideSettings) SetFillO
 	m.FillOpacity = v
 }
 
+func (m *MultiSourceChartWidget_SeriesOverrides_SeriesOverrideSettings) SetUnitFormat(v UnitFormat) {
+	m.UnitFormat = v
+}
+
 type MultiSourceChartWidget_OverrideMatcher_Type = isMultiSourceChartWidget_OverrideMatcher_Type
 
 func (m *MultiSourceChartWidget_OverrideMatcher) SetType(v MultiSourceChartWidget_OverrideMatcher_Type) {
@@ -472,6 +480,12 @@ func (m *MultiSourceChartWidget_OverrideMatcher) SetValues(v *MultiSourceChartWi
 	}
 }
 
+func (m *MultiSourceChartWidget_OverrideMatcher) SetColumn(v *MultiSourceChartWidget_ColumnMatcher) {
+	m.Type = &MultiSourceChartWidget_OverrideMatcher_Column{
+		Column: v,
+	}
+}
+
 func (m *MultiSourceChartWidget_QueryMatcher) SetNames(v []string) {
 	m.Names = v
 }
@@ -486,6 +500,10 @@ func (m *MultiSourceChartWidget_RegExpMatcher) SetRegExp(v string) {
 
 func (m *MultiSourceChartWidget_ValueMatcher) SetValueType(v MultiSourceChartWidget_ValuesType) {
 	m.ValueType = v
+}
+
+func (m *MultiSourceChartWidget_ColumnMatcher) SetColumns(v []*TableSettings_ColumnRef) {
+	m.Columns = v
 }
 
 func (m *MultiSourceChartWidget_NameHidingSettings) SetPositive(v bool) {

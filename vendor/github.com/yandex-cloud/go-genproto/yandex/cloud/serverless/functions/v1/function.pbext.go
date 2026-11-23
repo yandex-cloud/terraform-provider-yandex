@@ -341,3 +341,7 @@ func (m *MetadataOptions) SetGceHttpEndpoint(v MetadataOption) {
 func (m *MetadataOptions) SetAwsV1HttpEndpoint(v MetadataOption) {
 	m.AwsV1HttpEndpoint = v
 }
+
+func (m *MetadataOptions) SetAwsV2HttpEndpoint(v MetadataOption) {
+	m.AwsV2HttpEndpoint = v
+}

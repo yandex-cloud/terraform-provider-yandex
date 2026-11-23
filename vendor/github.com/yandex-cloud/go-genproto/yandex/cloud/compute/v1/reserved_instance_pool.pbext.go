@@ -54,6 +54,10 @@ func (m *ReservedInstancePool) SetProductIds(v []string) {
 	m.ProductIds = v
 }
 
+func (m *ReservedInstancePool) SetPlacementPolicy(v *PlacementPolicy) {
+	m.PlacementPolicy = v
+}
+
 func (m *ReservedInstancePool) SetNetworkSettings(v *NetworkSettings) {
 	m.NetworkSettings = v
 }

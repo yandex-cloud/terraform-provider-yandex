@@ -107,6 +107,34 @@ func (m *SynchronizationFilter) SetOrganizationUnits(v []string) {
 	m.OrganizationUnits = v
 }
 
+func (m *SynchronizationFilter) SetGroupAttributesFilter(v *AttributeFilter) {
+	m.GroupAttributesFilter = v
+}
+
+func (m *SynchronizationFilter) SetUserAttributesFilter(v *AttributeFilter) {
+	m.UserAttributesFilter = v
+}
+
+func (m *AttributeFilter) SetCombineWith(v AttributeFilter_CombineWith) {
+	m.CombineWith = v
+}
+
+func (m *AttributeFilter) SetRules(v []*AttributeFilterRule) {
+	m.Rules = v
+}
+
+func (m *AttributeFilterRule) SetField(v string) {
+	m.Field = v
+}
+
+func (m *AttributeFilterRule) SetOperator(v AttributeFilterRule_Operator) {
+	m.Operator = v
+}
+
+func (m *AttributeFilterRule) SetValue(v string) {
+	m.Value = v
+}
+
 func (m *UserAttributeMapping) SetSource(v string) {
 	m.Source = v
 }
