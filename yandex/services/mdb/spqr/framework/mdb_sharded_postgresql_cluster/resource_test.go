@@ -452,7 +452,7 @@ func TestAccMDBShardedPostgreSQLCluster_HostTests(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -466,7 +466,7 @@ func TestAccMDBShardedPostgreSQLCluster_HostTests(t *testing.T) {
 				Config: testAccMDBShardedPostgreSQLClusterHostsStep2(clusterName),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBShardedPostgreSQLCluster(clusterResource, &cluster, 2),
@@ -478,7 +478,7 @@ func TestAccMDBShardedPostgreSQLCluster_HostTests(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
@@ -493,7 +493,7 @@ func TestAccMDBShardedPostgreSQLCluster_HostTests(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
@@ -708,24 +708,20 @@ func testAccCheckMDBShardedPostgreSQLClusterDestroy(s *terraform.State) error {
 const shardedPostgreSQLVPCDependencies = `
 resource "yandex_vpc_network" "mdb-sharded_postgresql-test-net" {}
 
-resource "yandex_vpc_subnet" "mdb-sharded_postgresql-test-subnet-a" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.mdb-sharded_postgresql-test-net.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "mdb-sharded_postgresql-test-subnet-b" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.mdb-sharded_postgresql-test-net.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
 resource "yandex_vpc_subnet" "mdb-sharded_postgresql-test-subnet-d" {
   zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.mdb-sharded_postgresql-test-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
 
+`
+
+const shardedPostgreSQLVPCDependenciesMultiZone = shardedPostgreSQLVPCDependencies + `
+resource "yandex_vpc_subnet" "mdb-sharded_postgresql-test-subnet-a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.mdb-sharded_postgresql-test-net.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
 `
 
 func testAccMDBShardedPostgreSQLClusterBasic(resourceId, name, description, environment, labels, resources string) string {
@@ -742,8 +738,8 @@ resource "yandex_mdb_sharded_postgresql_cluster" "%s" {
 
 	hosts = {
 		"na" = {
-			zone      = "ru-central1-a"
-			subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-a.id
+			zone      = "ru-central1-d"
+			subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-d.id
 			type	  = "ROUTER"
 		}
 	}
@@ -781,8 +777,8 @@ resource "yandex_mdb_sharded_postgresql_cluster" "%s" {
 
 	hosts = {
 		"host" = {
-			zone      = "ru-central1-a"
-			subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-a.id
+			zone      = "ru-central1-d"
+			subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-d.id
 			type	  = "ROUTER"
 		}
 	}
@@ -815,7 +811,7 @@ resource "yandex_mdb_sharded_postgresql_cluster" "%s" {
 }
 
 func testAccMDBShardedPostgreSQLClusterHostsStep0(name, hosts string) string {
-	return fmt.Sprintf(shardedPostgreSQLVPCDependencies+`
+	return fmt.Sprintf(shardedPostgreSQLVPCDependenciesMultiZone+`
 resource "yandex_mdb_sharded_postgresql_cluster" "cluster_host_tests" {
 	name        = "%s"
 	description = "Sharded Postgresql Cluster Hosts Terraform Test"
@@ -855,8 +851,8 @@ func testAccMDBShardedPostgreSQLClusterHostsStep1(name string) string {
 			type	  = "ROUTER"
     	}
 		"nb" = {
-    		zone      = "ru-central1-b"
-    		subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-b.id
+    		zone      = "ru-central1-d"
+    		subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-d.id
 			type	  = "ROUTER"
 		}
 		"nd" = {
@@ -873,8 +869,8 @@ func testAccMDBShardedPostgreSQLClusterHostsStep2(name string) string {
 	return testAccMDBShardedPostgreSQLClusterHostsStep0(name, `
 	hosts = {
 		"nb" = {
-    		zone      = "ru-central1-b"
-    		subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-b.id
+    		zone      = "ru-central1-d"
+    		subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-d.id
 			type	  = "ROUTER"
 		}
 		"nd" = {
@@ -897,8 +893,8 @@ func testAccMDBShardedPostgreSQLClusterHostsStep3(name string) string {
 			type	  = "ROUTER"
 		}
 		"nb" = {
-    		zone      = "ru-central1-b"
-    		subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-b.id
+    		zone      = "ru-central1-d"
+    		subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-d.id
 			type	  = "ROUTER"
     	}
 		"nd" = {
@@ -922,8 +918,8 @@ func testAccMDBShardedPostgreSQLClusterHostsStep4(name string) string {
 			type	  = "ROUTER"
     	}
     	"nb" = {
-			zone      = "ru-central1-b"
-    		subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-b.id
+			zone      = "ru-central1-d"
+    		subnet_id = yandex_vpc_subnet.mdb-sharded_postgresql-test-subnet-d.id
     		assign_public_ip = true
 			type	  = "ROUTER"
 		}
