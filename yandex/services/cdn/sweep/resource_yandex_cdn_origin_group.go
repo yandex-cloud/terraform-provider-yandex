@@ -39,7 +39,7 @@ func sweepAllCDNOriginGroups(_ string) error {
 	for it.Next() {
 		id := it.Value().GetId()
 		if !sweepCDNOriginGroup(conf, id) {
-			result = multierror.Append(result, fmt.Errorf("failed to sweep CDN Origin group %q", id))
+			result = multierror.Append(result, fmt.Errorf("failed to sweep CDN Origin group %d", id))
 		}
 	}
 

@@ -710,7 +710,7 @@ func testYandexAPIGatewayContainsUserDomains(apiGateway *apigateway.ApiGateway, 
 		expectedLen := len(domains)
 		actualLen := len(attachedDomains)
 		if actualLen != expectedLen {
-			return fmt.Errorf("Incorrect number of attached domains: expected '%q' but found '%q'", expectedLen, actualLen)
+			return fmt.Errorf("Incorrect number of attached domains: expected '%d' but found '%d'", expectedLen, actualLen)
 		}
 
 		for _, domain := range attachedDomains {
