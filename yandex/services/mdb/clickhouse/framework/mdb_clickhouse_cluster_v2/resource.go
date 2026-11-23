@@ -67,6 +67,64 @@ func (r *clusterResource) Configure(_ context.Context,
 	r.providerConfig = providerConfig
 }
 
+type externalReplicaKey struct {
+	group string
+	shard string
+	host  string
+}
+
+type externalReplicaMap map[externalReplicaKey]models.ExternalShardReplica
+
+func externalReplicasByIdentity(ctx context.Context, value types.List, passwords externalReplicaMap, diags *diag.Diagnostics) externalReplicaMap {
+	result := externalReplicaMap{}
+	if value.IsNull() || value.IsUnknown() {
+		return result
+	}
+	var groups []models.ShardGroup
+	diags.Append(value.ElementsAs(ctx, &groups, false)...)
+	for _, group := range groups {
+		if group.ExternalShards.IsNull() || group.ExternalShards.IsUnknown() {
+			continue
+		}
+		var shards []models.ExternalShardModel
+		diags.Append(group.ExternalShards.ElementsAs(ctx, &shards, false)...)
+		for _, shard := range shards {
+			if shard.Replica.IsNull() || shard.Replica.IsUnknown() {
+				continue
+			}
+			var replicas []models.ExternalShardReplica
+			diags.Append(shard.Replica.ElementsAs(ctx, &replicas, false)...)
+			for _, replica := range replicas {
+				key := externalReplicaKey{group.Name.ValueString(), shard.Name.ValueString(), replica.Host.ValueString()}
+				if password, ok := passwords[key]; ok {
+					replica.PasswordWo = password.PasswordWo
+				}
+				result[key] = replica
+			}
+		}
+	}
+	return result
+}
+
+func externalReplicaPassword(plan, state models.ExternalShardReplica, isNew bool, diags *diag.Diagnostics) (string, bool) {
+	if !plan.PasswordWoVersion.IsNull() {
+		if !isNew && plan.PasswordWoVersion.Equal(state.PasswordWoVersion) {
+			return "", false
+		}
+		password := plan.PasswordWo
+		if password.IsNull() || password.IsUnknown() {
+			diags.AddError("Missing external replica password", fmt.Sprintf(
+				"password_wo must be configured for external replica %q when it is created or password_wo_version changes.",
+				plan.Host.ValueString(),
+			))
+			return "", false
+		}
+		return password.ValueString(), true
+	}
+
+	return plan.Password.ValueString(), isNew || !plan.Password.Equal(state.Password)
+}
+
 func clickHouseClusterAdminPasswordForCreate(plan *models.ClusterResource, passwordWo types.String) string {
 	if !passwordWo.IsNull() && !passwordWo.IsUnknown() {
 		return passwordWo.ValueString()
@@ -128,6 +186,10 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	resp.Diagnostics.Append(diags...)
 	var passwordWo types.String
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("admin_password_wo"), &passwordWo)...)
+	var shardGroups types.List
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("shard_group"), &shardGroups)...)
+	shardGroupConfig := externalReplicasByIdentity(ctx, shardGroups, nil, &resp.Diagnostics)
+	shardGroupPlan := externalReplicasByIdentity(ctx, plan.ShardGroup, shardGroupConfig, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -210,7 +272,7 @@ func (r *clusterResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	// Create shard groups
-	r.createShardGroups(ctx, plan, existingShardGroups, &resp.Diagnostics)
+	r.createShardGroups(ctx, plan, shardGroupPlan, existingShardGroups, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -241,6 +303,10 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	var passwordWo types.String
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("admin_password_wo"), &passwordWo)...)
+	var shardGroups types.List
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("shard_group"), &shardGroups)...)
+	shardGroupConfig := externalReplicasByIdentity(ctx, shardGroups, nil, &resp.Diagnostics)
+	shardGroupPlan := externalReplicasByIdentity(ctx, plan.ShardGroup, shardGroupConfig, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -441,7 +507,7 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !state.ShardGroup.Equal(plan.ShardGroup) {
 		// Update shard groups
 		tflog.Debug(ctx, "Updating Clickhouse shard groups")
-		updateShardGroups(ctx, state, plan, r.providerConfig.SDKv2, &resp.Diagnostics)
+		updateShardGroups(ctx, state, plan, shardGroupPlan, r.providerConfig.SDKv2, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}

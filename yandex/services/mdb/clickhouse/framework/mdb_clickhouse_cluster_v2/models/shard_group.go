@@ -2,31 +2,37 @@ package models
 
 import (
 	"context"
+	"maps"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
+	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type ExternalShardReplica struct {
-	Host     types.String `tfsdk:"host"`
-	Port     types.Int64  `tfsdk:"port"`
-	Secure   types.Bool   `tfsdk:"secure"`
-	User     types.String `tfsdk:"user"`
-	Password types.String `tfsdk:"password"`
-	Priority types.Int64  `tfsdk:"priority"`
+	Host              types.String `tfsdk:"host"`
+	Port              types.Int64  `tfsdk:"port"`
+	Secure            types.Bool   `tfsdk:"secure"`
+	User              types.String `tfsdk:"user"`
+	Password          types.String `tfsdk:"password"`
+	PasswordWo        types.String `tfsdk:"password_wo"`
+	PasswordWoVersion types.Int64  `tfsdk:"password_wo_version"`
+	Priority          types.Int64  `tfsdk:"priority"`
 }
 
 var ExternalShardReplicaAttrTypes = map[string]attr.Type{
-	"host":     types.StringType,
-	"port":     types.Int64Type,
-	"secure":   types.BoolType,
-	"user":     types.StringType,
-	"password": types.StringType,
-	"priority": types.Int64Type,
+	"host":                types.StringType,
+	"port":                types.Int64Type,
+	"secure":              types.BoolType,
+	"user":                types.StringType,
+	"password":            types.StringType,
+	"password_wo":         types.StringType,
+	"password_wo_version": types.Int64Type,
+	"priority":            types.Int64Type,
 }
 
 type ExternalShardModel struct {
@@ -55,65 +61,56 @@ var ShardGroupAttrTypes = map[string]attr.Type{
 	"external_shard": types.ListType{ElemType: types.ObjectType{AttrTypes: ExternalShardAttrTypes}},
 }
 
-func buildExternalReplicaPasswordByHost(ctx context.Context, prevReplicas types.List, diags *diag.Diagnostics) map[string]types.String {
-	result := map[string]types.String{}
-	if prevReplicas.IsNull() || prevReplicas.IsUnknown() {
-		return result
-	}
-	var replicas []ExternalShardReplica
-	diags.Append(prevReplicas.ElementsAs(ctx, &replicas, false)...)
-	for _, r := range replicas {
-		result[r.Host.ValueString()] = r.Password
-	}
-	return result
-}
+var DataSourceShardGroupAttrTypes = func() map[string]attr.Type {
+	replica := maps.Clone(ExternalShardReplicaAttrTypes)
+	delete(replica, "password_wo")
+	delete(replica, "password_wo_version")
+	shard := maps.Clone(ExternalShardAttrTypes)
+	shard["replica"] = types.ListType{ElemType: types.ObjectType{AttrTypes: replica}}
+	group := maps.Clone(ShardGroupAttrTypes)
+	group["external_shard"] = types.ListType{ElemType: types.ObjectType{AttrTypes: shard}}
+	return group
+}()
 
-func flattenExternalShardReplica(ctx context.Context, r *clickhouse.ExternalShard_Replica, prevPwd types.String, diags *diag.Diagnostics) types.Object {
+func flattenExternalShardReplica(ctx context.Context, r *clickhouse.ExternalShard_Replica, prev types.Object, diags *diag.Diagnostics) types.Object {
+	attrTypes := prev.AttributeTypes(ctx)
 	if r == nil {
-		return types.ObjectNull(ExternalShardReplicaAttrTypes)
+		return types.ObjectNull(attrTypes)
 	}
 
 	password := types.StringValue(r.Password)
-	if shouldRestorePassword(password, prevPwd) {
-		password = prevPwd
+	version := types.Int64Null()
+	_, isResource := attrTypes["password_wo_version"]
+	if isResource {
+		password = types.StringNull()
+		if !prev.IsNull() && !prev.IsUnknown() {
+			password = prev.Attributes()["password"].(types.String)
+			version = prev.Attributes()["password_wo_version"].(types.Int64)
+		}
 	}
 
-	var port types.Int64
-	if r.Port != nil {
-		port = types.Int64Value(r.Port.Value)
-	} else {
-		port = types.Int64Null()
+	values := map[string]attr.Value{
+		"host":     types.StringValue(r.Host),
+		"port":     mdbcommon.FlattenInt64Wrapper(ctx, r.Port, diags),
+		"secure":   mdbcommon.FlattenBoolWrapper(ctx, r.Secure, diags),
+		"user":     types.StringValue(r.User),
+		"password": password,
+		"priority": mdbcommon.FlattenInt64Wrapper(ctx, r.Priority, diags),
 	}
-
-	var secure types.Bool
-	if r.Secure != nil {
-		secure = types.BoolValue(r.Secure.Value)
-	} else {
-		secure = types.BoolNull()
+	if isResource {
+		values["password_wo"] = types.StringNull()
+		values["password_wo_version"] = version
 	}
-
-	var priority types.Int64
-	if r.Priority != nil {
-		priority = types.Int64Value(r.Priority.Value)
-	} else {
-		priority = types.Int64Null()
-	}
-
-	obj, d := types.ObjectValueFrom(ctx, ExternalShardReplicaAttrTypes, ExternalShardReplica{
-		Host:     types.StringValue(r.Host),
-		Port:     port,
-		Secure:   secure,
-		User:     types.StringValue(r.User),
-		Password: password,
-		Priority: priority,
-	})
+	obj, d := types.ObjectValue(attrTypes, values)
 	diags.Append(d...)
 	return obj
 }
 
 func flattenExternalShard(ctx context.Context, s *clickhouse.ExternalShard, prevShardObj types.Object, diags *diag.Diagnostics) types.Object {
+	attrTypes := prevShardObj.AttributeTypes(ctx)
+	replicaType := attrTypes["replica"].(types.ListType).ElemType.(types.ObjectType)
 	if s == nil {
-		return types.ObjectNull(ExternalShardAttrTypes)
+		return types.ObjectNull(attrTypes)
 	}
 
 	var prevShard ExternalShardModel
@@ -121,25 +118,26 @@ func flattenExternalShard(ctx context.Context, s *clickhouse.ExternalShard, prev
 		diags.Append(prevShardObj.As(ctx, &prevShard, datasize.DefaultOpts)...)
 	}
 
-	prevReplicaPasswordByHost := buildExternalReplicaPasswordByHost(ctx, prevShard.Replica, diags)
-
-	var weight types.Int64
-	if s.Weight != nil {
-		weight = types.Int64Value(s.Weight.Value)
-	} else {
-		weight = types.Int64Null()
+	prevReplicaByHost := map[string]types.Object{}
+	for _, elem := range prevShard.Replica.Elements() {
+		replica := elem.(types.Object)
+		prevReplicaByHost[replica.Attributes()["host"].(types.String).ValueString()] = replica
 	}
 
 	replicaObjs := make([]types.Object, len(s.Replicas))
 	for i, r := range s.Replicas {
-		replicaObjs[i] = flattenExternalShardReplica(ctx, r, prevReplicaPasswordByHost[r.Host], diags)
+		prevReplica := types.ObjectNull(replicaType.AttrTypes)
+		if prev, ok := prevReplicaByHost[r.Host]; ok {
+			prevReplica = prev
+		}
+		replicaObjs[i] = flattenExternalShardReplica(ctx, r, prevReplica, diags)
 	}
-	replicas, d := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: ExternalShardReplicaAttrTypes}, replicaObjs)
+	replicas, d := types.ListValueFrom(ctx, replicaType, replicaObjs)
 	diags.Append(d...)
 
-	obj, d := types.ObjectValueFrom(ctx, ExternalShardAttrTypes, ExternalShardModel{
+	obj, d := types.ObjectValueFrom(ctx, attrTypes, ExternalShardModel{
 		Name:    types.StringValue(s.Name),
-		Weight:  weight,
+		Weight:  mdbcommon.FlattenInt64Wrapper(ctx, s.Weight, diags),
 		Replica: replicas,
 	})
 	diags.Append(d...)
@@ -147,8 +145,10 @@ func flattenExternalShard(ctx context.Context, s *clickhouse.ExternalShard, prev
 }
 
 func flattenShardGroup(ctx context.Context, group *clickhouse.ShardGroup, prevGroupObj types.Object, diags *diag.Diagnostics) types.Object {
+	attrTypes := prevGroupObj.AttributeTypes(ctx)
+	shardType := attrTypes["external_shard"].(types.ListType).ElemType.(types.ObjectType)
 	if group == nil {
-		return types.ObjectNull(ShardGroupAttrTypes)
+		return types.ObjectNull(attrTypes)
 	}
 
 	var prevGroup ShardGroup
@@ -167,19 +167,22 @@ func flattenShardGroup(ctx context.Context, group *clickhouse.ShardGroup, prevGr
 
 	shardNames, d := types.ListValueFrom(ctx, types.StringType, group.ShardNames)
 	diags.Append(d...)
+	if shardNames.IsNull() {
+		shardNames = types.ListValueMust(types.StringType, []attr.Value{})
+	}
 
 	externalShardObjs := make([]types.Object, len(group.ExternalShards))
 	for i, s := range group.ExternalShards {
-		prevShardObj := types.ObjectNull(ExternalShardAttrTypes)
+		prevShardObj := types.ObjectNull(shardType.AttrTypes)
 		if prev, ok := prevShardByName[s.Name]; ok {
 			prevShardObj = prev
 		}
 		externalShardObjs[i] = flattenExternalShard(ctx, s, prevShardObj, diags)
 	}
-	externalShards, d := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: ExternalShardAttrTypes}, externalShardObjs)
+	externalShards, d := types.ListValueFrom(ctx, shardType, externalShardObjs)
 	diags.Append(d...)
 
-	obj, d := types.ObjectValueFrom(ctx, ShardGroupAttrTypes, ShardGroup{
+	obj, d := types.ObjectValueFrom(ctx, attrTypes, ShardGroup{
 		Name:           types.StringValue(group.Name),
 		Description:    types.StringValue(group.Description),
 		ShardNames:     shardNames,
@@ -190,8 +193,9 @@ func flattenShardGroup(ctx context.Context, group *clickhouse.ShardGroup, prevGr
 }
 
 func FlattenListShardGroup(ctx context.Context, groups []*clickhouse.ShardGroup, prevShardGroups types.List, diags *diag.Diagnostics) types.List {
+	groupType := prevShardGroups.ElementType(ctx).(types.ObjectType)
 	if groups == nil {
-		return types.ListNull(types.ObjectType{AttrTypes: ShardGroupAttrTypes})
+		return types.ListNull(groupType)
 	}
 
 	prevGroupByName := map[string]types.Object{}
@@ -205,14 +209,14 @@ func FlattenListShardGroup(ctx context.Context, groups []*clickhouse.ShardGroup,
 
 	tfGroups := make([]types.Object, len(groups))
 	for i, r := range groups {
-		prevGroupObj := types.ObjectNull(ShardGroupAttrTypes)
+		prevGroupObj := types.ObjectNull(groupType.AttrTypes)
 		if prev, ok := prevGroupByName[r.Name]; ok {
 			prevGroupObj = prev
 		}
 		tfGroups[i] = flattenShardGroup(ctx, r, prevGroupObj, diags)
 	}
 
-	list, d := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: ShardGroupAttrTypes}, tfGroups)
+	list, d := types.ListValueFrom(ctx, groupType, tfGroups)
 	diags.Append(d...)
 	return list
 }

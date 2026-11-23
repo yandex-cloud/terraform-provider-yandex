@@ -2,6 +2,8 @@ package mdb_clickhouse_cluster_v2
 
 import (
 	"context"
+	"slices"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
@@ -580,19 +582,14 @@ func prepareMlModelUpdateRequests(ctx context.Context, currentModels []*clickhou
 
 // Shard groups
 
-func updateShardGroups(ctx context.Context, state, plan models.ClusterResource, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
+func updateShardGroups(ctx context.Context, state, plan models.ClusterResource, replicaPlan externalReplicaMap, sdk *ycsdk.SDK, diags *diag.Diagnostics) {
 	cid := plan.Id.ValueString()
 	currentShardGroups := clickhouseApi.ListShardGroups(ctx, sdk, diags, cid)
 	if diags.HasError() {
 		return
 	}
 
-	stateShardGroups := models.ExpandListShardGroup(ctx, state.ShardGroup, cid, diags)
-	if diags.HasError() {
-		return
-	}
-
-	deleteShardGroupNames, updateShardGroupRequests, createShardGroupRequests := prepareShardGroupUpdateRequests(ctx, currentShardGroups, stateShardGroups, &plan, diags)
+	deleteShardGroupNames, updateShardGroupSpecs, createShardGroupRequests := prepareShardGroupUpdateRequests(ctx, currentShardGroups, &state, &plan, replicaPlan, diags)
 	if diags.HasError() {
 		return
 	}
@@ -604,8 +601,10 @@ func updateShardGroups(ctx context.Context, state, plan models.ClusterResource, 
 		}
 	}
 
-	for _, request := range updateShardGroupRequests {
-		clickhouseApi.UpdateShardGroup(ctx, sdk, diags, request)
+	if len(updateShardGroupSpecs) > 0 {
+		clickhouseApi.UpdateShardGroups(ctx, sdk, diags, &clickhouse.UpdateClusterShardGroupsRequest{
+			ClusterId: cid, ShardGroupSpecs: updateShardGroupSpecs,
+		})
 		if diags.HasError() {
 			return
 		}
@@ -619,61 +618,118 @@ func updateShardGroups(ctx context.Context, state, plan models.ClusterResource, 
 	}
 }
 
-func prepareShardGroupUpdateRequests(ctx context.Context, currentShardGroups, stateShardGroups []*clickhouse.ShardGroup, plan *models.ClusterResource, diags *diag.Diagnostics) ([]string, []*clickhouse.UpdateClusterShardGroupRequest, []*clickhouse.CreateClusterShardGroupRequest) {
-	targetShardGroups := models.ExpandListShardGroup(ctx, plan.ShardGroup, plan.Id.ValueString(), diags)
+func prepareShardGroupUpdateRequests(ctx context.Context, current []*clickhouse.ShardGroup, state, plan *models.ClusterResource, replicaPlan externalReplicaMap, diags *diag.Diagnostics) ([]string, []*clickhouse.UpdateShardGroupSpec, []*clickhouse.CreateClusterShardGroupRequest) {
+	target := models.ExpandListShardGroup(ctx, plan.ShardGroup, plan.Id.ValueString(), diags)
+	stateReplicas := externalReplicasByIdentity(ctx, state.ShardGroup, nil, diags)
 	if diags.HasError() {
 		return nil, nil, nil
 	}
+	currentByName := make(map[string]*clickhouse.ShardGroup, len(current))
+	for _, group := range current {
+		currentByName[group.Name] = group
+	}
 
 	var toDelete []string
-	var toUpdate []*clickhouse.ShardGroup
+	var toUpdate []*clickhouse.UpdateShardGroupSpec
+	for _, group := range target {
+		previous, exists := currentByName[group.Name]
+		delete(currentByName, group.Name)
+		if !exists {
+			continue
+		}
 
-	stateByName := map[string]*clickhouse.ShardGroup{}
-	for _, group := range stateShardGroups {
-		stateByName[group.Name] = group
-	}
-
-	mapTargetShardGroupName := map[string]*clickhouse.ShardGroup{}
-	for _, group := range targetShardGroups {
-		mapTargetShardGroupName[group.Name] = group
-	}
-
-	for _, currentShardGroup := range currentShardGroups {
-		if targetShardGroup, ok := mapTargetShardGroupName[currentShardGroup.Name]; ok {
-			currWithPasswords := restoreExternalShardProtoPasswords(currentShardGroup, stateByName[currentShardGroup.Name])
-			if !proto.Equal(currWithPasswords, targetShardGroup) {
-				toUpdate = append(toUpdate, targetShardGroup)
-			}
-			delete(mapTargetShardGroupName, currentShardGroup.Name)
-		} else {
-			toDelete = append(toDelete, currentShardGroup.Name)
+		spec := &clickhouse.UpdateShardGroupSpec{ShardGroupName: group.Name, UpdateMask: &fieldmaskpb.FieldMask{}}
+		if group.Description != previous.Description {
+			spec.Description = group.Description
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "description")
+		}
+		if !slices.Equal(group.ShardNames, previous.ShardNames) {
+			spec.ShardNames = group.ShardNames
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "shard_names")
+		}
+		shards, changed := externalShardUpdateSpecs(group.Name, previous.ExternalShards, group.ExternalShards, stateReplicas, replicaPlan, diags)
+		if changed {
+			spec.ExternalShardSpecs = shards
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "external_shard_specs")
+		}
+		if len(spec.UpdateMask.Paths) > 0 {
+			toUpdate = append(toUpdate, spec)
 		}
 	}
-
-	var updateRequests []*clickhouse.UpdateClusterShardGroupRequest
-	for _, group := range toUpdate {
-		updateRequests = append(updateRequests, &clickhouse.UpdateClusterShardGroupRequest{
-			ClusterId:      plan.Id.ValueString(),
-			ShardGroupName: group.Name,
-			Description:    group.Description,
-			ShardNames:     group.ShardNames,
-			ExternalShards: group.ExternalShards,
-			UpdateMask:     &field_mask.FieldMask{Paths: []string{"description", "shard_names", "external_shards"}},
-		})
+	for _, group := range current {
+		if _, exists := currentByName[group.Name]; exists {
+			toDelete = append(toDelete, group.Name)
+		}
 	}
+	toCreate := prepareShardGroupsCreateRequests(ctx, plan, current, replicaPlan, diags)
+	return toDelete, toUpdate, toCreate
+}
 
-	var createRequests []*clickhouse.CreateClusterShardGroupRequest
-	for _, group := range mapTargetShardGroupName {
-		createRequests = append(createRequests, &clickhouse.CreateClusterShardGroupRequest{
-			ClusterId:      plan.Id.ValueString(),
-			ShardGroupName: group.Name,
-			Description:    group.Description,
-			ShardNames:     group.ShardNames,
-			ExternalShards: group.ExternalShards,
-		})
+func externalShardUpdateSpecs(group string, current, target []*clickhouse.ExternalShard, state, replicaPlan externalReplicaMap, diags *diag.Diagnostics) ([]*clickhouse.UpdateShardGroupSpec_ExternalShard, bool) {
+	currentByName := make(map[string]*clickhouse.ExternalShard, len(current))
+	for _, shard := range current {
+		currentByName[shard.Name] = shard
 	}
+	changed := len(current) != len(target)
+	specs := make([]*clickhouse.UpdateShardGroupSpec_ExternalShard, 0, len(target))
+	for i, shard := range target {
+		previous := currentByName[shard.Name]
+		spec := &clickhouse.UpdateShardGroupSpec_ExternalShard{
+			Name: shard.Name, Weight: shard.Weight, UpdateMask: &fieldmaskpb.FieldMask{},
+		}
+		if shard.Weight != nil && !proto.Equal(shard.Weight, previous.GetWeight()) {
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "weight")
+		}
+		replicas, replicasChanged := externalReplicaUpdateSpecs(group, shard.Name, previous.GetReplicas(), shard.Replicas, state, replicaPlan, diags)
+		if previous == nil || replicasChanged {
+			spec.ReplicaSpecs = replicas
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "replica_specs")
+		}
+		if i >= len(current) || current[i].Name != shard.Name || len(spec.UpdateMask.Paths) > 0 {
+			changed = true
+		}
+		specs = append(specs, spec)
+	}
+	return specs, changed
+}
 
-	return toDelete, updateRequests, createRequests
+func externalReplicaUpdateSpecs(group, shard string, current, target []*clickhouse.ExternalShard_Replica, state, replicaPlan externalReplicaMap, diags *diag.Diagnostics) ([]*clickhouse.UpdateShardGroupSpec_ExternalShard_Replica, bool) {
+	currentByHost := make(map[string]*clickhouse.ExternalShard_Replica, len(current))
+	for _, replica := range current {
+		currentByHost[replica.Host] = replica
+	}
+	changed := len(current) != len(target)
+	specs := make([]*clickhouse.UpdateShardGroupSpec_ExternalShard_Replica, 0, len(target))
+	for i, replica := range target {
+		previous := currentByHost[replica.Host]
+		spec := &clickhouse.UpdateShardGroupSpec_ExternalShard_Replica{
+			Host: replica.Host, Port: replica.Port, Secure: replica.Secure,
+			User: replica.User, Priority: replica.Priority, UpdateMask: &fieldmaskpb.FieldMask{},
+		}
+		if replica.Port != nil && !proto.Equal(replica.Port, previous.GetPort()) {
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "port")
+		}
+		if replica.Secure != nil && !proto.Equal(replica.Secure, previous.GetSecure()) {
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "secure")
+		}
+		if previous == nil || replica.User != previous.GetUser() {
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "user")
+		}
+		if replica.Priority != nil && !proto.Equal(replica.Priority, previous.GetPriority()) {
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "priority")
+		}
+		key := externalReplicaKey{group, shard, replica.Host}
+		password, passwordChanged := externalReplicaPassword(replicaPlan[key], state[key], previous == nil, diags)
+		if passwordChanged {
+			spec.Password = password
+			spec.UpdateMask.Paths = append(spec.UpdateMask.Paths, "password")
+		}
+		if i >= len(current) || current[i].Host != replica.Host || len(spec.UpdateMask.Paths) > 0 {
+			changed = true
+		}
+		specs = append(specs, spec)
+	}
+	return specs, changed
 }
 
 // Shards
@@ -860,30 +916,6 @@ func prepareExternalDictionaryUpdateOps(
 	}
 
 	return
-}
-
-func restoreExternalShardProtoPasswords(curr, state *clickhouse.ShardGroup) *clickhouse.ShardGroup {
-	if curr == nil || state == nil {
-		return curr
-	}
-	cloned := proto.Clone(curr).(*clickhouse.ShardGroup)
-	statePwd := map[string]string{}
-	for _, s := range state.ExternalShards {
-		for _, r := range s.Replicas {
-			statePwd[s.Name+"\x00"+r.Host] = r.Password
-		}
-	}
-	for _, s := range cloned.ExternalShards {
-		for _, r := range s.Replicas {
-			if r.Password != "" {
-				continue
-			}
-			if pwd, ok := statePwd[s.Name+"\x00"+r.Host]; ok {
-				r.Password = pwd
-			}
-		}
-	}
-	return cloned
 }
 
 // Utils

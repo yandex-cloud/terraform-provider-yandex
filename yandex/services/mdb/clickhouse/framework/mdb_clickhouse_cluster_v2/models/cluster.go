@@ -181,7 +181,7 @@ var ClusterDataSourceTypes = map[string]attr.Type{
 	"format_schema":       types.SetType{ElemType: types.ObjectType{AttrTypes: FormatSchemaAttrTypes}},
 	"ml_model":            types.SetType{ElemType: types.ObjectType{AttrTypes: MLModelAttrTypes}},
 	"shards":              types.MapType{ElemType: types.ObjectType{AttrTypes: ShardAttrTypes}},
-	"shard_group":         types.ListType{ElemType: types.ObjectType{AttrTypes: ShardGroupAttrTypes}},
+	"shard_group":         types.ListType{ElemType: types.ObjectType{AttrTypes: DataSourceShardGroupAttrTypes}},
 	"extension":           types.SetType{ElemType: types.ObjectType{AttrTypes: ExtensionAttrTypes}},
 	"external_dictionary": types.MapType{ElemType: types.ObjectType{AttrTypes: ExternalDictionaryAttrTypes}},
 

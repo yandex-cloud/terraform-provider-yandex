@@ -7,11 +7,84 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/config"
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 	test "github.com/yandex-cloud/terraform-provider-yandex/pkg/testhelpers"
 )
+
+func TestAccMDBClickHouseClusterV2ExternalReplicaPasswordWo_TF1_12(t *testing.T) {
+	t.Parallel()
+	name := acctest.RandomWithPrefix("tf-clickhouse-external-wo")
+	target := acctest.RandomWithPrefix("tf-clickhouse-external-target")
+	const replicaPath = "shard_group.0.external_shard.0.replica.0."
+	configuration := func(version, weight, priority int) string {
+		return testAccMDBClickHouseCluster_remoteServers(name, target, fmt.Sprintf(`
+    external_shard {
+      name = "external"
+      weight = %d
+      replica {
+        host = yandex_mdb_clickhouse_cluster_v2.remote_servers_target.hosts["eh1"].fqdn
+        port = 9440
+        secure = true
+        user = "admin"
+        password_wo = var.external_replica_password
+        password_wo_version = %d
+        priority = %d
+      }
+    }
+`, weight, version, priority)) + `
+variable "external_replica_password" {
+  type = string
+  sensitive = true
+  ephemeral = true
+}
+`
+	}
+	variables := func(password string) config.Variables {
+		return config.Variables{"external_replica_password": config.StringVariable(password)}
+	}
+	checkPasswordState := func(version string) resource.TestCheckFunc {
+		return resource.ComposeTestCheckFunc(
+			resource.TestCheckNoResourceAttr(chResourceRemoteServers, replicaPath+"password"),
+			resource.TestCheckNoResourceAttr(chResourceRemoteServers, replicaPath+"password_wo"),
+			resource.TestCheckResourceAttr(chResourceRemoteServers, replicaPath+"password_wo_version", version),
+		)
+	}
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { test.AccPreCheck(t) },
+		TerraformVersionChecks:   []tfversion.TerraformVersionCheck{tfversion.SkipBelow(tfversion.Version1_11_0)},
+		ProtoV6ProviderFactories: test.AccProviderFactories,
+		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: configuration(1, 100, 0), ConfigVariables: variables("strong_external_password"),
+				Check: checkPasswordState("1"),
+			},
+			{
+				Config: configuration(1, 100, 0), ConfigVariables: variables("ignored_without_version_change"),
+				PlanOnly: true, ExpectNonEmptyPlan: false,
+			},
+			{
+				Config: configuration(1, 200, 10), ConfigVariables: variables("ignored_without_version_change"),
+				Check: resource.ComposeTestCheckFunc(
+					checkPasswordState("1"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, "shard_group.0.external_shard.0.weight", "200"),
+					resource.TestCheckResourceAttr(chResourceRemoteServers, replicaPath+"priority", "10"),
+				),
+			},
+			{
+				Config: configuration(2, 200, 10), ConfigVariables: variables("rotated_external_password"),
+				Check: checkPasswordState("2"),
+			},
+			{
+				Config: configuration(2, 200, 10), ConfigVariables: variables("rotated_external_password"),
+				PlanOnly: true, ExpectNonEmptyPlan: false,
+			},
+		},
+	})
+}
 
 func TestAccMDBClickHouseClusterV2AdminPasswordWo_TF1_12(t *testing.T) {
 	t.Parallel()

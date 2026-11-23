@@ -1429,7 +1429,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareCreateRequests(t *testing.T) 
 			}
 
 			// Check create shard group requests
-			sgReqs := prepareShardGroupsCreateRequests(ctx, cluster, nil, &diags)
+			sgReqs := prepareShardGroupsCreateRequests(ctx, cluster, nil, nil, &diags)
 			if diags.HasError() != c.expectedError {
 				t.Errorf(
 					"Unexpected diagnostics status %s: expectedError=%t, actual=%t, errors=%v",
@@ -2101,5 +2101,20 @@ func TestYandexProvider_MDBClickHouseClusterPrepareExternalDictionaryCreateReque
 				utils.AssertProtoEqual(t, c.name, expected, reqs[i])
 			}
 		})
+	}
+}
+
+func TestShardGroupInitialCreatePassword(t *testing.T) {
+	ctx := context.Background()
+	plan := testShardGroupCluster(t, testExternalShard(t, "external", testExternalReplica("host")))
+	before := plan.ShardGroup
+	config := externalReplicaMap{{"analytics", "external", "host"}: {PasswordWo: types.StringValue("configuration-secret")}}
+	var diags diag.Diagnostics
+	requests := prepareShardGroupsCreateRequests(ctx, plan, nil, testExternalReplicaPlan(t, plan, config), &diags)
+	if diags.HasError() || len(requests) != 1 || requests[0].ExternalShards[0].Replicas[0].Password != "configuration-secret" {
+		t.Fatalf("initial create must read the configuration password: %v", diags)
+	}
+	if !before.Equal(plan.ShardGroup) {
+		t.Fatal("request construction must not copy secrets into plan or state")
 	}
 }

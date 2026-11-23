@@ -1277,9 +1277,28 @@ func ShardGroupSchema() schema.ListNestedBlock {
 											Optional:    true,
 										},
 										"password": schema.StringAttribute{
-											Description: "Password of the user to authenticate with on the external replica.",
+											Description: "Password of the user to authenticate with on the external replica. Conflicts with password_wo.",
 											Optional:    true,
 											Sensitive:   true,
+											Validators: []validator.String{
+												stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("password_wo")),
+											},
+										},
+										"password_wo": schema.StringAttribute{
+											Description: "Write-only password of the user to authenticate with on the external replica. Not stored in state. Requires password_wo_version to trigger updates. Supported in Terraform 1.11 and later.",
+											Optional:    true,
+											Sensitive:   true,
+											WriteOnly:   true,
+											Validators: []validator.String{
+												stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo_version")),
+											},
+										},
+										"password_wo_version": schema.Int64Attribute{
+											Description: "Version of the external replica write-only password. Increment to update the password; other replica changes preserve the existing password.",
+											Optional:    true,
+											Validators: []validator.Int64{
+												int64validator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_wo")),
+											},
 										},
 										"priority": schema.Int64Attribute{
 											Description: "Priority of the external replica for load balancing. Lower value is preferred.",

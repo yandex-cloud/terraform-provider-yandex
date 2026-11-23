@@ -195,10 +195,10 @@ func prepareMlModelsCreateRequests(ctx context.Context, plan *models.ClusterReso
 
 // Create shard groups
 
-func (r *clusterResource) createShardGroups(ctx context.Context, plan models.ClusterResource, existing []*clickhouse.ShardGroup, diags *diag.Diagnostics) {
+func (r *clusterResource) createShardGroups(ctx context.Context, plan models.ClusterResource, replicaPlan externalReplicaMap, existing []*clickhouse.ShardGroup, diags *diag.Diagnostics) {
 	tflog.Debug(ctx, "Creating ClickHouse shard groups")
 
-	requests := prepareShardGroupsCreateRequests(ctx, &plan, existing, diags)
+	requests := prepareShardGroupsCreateRequests(ctx, &plan, existing, replicaPlan, diags)
 	if diags.HasError() {
 		return
 	}
@@ -211,7 +211,7 @@ func (r *clusterResource) createShardGroups(ctx context.Context, plan models.Clu
 	}
 }
 
-func prepareShardGroupsCreateRequests(ctx context.Context, plan *models.ClusterResource, existing []*clickhouse.ShardGroup, diags *diag.Diagnostics) []*clickhouse.CreateClusterShardGroupRequest {
+func prepareShardGroupsCreateRequests(ctx context.Context, plan *models.ClusterResource, existing []*clickhouse.ShardGroup, replicaPlan externalReplicaMap, diags *diag.Diagnostics) []*clickhouse.CreateClusterShardGroupRequest {
 	cid := plan.Id.ValueString()
 	var requests []*clickhouse.CreateClusterShardGroupRequest
 
@@ -230,6 +230,12 @@ func prepareShardGroupsCreateRequests(ctx context.Context, plan *models.ClusterR
 			continue
 		}
 
+		for _, shard := range shardGroup.ExternalShards {
+			for _, replica := range shard.Replicas {
+				key := externalReplicaKey{shardGroup.Name, shard.Name, replica.Host}
+				replica.Password, _ = externalReplicaPassword(replicaPlan[key], models.ExternalShardReplica{}, true, diags)
+			}
+		}
 		requests = append(requests, &clickhouse.CreateClusterShardGroupRequest{
 			ClusterId:      cid,
 			ShardGroupName: shardGroup.Name,

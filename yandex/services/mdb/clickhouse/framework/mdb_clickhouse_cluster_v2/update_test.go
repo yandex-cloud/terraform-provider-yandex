@@ -5,6 +5,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	clickhouse "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
@@ -12,6 +13,8 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/framework/mdb_clickhouse_cluster_v2/models"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/framework/mdb_clickhouse_cluster_v2/utils"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 func TestYandexProvider_MDBClickHouseClusterPrepareUpdateRequests(t *testing.T) {
@@ -183,7 +186,7 @@ func TestYandexProvider_MDBClickHouseClusterPrepareUpdateRequests(t *testing.T) 
 				)
 			}
 
-			sgDelete, gsUpdate, sgCreate := prepareShardGroupUpdateRequests(ctx, stateShardGroups, stateShardGroups, plan, &diags)
+			sgDelete, gsUpdate, sgCreate := prepareShardGroupUpdateRequests(ctx, stateShardGroups, state, plan, nil, &diags)
 			if diags.HasError() {
 				t.Fatalf(
 					"Unexpected diagnostics in prepareShardGroupUpdateRequests() for %s: %v",
@@ -381,4 +384,168 @@ func TestYandexProvider_MDBClickHouseClusterPrepareExternalDictionaryUpdateOps(t
 			}
 		})
 	}
+}
+
+func TestYandexProvider_MDBClickHouseClusterExternalReplicaUpdates(t *testing.T) {
+	t.Parallel()
+	key := externalReplicaKey{"analytics", "external", "host"}
+	cases := []struct {
+		name             string
+		state            models.ExternalShardReplica
+		plan             models.ExternalShardReplica
+		priority         *wrapperspb.Int64Value
+		isNew            bool
+		expectedPaths    []string
+		expectedPassword string
+		expectedError    bool
+	}{
+		{
+			name:  "unchanged_version",
+			state: models.ExternalShardReplica{PasswordWoVersion: types.Int64Value(1)},
+			plan:  models.ExternalShardReplica{PasswordWoVersion: types.Int64Value(1), PasswordWo: types.StringValue("ignored")},
+		},
+		{
+			name:     "priority_preserves_password",
+			state:    models.ExternalShardReplica{PasswordWoVersion: types.Int64Value(1)},
+			plan:     models.ExternalShardReplica{PasswordWoVersion: types.Int64Value(1), PasswordWo: types.StringValue("ignored")},
+			priority: wrapperspb.Int64(10), expectedPaths: []string{"priority"},
+		},
+		{
+			name:          "rotate_write_only",
+			state:         models.ExternalShardReplica{PasswordWoVersion: types.Int64Value(1)},
+			plan:          models.ExternalShardReplica{PasswordWoVersion: types.Int64Value(2), PasswordWo: types.StringValue("new-secret")},
+			expectedPaths: []string{"password"}, expectedPassword: "new-secret",
+		},
+		{
+			name:          "missing_write_only_password",
+			state:         models.ExternalShardReplica{PasswordWoVersion: types.Int64Value(1)},
+			plan:          models.ExternalShardReplica{PasswordWoVersion: types.Int64Value(2)},
+			expectedError: true,
+		},
+		{
+			name:  "new_replica",
+			plan:  models.ExternalShardReplica{PasswordWoVersion: types.Int64Value(1), PasswordWo: types.StringValue("new-secret")},
+			isNew: true, expectedPaths: []string{"user", "password"}, expectedPassword: "new-secret",
+		},
+		{
+			name:          "rotate_legacy",
+			state:         models.ExternalShardReplica{Password: types.StringValue("old-secret")},
+			plan:          models.ExternalShardReplica{Password: types.StringValue("new-secret")},
+			expectedPaths: []string{"password"}, expectedPassword: "new-secret",
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			current := []*clickhouse.ExternalShard_Replica{{Host: "other"}}
+			if !c.isNew {
+				current = append([]*clickhouse.ExternalShard_Replica{{Host: "host"}}, current...)
+			}
+			target := []*clickhouse.ExternalShard_Replica{{Host: "host", Priority: c.priority}, {Host: "other"}}
+			var diags diag.Diagnostics
+			replicas, changed := externalReplicaUpdateSpecs("analytics", "external", current, target,
+				externalReplicaMap{key: c.state}, externalReplicaMap{key: c.plan}, &diags)
+			if diags.HasError() != c.expectedError {
+				t.Fatalf("Expected error %t, got diagnostics: %v", c.expectedError, diags.Errors())
+			}
+			if c.expectedError {
+				return
+			}
+			if changed != (len(c.expectedPaths) > 0) {
+				t.Errorf("Unexpected changed flag: %t", changed)
+			}
+			expected := &clickhouse.UpdateShardGroupSpec_ExternalShard{
+				ReplicaSpecs: []*clickhouse.UpdateShardGroupSpec_ExternalShard_Replica{
+					{Host: "host", Priority: c.priority, Password: c.expectedPassword, UpdateMask: &fieldmaskpb.FieldMask{Paths: c.expectedPaths}},
+					{Host: "other", UpdateMask: &fieldmaskpb.FieldMask{}},
+				},
+			}
+			utils.AssertProtoEqual(t, c.name, expected, &clickhouse.UpdateShardGroupSpec_ExternalShard{ReplicaSpecs: replicas})
+		})
+	}
+}
+
+func TestYandexProvider_MDBClickHouseClusterShardGroupRefresh(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	cases := []struct {
+		name    string
+		replica models.ExternalShardReplica
+	}{
+		{
+			name:    "write_only",
+			replica: models.ExternalShardReplica{Host: types.StringValue("host"), PasswordWoVersion: types.Int64Value(2)},
+		},
+		{
+			name:    "legacy",
+			replica: models.ExternalShardReplica{Host: types.StringValue("host"), Password: types.StringValue("legacy-secret")},
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			var diags diag.Diagnostics
+			state := testShardGroupCluster(t, testExternalShard(t, "external", c.replica))
+			current := []*clickhouse.ShardGroup{{Name: "analytics", ExternalShards: []*clickhouse.ExternalShard{{
+				Name: "external", Replicas: []*clickhouse.ExternalShard_Replica{{Host: "host", Password: "must-not-leak"}},
+			}}}}
+			refreshed := models.FlattenListShardGroup(ctx, current, state.ShardGroup, &diags)
+			key := externalReplicaKey{"analytics", "external", "host"}
+			replica := externalReplicasByIdentity(ctx, refreshed, nil, &diags)[key]
+			if diags.HasError() {
+				t.Fatalf("Unexpected diagnostics: %v", diags.Errors())
+			}
+			if !replica.Password.Equal(c.replica.Password) || !replica.PasswordWo.IsNull() || !replica.PasswordWoVersion.Equal(c.replica.PasswordWoVersion) {
+				t.Errorf("Refresh must preserve the state password/version and discard the API password")
+			}
+			shardNames := refreshed.Elements()[0].(types.Object).Attributes()["shard_names"]
+			if !shardNames.Equal(types.ListValueMust(types.StringType, []attr.Value{})) {
+				t.Errorf("Expected empty shard_names, got %v", shardNames)
+			}
+		})
+	}
+}
+
+func testExternalReplicaPlan(t *testing.T, plan *models.ClusterResource, passwords externalReplicaMap) externalReplicaMap {
+	t.Helper()
+	var diags diag.Diagnostics
+	replicas := externalReplicasByIdentity(context.Background(), plan.ShardGroup, passwords, &diags)
+	if diags.HasError() {
+		t.Fatal(diags)
+	}
+	return replicas
+}
+
+func testExternalReplica(host string) models.ExternalShardReplica {
+	return models.ExternalShardReplica{
+		Host: types.StringValue(host), Port: types.Int64Value(9440), Secure: types.BoolValue(true),
+		User: types.StringValue("reader"), Priority: types.Int64Value(0), PasswordWoVersion: types.Int64Value(1),
+	}
+}
+
+func testExternalShard(t *testing.T, name string, replicas ...models.ExternalShardReplica) models.ExternalShardModel {
+	t.Helper()
+	value, diags := types.ListValueFrom(context.Background(), types.ObjectType{AttrTypes: models.ExternalShardReplicaAttrTypes}, replicas)
+	if diags.HasError() {
+		t.Fatal(diags)
+	}
+	return models.ExternalShardModel{Name: types.StringValue(name), Weight: types.Int64Value(100), Replica: value}
+}
+
+func testShardGroupCluster(t *testing.T, shards ...models.ExternalShardModel) *models.ClusterResource {
+	t.Helper()
+	externalShards, diags := types.ListValueFrom(context.Background(), types.ObjectType{AttrTypes: models.ExternalShardAttrTypes}, shards)
+	if diags.HasError() {
+		t.Fatal(diags)
+	}
+	groups, diags := types.ListValueFrom(context.Background(), types.ObjectType{AttrTypes: models.ShardGroupAttrTypes}, []models.ShardGroup{{
+		Name: types.StringValue("analytics"), Description: types.StringValue("test"),
+		ShardNames: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("shard1")}), ExternalShards: externalShards,
+	}})
+	if diags.HasError() {
+		t.Fatal(diags)
+	}
+	return &models.ClusterResource{Id: types.StringValue("cluster-id"), ShardGroup: groups}
 }

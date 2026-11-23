@@ -804,7 +804,7 @@ func (c *ClickHouseAPI) DeleteMlModel(ctx context.Context, sdk *ycsdk.SDK, diags
 // Shard groups
 
 func (c *ClickHouseAPI) CreateShardGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.CreateClusterShardGroupRequest) {
-	tflog.Debug(ctx, "Creating ClickHouse shard group", map[string]any{"request": req})
+	tflog.Debug(ctx, "Creating ClickHouse shard group", map[string]any{"cluster_id": req.ClusterId, "shard_group": req.ShardGroupName})
 
 	op, err := clickhousesdk.NewClusterClient(sdk).CreateShardGroup(ctx, req)
 	if err != nil {
@@ -823,10 +823,10 @@ func (c *ClickHouseAPI) CreateShardGroup(ctx context.Context, sdk *ycsdk.SDK, di
 	}
 }
 
-func (c *ClickHouseAPI) UpdateShardGroup(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.UpdateClusterShardGroupRequest) {
-	tflog.Debug(ctx, "Updating ClickHouse shard group", map[string]any{"request": req})
+func (c *ClickHouseAPI) UpdateShardGroups(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, req *clickhouse.UpdateClusterShardGroupsRequest) {
+	tflog.Debug(ctx, "Updating ClickHouse shard groups", map[string]any{"cluster_id": req.ClusterId})
 
-	op, err := clickhousesdk.NewClusterClient(sdk).UpdateShardGroup(ctx, req)
+	op, err := clickhousesdk.NewClusterClient(sdk).UpdateShardGroups(ctx, req)
 	if err != nil {
 		diags.AddError(
 			"Failed to update resource",

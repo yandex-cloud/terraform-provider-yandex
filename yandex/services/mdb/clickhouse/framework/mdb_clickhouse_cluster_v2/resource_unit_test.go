@@ -6,10 +6,14 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	frameworkresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
@@ -239,5 +243,70 @@ func assertClickHouseConfigSpecPasswordsRedacted(t *testing.T, original, redacte
 		if dump := validate.ProtoDump(request); strings.Contains(dump, secret) {
 			t.Fatalf("redacted request contains the password: %s", dump)
 		}
+	}
+}
+
+func TestShardGroupWriteOnlySchemaAndConfig(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	s := schema.Schema{
+		Description: "Test schema for shard group write-only passwords.",
+		Blocks:      map[string]schema.Block{"shard_group": ShardGroupSchema()},
+	}
+	if diags := s.ValidateImplementation(ctx); diags.HasError() {
+		t.Fatalf("Unexpected schema diagnostics: %v", diags.Errors())
+	}
+	replicaSchema := s.Blocks["shard_group"].(schema.ListNestedBlock).NestedObject.Blocks["external_shard"].(schema.ListNestedBlock).NestedObject.Blocks["replica"].(schema.ListNestedBlock)
+	passwordSchema := replicaSchema.NestedObject.Attributes["password_wo"].(schema.StringAttribute)
+	if !passwordSchema.WriteOnly || !passwordSchema.Sensitive {
+		t.Fatal("password_wo must be write-only and sensitive")
+	}
+	p := path.Root("shard_group").AtListIndex(0).AtName("external_shard").AtListIndex(0).AtName("replica").AtListIndex(0)
+	cases := []struct {
+		name          string
+		password, wo  types.String
+		version       types.Int64
+		expectedError bool
+	}{
+		{name: "valid", wo: types.StringValue("config-secret"), version: types.Int64Value(1)},
+		{name: "conflicting_passwords", password: types.StringValue("legacy"), wo: types.StringValue("config-secret"), version: types.Int64Value(1), expectedError: true},
+		{name: "missing_version", wo: types.StringValue("config-secret"), expectedError: true},
+		{name: "missing_password", version: types.Int64Value(1), expectedError: true},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			t.Parallel()
+			r := models.ExternalShardReplica{Host: types.StringValue("host"), Password: c.password, PasswordWo: c.wo, PasswordWoVersion: c.version}
+			sibling := models.ExternalShardReplica{Host: types.StringValue("other-host"), Password: types.StringValue("sibling-secret")}
+			cluster := testShardGroupCluster(t, testExternalShard(t, "external", r, sibling))
+			value := types.ObjectValueMust(s.Type().(types.ObjectType).AttrTypes, map[string]attr.Value{"shard_group": cluster.ShardGroup})
+			raw, err := value.ToTerraformValue(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+			config := tfsdk.Config{Raw: raw, Schema: s}
+			var diags diag.Diagnostics
+			var groups types.List
+			diags.Append(config.GetAttribute(ctx, path.Root("shard_group"), &groups)...)
+			configured := externalReplicasByIdentity(ctx, groups, nil, &diags)
+			if diags.HasError() || !configured[externalReplicaKey{"analytics", "external", "host"}].PasswordWo.Equal(c.wo) {
+				t.Fatalf("Failed to read password from config: %v", diags)
+			}
+			for name, value := range map[string]types.String{"password": c.password, "password_wo": c.wo} {
+				for _, v := range replicaSchema.NestedObject.Attributes[name].(schema.StringAttribute).Validators {
+					var resp validator.StringResponse
+					v.ValidateString(ctx, validator.StringRequest{Path: p.AtName(name), PathExpression: p.AtName(name).Expression(), Config: config, ConfigValue: value}, &resp)
+					diags.Append(resp.Diagnostics...)
+				}
+			}
+			for _, v := range replicaSchema.NestedObject.Attributes["password_wo_version"].(schema.Int64Attribute).Validators {
+				var resp validator.Int64Response
+				v.ValidateInt64(ctx, validator.Int64Request{Path: p.AtName("password_wo_version"), PathExpression: p.AtName("password_wo_version").Expression(), Config: config, ConfigValue: c.version}, &resp)
+				diags.Append(resp.Diagnostics...)
+			}
+			if diags.HasError() != c.expectedError {
+				t.Fatalf("Expected error %t, got diagnostics: %v", c.expectedError, diags.Errors())
+			}
+		})
 	}
 }
