@@ -68,6 +68,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBGreenplumClusterConfigStep1(clusterName, clusterDescription),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_discard", "true"),
 					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "name", clusterName),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "folder_id", folderID),
@@ -122,6 +123,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBGreenplumClusterConfigStep2(clusterName, clusterDescription),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_discard", "true"),
 					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "master_subcluster.0.resources.0.resource_preset_id", "s2.small"),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_subcluster.0.resources.0.resource_preset_id", "s2.small"),
@@ -141,6 +143,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBGreenplumClusterConfigStep4(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_discard", "false"),
 					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
 
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "greenplum_config.max_connections", "400"),
@@ -166,6 +169,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBGreenplumClusterConfigStep5(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_discard", "false"),
 					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
 					statecheck.CheckCreatedAtAttr(greenplumResourceFoo),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "deletion_protection", "true"),
@@ -176,6 +180,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBGreenplumClusterConfigStep6(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_discard", "true"),
 					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 5),
 
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "access.0.web_sql", "true"),
@@ -206,6 +211,7 @@ func TestAccMDBGreenplumCluster_full(t *testing.T) {
 			{
 				Config: testAccMDBGreenplumClusterConfigStep7(clusterNameUpdated, clusterDescriptionUpdated),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(greenplumResourceFoo, "pooler_config.0.pool_discard", "true"),
 					suite.testAccCheckMDBGreenplumClusterExists(greenplumResourceFoo, nil, 2, 7),
 					statecheck.CheckCreatedAtAttr(greenplumResourceFoo),
 					resource.TestCheckResourceAttr(greenplumResourceFoo, "segment_in_host", "2"),
@@ -317,7 +323,7 @@ const greenplumVPCDependencies = `
 resource "yandex_vpc_network" "mdb-greenplum-test-net" {}
 
 resource "yandex_vpc_subnet" "mdb-greenplum-test-subnet-b" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.mdb-greenplum-test-net.id
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
@@ -343,7 +349,7 @@ resource "yandex_mdb_greenplum_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.mdb-greenplum-test-net.id
-  zone = "ru-central1-b"
+  zone = "ru-central1-a"
   subnet_id = yandex_vpc_subnet.mdb-greenplum-test-subnet-b.id
   assign_public_ip = false
   version = "6.29"
@@ -387,6 +393,7 @@ func testAccMDBGreenplumClusterConfigStep1(name string, description string) stri
 	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.micro") +
 		fmt.Sprintf(`
   pooler_config {
+    pool_discard                     = true
     pooling_mode                     = "TRANSACTION"
     pool_size                        = 10
     pool_client_idle_timeout         = 28800
@@ -470,6 +477,7 @@ func testAccMDBGreenplumClusterConfigStep3(name string, description string) stri
 func testAccMDBGreenplumClusterConfigStep4(name string, description string) string {
 	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
   pooler_config {
+    pool_discard                     = false
     pooling_mode                     = "SESSION"
     pool_size                        = 10
     pool_client_idle_timeout         = 28800
@@ -539,6 +547,7 @@ func testAccMDBGreenplumClusterConfigStep5(name string, description string) stri
 func testAccMDBGreenplumClusterConfigStep6(name string, description string) string {
 	return testAccMDBGreenplumClusterConfigStep0(name, description, "s2.small") + `
   pooler_config {
+    pool_discard                     = true
     pooling_mode                     = "SESSION"
     pool_size                        = 10
     pool_client_idle_timeout         = 28800

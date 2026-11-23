@@ -153,7 +153,7 @@ resource "yandex_mdb_greenplum_cluster_v2" "foo" {
 	segment_in_host = 2
 
     config = {
-	    zone_id = "ru-central1-b"
+	    zone_id = "ru-central1-a"
     }
 	cluster_config = {
 		assign_public_ip = false

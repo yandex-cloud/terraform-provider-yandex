@@ -128,7 +128,7 @@ func (m *yandexMdbGreenplumClusterV2DatasourceModel) GetUserName() types.String 
 func NewYandexMdbGreenplumClusterV2DatasourceModel() yandexMdbGreenplumClusterV2DatasourceModel {
 	return yandexMdbGreenplumClusterV2DatasourceModel{
 		CloudStorage:        types.ObjectNull(yandexMdbGreenplumClusterV2CloudStorageModelType.AttrTypes),
-		ClusterConfig:       types.ObjectNull(yandexMdbGreenplumClusterV2ClusterConfigModelType.AttrTypes),
+		ClusterConfig:       types.ObjectNull(greenplumDatasourceClusterConfigType.AttrTypes),
 		ID:                  types.StringNull(),
 		Config:              types.ObjectNull(yandexMdbGreenplumClusterV2ConfigModelType.AttrTypes),
 		CreatedAt:           types.StringNull(),
@@ -162,7 +162,7 @@ func yandexMdbGreenplumClusterV2DatasourceModelFillUnknown(target yandexMdbGreen
 		target.CloudStorage = types.ObjectNull(yandexMdbGreenplumClusterV2CloudStorageModelType.AttrTypes)
 	}
 	if target.ClusterConfig.IsUnknown() || target.ClusterConfig.IsNull() {
-		target.ClusterConfig = types.ObjectNull(yandexMdbGreenplumClusterV2ClusterConfigModelType.AttrTypes)
+		target.ClusterConfig = types.ObjectNull(greenplumDatasourceClusterConfigType.AttrTypes)
 	}
 	if target.ID.IsUnknown() || target.ID.IsNull() {
 		target.ID = types.StringNull()
@@ -245,8 +245,7 @@ func yandexMdbGreenplumClusterV2DatasourceModelFillUnknown(target yandexMdbGreen
 var yandexMdbGreenplumClusterV2DatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"cloud_storage":          yandexMdbGreenplumClusterV2CloudStorageModelType,
-		"cluster_config":         yandexMdbGreenplumClusterV2ClusterConfigModelType,
-		"cluster_id":             types.StringType,
+		"cluster_config":         greenplumDatasourceClusterConfigType,
 		"id":                     types.StringType,
 		"config":                 yandexMdbGreenplumClusterV2ConfigModelType,
 		"created_at":             types.StringType,
@@ -286,7 +285,7 @@ func flattenYandexMdbGreenplumClusterV2Datasource(ctx context.Context,
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexMdbGreenplumClusterV2DatasourceModelType.AttrTypes, yandexMdbGreenplumClusterV2DatasourceModel{
 		CloudStorage:        flattenYandexMdbGreenplumClusterV2CloudStorage(ctx, yandexMdbGreenplumClusterV2Datasource.GetCloudStorage(), diags),
-		ClusterConfig:       flattenYandexMdbGreenplumClusterV2ClusterConfig(ctx, yandexMdbGreenplumClusterV2Datasource.GetClusterConfig(), converter.ExpandObject(ctx, state.ClusterConfig, yandexMdbGreenplumClusterV2ClusterConfigModel{}, diags).(yandexMdbGreenplumClusterV2ClusterConfigModel), diags),
+		ClusterConfig:       flattenGreenplumDatasourceClusterConfig(ctx, yandexMdbGreenplumClusterV2Datasource.GetClusterConfig(), diags),
 		ID:                  types.StringValue(yandexMdbGreenplumClusterV2Datasource.GetId()),
 		Config:              flattenYandexMdbGreenplumClusterV2Config(ctx, yandexMdbGreenplumClusterV2Datasource.GetConfig(), converter.ExpandObject(ctx, state.Config, yandexMdbGreenplumClusterV2ConfigModel{}, diags).(yandexMdbGreenplumClusterV2ConfigModel), diags),
 		CreatedAt:           types.StringValue(yandexMdbGreenplumClusterV2Datasource.GetCreatedAt().AsTime().Format(time.RFC3339)),
@@ -316,4 +315,27 @@ func flattenYandexMdbGreenplumClusterV2Datasource(ctx context.Context,
 	})
 	diags.Append(diag...)
 	return value
+}
+
+// The data source retains the published greenplum_config_set_6 attribute name.
+var greenplumDatasourceClusterConfigType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"background_activities":  yandexMdbGreenplumClusterV2ClusterConfigModelType.AttrTypes["background_activities"],
+		"greenplum_config_set_6": yandexMdbGreenplumClusterV2ClusterConfigModelType.AttrTypes["greenplum_config"],
+		"pool":                   yandexMdbGreenplumClusterV2ClusterConfigPoolModelType,
+		"pxf_config":             yandexMdbGreenplumClusterV2ClusterConfigPxfConfigModelType,
+	},
+}
+
+func flattenGreenplumDatasourceClusterConfig(ctx context.Context, config *greenplum.ClusterConfigSet, diags *diag.Diagnostics) types.Object {
+	value := flattenYandexMdbGreenplumClusterV2ClusterConfig(ctx, config, NewYandexMdbGreenplumClusterV2ClusterConfigModel(), diags)
+	if value.IsNull() || diags.HasError() {
+		return types.ObjectNull(greenplumDatasourceClusterConfigType.AttrTypes)
+	}
+	attrs := value.Attributes()
+	attrs["greenplum_config_set_6"] = attrs["greenplum_config"]
+	delete(attrs, "greenplum_config")
+	result, d := types.ObjectValue(greenplumDatasourceClusterConfigType.AttrTypes, attrs)
+	diags.Append(d...)
+	return result
 }

@@ -594,6 +594,12 @@ func YandexMdbGreenplumClusterV2DatasourceSchema(ctx context.Context) schema.Sch
 								Computed: true,
 							},
 
+							"pool_discard": schema.BoolAttribute{
+								MarkdownDescription: "Whether server connections are cleaned up when they are returned to the connection pool.",
+								Description:         "Whether server connections are cleaned up when they are returned to the connection pool.",
+								Computed:            true,
+							},
+
 							"size": schema.Int64Attribute{
 								MarkdownDescription: "The number of servers in the server pool. Clients are placed in a wait queue when all servers are busy.\n\n Set to zero to disable the limit.",
 								Description: "The number of servers in the server pool. Clients are placed in a wait queue when all servers are busy.\n\n Set to zero to disable the limit." +

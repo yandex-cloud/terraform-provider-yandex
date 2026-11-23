@@ -341,6 +341,11 @@ func DataSourceYandexMDBGreenplumCluster() *schema.Resource {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
+						"pool_discard": {
+							Type:        schema.TypeBool,
+							Description: "Whether server connections are cleaned up when they are returned to the connection pool.",
+							Computed:    true,
+						},
 					},
 				},
 			},

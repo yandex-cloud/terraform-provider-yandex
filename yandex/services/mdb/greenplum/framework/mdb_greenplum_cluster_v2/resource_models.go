@@ -1854,6 +1854,7 @@ type yandexMdbGreenplumClusterV2ClusterConfigPoolModel struct {
 	ClientIdleTimeout        types.Int64  `tfsdk:"client_idle_timeout"`
 	IdleInTransactionTimeout types.Int64  `tfsdk:"idle_in_transaction_timeout"`
 	Mode                     types.String `tfsdk:"mode"`
+	PoolDiscard              types.Bool   `tfsdk:"pool_discard"`
 	Size                     types.Int64  `tfsdk:"size"`
 }
 
@@ -1866,6 +1867,9 @@ func (m *yandexMdbGreenplumClusterV2ClusterConfigPoolModel) GetIdleInTransaction
 func (m *yandexMdbGreenplumClusterV2ClusterConfigPoolModel) GetMode() types.String {
 	return m.Mode
 }
+func (m *yandexMdbGreenplumClusterV2ClusterConfigPoolModel) GetPoolDiscard() types.Bool {
+	return m.PoolDiscard
+}
 func (m *yandexMdbGreenplumClusterV2ClusterConfigPoolModel) GetSize() types.Int64 {
 	return m.Size
 }
@@ -1875,6 +1879,7 @@ func NewYandexMdbGreenplumClusterV2ClusterConfigPoolModel() yandexMdbGreenplumCl
 		ClientIdleTimeout:        types.Int64Null(),
 		IdleInTransactionTimeout: types.Int64Null(),
 		Mode:                     types.StringNull(),
+		PoolDiscard:              types.BoolNull(),
 		Size:                     types.Int64Null(),
 	}
 }
@@ -1888,6 +1893,9 @@ func yandexMdbGreenplumClusterV2ClusterConfigPoolModelFillUnknown(target yandexM
 	}
 	if target.Mode.IsUnknown() || target.Mode.IsNull() {
 		target.Mode = types.StringNull()
+	}
+	if target.PoolDiscard.IsUnknown() || target.PoolDiscard.IsNull() {
+		target.PoolDiscard = types.BoolNull()
 	}
 	if target.Size.IsUnknown() || target.Size.IsNull() {
 		target.Size = types.Int64Null()
@@ -1912,6 +1920,7 @@ var yandexMdbGreenplumClusterV2ClusterConfigPoolModelType = types.ObjectType{
 		"client_idle_timeout":         types.Int64Type,
 		"idle_in_transaction_timeout": types.Int64Type,
 		"mode":                        types.StringType,
+		"pool_discard":                types.BoolType,
 		"size":                        types.Int64Type,
 	},
 }
@@ -1923,10 +1932,12 @@ func flattenYandexMdbGreenplumClusterV2ClusterConfigPool(ctx context.Context,
 	if yandexMdbGreenplumClusterV2ClusterConfigPool == nil {
 		return types.ObjectNull(yandexMdbGreenplumClusterV2ClusterConfigPoolModelType.AttrTypes)
 	}
+	// PoolDiscard uses the effective value so state includes server defaults.
 	value, diag := types.ObjectValueFrom(ctx, yandexMdbGreenplumClusterV2ClusterConfigPoolModelType.AttrTypes, yandexMdbGreenplumClusterV2ClusterConfigPoolModel{
 		ClientIdleTimeout:        flattenYandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig(ctx, yandexMdbGreenplumClusterV2ClusterConfigPool.GetUserConfig(), diags).ClientIdleTimeout,
 		IdleInTransactionTimeout: flattenYandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig(ctx, yandexMdbGreenplumClusterV2ClusterConfigPool.GetUserConfig(), diags).IdleInTransactionTimeout,
 		Mode:                     flattenYandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig(ctx, yandexMdbGreenplumClusterV2ClusterConfigPool.GetUserConfig(), diags).Mode,
+		PoolDiscard:              flattenBoolWrapper(yandexMdbGreenplumClusterV2ClusterConfigPool.GetEffectiveConfig().GetPoolDiscard()),
 		Size:                     flattenYandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig(ctx, yandexMdbGreenplumClusterV2ClusterConfigPool.GetUserConfig(), diags).Size,
 	})
 	diags.Append(diag...)
@@ -1973,6 +1984,7 @@ func expandYandexMdbGreenplumClusterV2ClusterConfigPoolModel(ctx context.Context
 		ClientIdleTimeout:        yandexMdbGreenplumClusterV2ClusterConfigPoolState.ClientIdleTimeout,
 		IdleInTransactionTimeout: yandexMdbGreenplumClusterV2ClusterConfigPoolState.IdleInTransactionTimeout,
 		Mode:                     yandexMdbGreenplumClusterV2ClusterConfigPoolState.Mode,
+		PoolDiscard:              yandexMdbGreenplumClusterV2ClusterConfigPoolState.PoolDiscard,
 		Size:                     yandexMdbGreenplumClusterV2ClusterConfigPoolState.Size,
 	}, diags))
 	if diags.HasError() {
@@ -1985,6 +1997,7 @@ func expandYandexMdbGreenplumClusterV2ClusterConfigPoolModel_create(ctx context.
 	value.SetClientIdleTimeout(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolState.ClientIdleTimeout))
 	value.SetIdleInTransactionTimeout(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolState.IdleInTransactionTimeout))
 	value.SetMode(greenplum.ConnectionPoolerConfig_PoolMode(greenplum.ConnectionPoolerConfig_PoolMode_value[yandexMdbGreenplumClusterV2ClusterConfigPoolState.Mode.ValueString()]))
+	value.SetPoolDiscard(expandBoolWrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolState.PoolDiscard))
 	value.SetSize(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolState.Size))
 	if diags.HasError() {
 		return nil
@@ -1996,6 +2009,7 @@ func expandYandexMdbGreenplumClusterV2ClusterConfigPoolModel_update(ctx context.
 	value.SetClientIdleTimeout(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolState.ClientIdleTimeout))
 	value.SetIdleInTransactionTimeout(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolState.IdleInTransactionTimeout))
 	value.SetMode(greenplum.ConnectionPoolerConfig_PoolMode(greenplum.ConnectionPoolerConfig_PoolMode_value[yandexMdbGreenplumClusterV2ClusterConfigPoolState.Mode.ValueString()]))
+	value.SetPoolDiscard(expandBoolWrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolState.PoolDiscard))
 	value.SetSize(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolState.Size))
 	if diags.HasError() {
 		return nil
@@ -2007,6 +2021,7 @@ type yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigModel struct {
 	ClientIdleTimeout        types.Int64  `tfsdk:"client_idle_timeout"`
 	IdleInTransactionTimeout types.Int64  `tfsdk:"idle_in_transaction_timeout"`
 	Mode                     types.String `tfsdk:"mode"`
+	PoolDiscard              types.Bool   `tfsdk:"pool_discard"`
 	Size                     types.Int64  `tfsdk:"size"`
 }
 
@@ -2019,6 +2034,9 @@ func (m *yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigModel) GetIdleInT
 func (m *yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigModel) GetMode() types.String {
 	return m.Mode
 }
+func (m *yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigModel) GetPoolDiscard() types.Bool {
+	return m.PoolDiscard
+}
 func (m *yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigModel) GetSize() types.Int64 {
 	return m.Size
 }
@@ -2028,6 +2046,7 @@ func NewYandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigModel() yandexMdbG
 		ClientIdleTimeout:        types.Int64Null(),
 		IdleInTransactionTimeout: types.Int64Null(),
 		Mode:                     types.StringNull(),
+		PoolDiscard:              types.BoolNull(),
 		Size:                     types.Int64Null(),
 	}
 }
@@ -2042,6 +2061,9 @@ func yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigModelFillUnknown(targ
 	if target.Mode.IsUnknown() || target.Mode.IsNull() {
 		target.Mode = types.StringNull()
 	}
+	if target.PoolDiscard.IsUnknown() || target.PoolDiscard.IsNull() {
+		target.PoolDiscard = types.BoolNull()
+	}
 	if target.Size.IsUnknown() || target.Size.IsNull() {
 		target.Size = types.Int64Null()
 	}
@@ -2053,6 +2075,7 @@ var yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigModelType = types.Obje
 		"client_idle_timeout":         types.Int64Type,
 		"idle_in_transaction_timeout": types.Int64Type,
 		"mode":                        types.StringType,
+		"pool_discard":                types.BoolType,
 		"size":                        types.Int64Type,
 	},
 }
@@ -2067,6 +2090,7 @@ func flattenYandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig(ctx context.C
 		ClientIdleTimeout:        flattenInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig.GetClientIdleTimeout()),
 		IdleInTransactionTimeout: flattenInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig.GetIdleInTransactionTimeout()),
 		Mode:                     flattenEnum(yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig.GetMode()),
+		PoolDiscard:              flattenBoolWrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig.GetPoolDiscard()),
 		Size:                     flattenInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfig.GetSize()),
 	}
 }
@@ -2076,6 +2100,7 @@ func expandYandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigModel(ctx conte
 	value.SetClientIdleTimeout(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigState.ClientIdleTimeout))
 	value.SetIdleInTransactionTimeout(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigState.IdleInTransactionTimeout))
 	value.SetMode(greenplum.ConnectionPoolerConfig_PoolMode(greenplum.ConnectionPoolerConfig_PoolMode_value[yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigState.Mode.ValueString()]))
+	value.SetPoolDiscard(expandBoolWrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigState.PoolDiscard))
 	value.SetSize(expandInt64Wrapper(yandexMdbGreenplumClusterV2ClusterConfigPoolUserConfigState.Size))
 	if diags.HasError() {
 		return nil

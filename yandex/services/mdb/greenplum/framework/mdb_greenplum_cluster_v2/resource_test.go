@@ -3,6 +3,7 @@ package mdb_greenplum_cluster_v2_test
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	greenplumsdk "github.com/yandex-cloud/go-sdk/services/mdb/greenplum/v1"
@@ -41,6 +42,7 @@ func TestAccMDBGreenplumClusterV2_full(t *testing.T) {
 			{
 				Config: testAccResourceYandexMdbGreenplumClusterV2_basic(clusterName, clusterDesc),
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "cluster_config.pool.pool_discard", "true"),
 					testAccCheckYandexMdbGreenplumClusterV2Exists("yandex_mdb_greenplum_cluster_v2.test", clusterName),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "name", clusterName),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "description", clusterDesc),
@@ -53,10 +55,31 @@ func TestAccMDBGreenplumClusterV2_full(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "segment_in_host", "1"),
 				),
 			},
+			// Test import
+			{
+				ResourceName:      "yandex_mdb_greenplum_cluster_v2.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"restore",                  // restore is write-only
+					"user_password",            // user_password is not returned
+					"user_password_wo_version", // write-only password versions are not returned
+				},
+			},
+			{
+				Config:   strings.Replace(testAccResourceYandexMdbGreenplumClusterV2_basic(clusterName, clusterDesc), "      pool_discard = true\n", "", 1),
+				PlanOnly: true,
+			},
 			// Test update with background activities and segment configuration (Update + Expand)
 			{
-				Config: testAccResourceYandexMdbGreenplumClusterV2_updated(clusterName, updatedDesc),
+				Config: testAccResourceYandexMdbGreenplumClusterV2_updated(clusterName, updatedDesc) + `
+data "yandex_mdb_greenplum_cluster_v2" "test" {
+  id = yandex_mdb_greenplum_cluster_v2.test.id
+}
+`,
 				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "cluster_config.pool.pool_discard", "false"),
+					resource.TestCheckResourceAttr("data.yandex_mdb_greenplum_cluster_v2.test", "cluster_config.pool.pool_discard", "false"),
 					testAccCheckYandexMdbGreenplumClusterV2Exists("yandex_mdb_greenplum_cluster_v2.test", clusterName),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "description", updatedDesc),
 					resource.TestCheckResourceAttr("yandex_mdb_greenplum_cluster_v2.test", "cluster_config.background_activities.analyze_and_vacuum.analyze_timeout", "10800"),
@@ -100,6 +123,9 @@ resource "yandex_mdb_greenplum_cluster_v2" "test" {
   network_id = yandex_vpc_network.mdb-gp-test-net.id
 
   cluster_config = {
+    pool = {
+      pool_discard = true
+    }
     assign_public_ip = true
     backup_window_start = {
       hours   = 1
@@ -158,6 +184,9 @@ resource "yandex_mdb_greenplum_cluster_v2" "test" {
   network_id = yandex_vpc_network.mdb-gp-test-net.id
 
   cluster_config = {
+    pool = {
+      pool_discard = false
+    }
     assign_public_ip = true
     backup_window_start = {
       hours   = 1

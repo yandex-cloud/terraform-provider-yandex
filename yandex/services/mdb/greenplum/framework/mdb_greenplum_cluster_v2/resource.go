@@ -737,6 +737,9 @@ func (r *clusterResource) Update(ctx context.Context, req resource.UpdateRequest
 	if !yandexMdbGreenplumClusterV2ClusterConfigPoolPlan.Mode.Equal(yandexMdbGreenplumClusterV2ClusterConfigPoolState.Mode) {
 		updatePaths = append(updatePaths, "config_spec.pool.mode")
 	}
+	if !yandexMdbGreenplumClusterV2ClusterConfigPoolPlan.PoolDiscard.Equal(yandexMdbGreenplumClusterV2ClusterConfigPoolState.PoolDiscard) {
+		updatePaths = append(updatePaths, "config_spec.pool.pool_discard")
+	}
 	if !yandexMdbGreenplumClusterV2ClusterConfigPoolPlan.Size.Equal(yandexMdbGreenplumClusterV2ClusterConfigPoolState.Size) {
 		updatePaths = append(updatePaths, "config_spec.pool.size")
 	}

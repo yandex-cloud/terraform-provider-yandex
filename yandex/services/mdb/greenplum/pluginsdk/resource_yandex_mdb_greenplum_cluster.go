@@ -503,6 +503,13 @@ func ResourceYandexMDBGreenplumCluster() *schema.Resource {
 							Optional:    true,
 							Default:     nil,
 						},
+						"pool_discard": {
+							Type:        schema.TypeBool,
+							Description: "Enable cleanup of server connections when they are returned to the connection pool. If omitted, the server setting is preserved.",
+							Optional:    true,
+							Computed:    true,
+							Default:     nil,
+						},
 					},
 				},
 			},

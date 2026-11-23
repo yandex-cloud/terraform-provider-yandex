@@ -10,6 +10,7 @@ import (
 	"google.golang.org/genproto/protobuf/field_mask"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"google.golang.org/genproto/googleapis/type/timeofday"
 
@@ -171,6 +172,7 @@ func flattenGreenplumPoolerConfig(c *greenplum.ConnectionPoolerConfigSet) ([]int
 	out["pool_size"] = c.EffectiveConfig.GetSize().GetValue()
 	out["pool_client_idle_timeout"] = c.EffectiveConfig.GetClientIdleTimeout().GetValue()
 	out["pool_idle_in_transaction_timeout"] = c.EffectiveConfig.GetIdleInTransactionTimeout().GetValue()
+	out["pool_discard"] = c.EffectiveConfig.GetPoolDiscard().GetValue()
 
 	return []interface{}{out}, nil
 }
@@ -365,6 +367,7 @@ func expandGreenplumUpdateMask(d *schema.ResourceData) *field_mask.FieldMask {
 		"pooler_config.0.pool_size":                        "config_spec.pool.size",
 		"pooler_config.0.pool_client_idle_timeout":         "config_spec.pool.client_idle_timeout",
 		"pooler_config.0.pool_idle_in_transaction_timeout": "config_spec.pool.idle_in_transaction_timeout",
+		"pooler_config.0.pool_discard":                     "config_spec.pool.pool_discard",
 
 		"pxf_config.0.connection_timeout":             "config_spec.pxf_config.connection_timeout",
 		"pxf_config.0.upload_timeout":                 "config_spec.pxf_config.upload_timeout",
@@ -512,6 +515,12 @@ func expandGreenplumPoolerConfig(d *schema.ResourceData) (*greenplum.ConnectionP
 
 	if v, ok := d.GetOk("pooler_config.0.pool_idle_in_transaction_timeout"); ok {
 		pc.IdleInTransactionTimeout = &wrappers.Int64Value{Value: int64(v.(int))}
+	}
+
+	// The plan preserves computed state values and distinguishes false from null/unknown.
+	poolDiscardPath := cty.GetAttrPath("pooler_config").IndexInt(0).GetAttr("pool_discard")
+	if v, err := poolDiscardPath.Apply(d.GetRawPlan()); err == nil && v.IsKnown() && !v.IsNull() {
+		pc.PoolDiscard = &wrappers.BoolValue{Value: v.True()}
 	}
 
 	return pc, nil

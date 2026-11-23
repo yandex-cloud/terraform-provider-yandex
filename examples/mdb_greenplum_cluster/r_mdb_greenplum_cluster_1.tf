@@ -33,6 +33,14 @@ resource "yandex_mdb_greenplum_cluster" "my_cluster" {
     trino   = true
   }
 
+  pooler_config {
+    pooling_mode                     = "TRANSACTION"
+    pool_size                        = 10
+    pool_client_idle_timeout         = 28800
+    pool_idle_in_transaction_timeout = 600
+    pool_discard                     = true
+  }
+
   greenplum_config = {
     max_connections                      = 395
     max_slot_wal_keep_size               = 1048576

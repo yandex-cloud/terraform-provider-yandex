@@ -16,6 +16,9 @@ resource "yandex_mdb_greenplum_cluster_v2" "my_cluster" {
   network_id    = yandex_vpc_network.foo.id
 
   cluster_config = {
+    pool = {
+      pool_discard = true
+    }
     assign_public_ip = true
     backup_window_start = {
       hours   = 1
