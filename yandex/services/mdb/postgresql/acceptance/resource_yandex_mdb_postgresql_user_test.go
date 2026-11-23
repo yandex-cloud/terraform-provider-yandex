@@ -444,8 +444,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
 
 	host {
 		name      = "a"
-		zone      = "ru-central1-a"
-		subnet_id  = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+		zone      = "ru-central1-d"
+		subnet_id  = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 	  }
 }
 

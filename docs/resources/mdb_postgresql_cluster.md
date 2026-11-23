@@ -310,11 +310,11 @@ resource "yandex_vpc_subnet" "maintenance" {
     - `sessions_sampling_interval` (**Required**)(Number). Interval (in seconds) for pg_stat_activity sampling. Acceptable values are 1 to 86400, inclusive.
     - `statements_sampling_interval` (**Required**)(Number). Interval (in seconds) for pg_stat_statements sampling. Acceptable values are 1 to 86400, inclusive.
   - `pooler_config` [Block]. Configuration of the connection pooler.
-    - `pool_discard` (Bool). Deprecated field. Setting `pool_discard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_discard).
     - `pooler_pool_discard` (String). Setting `pool_discard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_discard). One of:
   - 1: `true`
   - 2: `false`
   - 3: `unspecified`.
+If omitted, the current API value is preserved. Use `unspecified` to reset the setting.
     - `pooling_mode` (String). Mode that the connection pooler is working in. See descriptions of all modes in the [documentation for Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool).
   - `resources` [Block]. Resources allocated to hosts of the PostgreSQL cluster.
     - `disk_size` (**Required**)(Number). Volume of the storage available to a PostgreSQL host, in gigabytes.

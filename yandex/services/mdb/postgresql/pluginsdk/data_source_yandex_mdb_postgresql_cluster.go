@@ -290,12 +290,6 @@ func dataSourceYandexMDBPostgreSQLClusterConfigBlock() *schema.Resource {
 							Description: poolerConfigElem.Schema["pooling_mode"].Description,
 							Computed:    true,
 						},
-						"pool_discard": {
-							Type:        schema.TypeBool,
-							Description: poolerConfigElem.Schema["pool_discard"].Description,
-							Computed:    true,
-							Deprecated:  sdkcommon.FieldDeprecatedForAnother("pool_discard", "pooler_pool_discard"),
-						},
 						"pooler_pool_discard": {
 							Type:        schema.TypeString,
 							Description: poolerConfigElem.Schema["pooler_pool_discard"].Description,
@@ -560,7 +554,7 @@ func dataSourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta inter
 		return err
 	}
 
-	pgClusterConfig, err := flattenPGClusterConfig(d, cluster.Config)
+	pgClusterConfig, err := flattenPGClusterConfig(cluster.Config)
 	if err != nil {
 		return err
 	}

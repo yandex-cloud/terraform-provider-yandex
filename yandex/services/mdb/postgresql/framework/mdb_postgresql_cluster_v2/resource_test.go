@@ -59,18 +59,6 @@ const (
 const pgVPCDependencies = `
 resource "yandex_vpc_network" "mdb-pg-test-net" {}
 
-resource "yandex_vpc_subnet" "mdb-pg-test-subnet-a" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.mdb-pg-test-net.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "mdb-pg-test-subnet-b" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.mdb-pg-test-net.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
 resource "yandex_vpc_subnet" "mdb-pg-test-subnet-d" {
   zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.mdb-pg-test-net.id
@@ -87,6 +75,14 @@ resource "yandex_vpc_security_group" "sgroup2" {
   network_id  = yandex_vpc_network.mdb-pg-test-net.id
 }
 
+`
+
+const pgVPCDependenciesMultiZone = pgVPCDependencies + `
+resource "yandex_vpc_subnet" "mdb-pg-test-subnet-a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.mdb-pg-test-net.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
 `
 
 const diskEncryptionKeyResource = `
@@ -911,7 +907,7 @@ func TestAccMDBPostgreSQLCluster_connectionManagerDisabled(t *testing.T) {
 				Config: pgVPCDependencies,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCaptureResourceID("yandex_vpc_network.mdb-pg-test-net", &networkID),
-					testAccCaptureResourceID("yandex_vpc_subnet.mdb-pg-test-subnet-a", &subnetID),
+					testAccCaptureResourceID("yandex_vpc_subnet.mdb-pg-test-subnet-d", &subnetID),
 				),
 			},
 			// Take the cluster created above under Terraform management
@@ -996,7 +992,7 @@ func testAccCreateMDBPGClusterWithoutConnectionManager(t *testing.T, name, descr
 		},
 		HostSpecs: []*postgresql.HostSpec{
 			{
-				ZoneId:   "ru-central1-a",
+				ZoneId:   "ru-central1-d",
 				SubnetId: subnetID,
 			},
 		},
@@ -1482,7 +1478,7 @@ func TestAccMDBPostgreSQLCluster_HostTests(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
@@ -1496,7 +1492,7 @@ func TestAccMDBPostgreSQLCluster_HostTests(t *testing.T) {
 				Config: testAccMDBPGClusterHostsStep2(clusterName, version),
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckExistsAndParseMDBPostgreSQLCluster(clusterResource, &cluster, 1),
@@ -1508,7 +1504,7 @@ func TestAccMDBPostgreSQLCluster_HostTests(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
@@ -1523,7 +1519,7 @@ func TestAccMDBPostgreSQLCluster_HostTests(t *testing.T) {
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("na").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-b")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nb").AtMapKey("assign_public_ip"), knownvalue.Bool(true)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("nd").AtMapKey("assign_public_ip"), knownvalue.Bool(false)),
@@ -1600,7 +1596,7 @@ func TestAccMDBPostgreSQLCluster_restore(t *testing.T) {
 				ConfigStateChecks: []statecheck.StateCheck{
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("name"), knownvalue.StringExact(clusterName)),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("description"), knownvalue.StringExact("PostgreSQL Cluster Restore Test")),
-					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("zone"), knownvalue.StringExact("ru-central1-a")),
+					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("hosts").AtMapKey("host").AtMapKey("zone"), knownvalue.StringExact("ru-central1-d")),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("security_group_ids"), knownvalue.Null()),
 					statecheck.ExpectKnownValue(clusterResource, tfjsonpath.New("deletion_protection"), knownvalue.Bool(true)),
 				},
@@ -2013,8 +2009,8 @@ resource "yandex_mdb_postgresql_cluster_v2" "foo" {
 
   hosts = {
     "na" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     }
   }
 
@@ -2027,6 +2023,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "foo" {
 
   timeouts = {
     create = "%s"
+    delete = "20m"
   }
 }
 `, name, version, resources, createTimeout)
@@ -2076,13 +2073,14 @@ resource "yandex_mdb_postgresql_cluster_v2" "foo" {
 
   hosts = {
     "host" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     }
   }
 
   timeouts = {
     create = "%s"
+    delete = "20m"
   }
 }
 `, clusterName, test.GetExampleFolderID(), pgRestoreBackupId, pgRestoreVersion, createTimeout)
@@ -2111,8 +2109,8 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
 
   hosts = {
     "na" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     }
   }
 
@@ -2140,8 +2138,8 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
 
   hosts = {
     "na" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     }
   }
 
@@ -2179,8 +2177,8 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
 
   hosts = {
     "host" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 	  priority  = 10
     }
   }
@@ -2236,7 +2234,7 @@ resource "yandex_mdb_postgresql_cluster_v2" "%s" {
 }
 
 func testAccMDBPGClusterHostsStep0(name, version, hosts string) string {
-	return fmt.Sprintf(pgVPCDependencies+`
+	return fmt.Sprintf(pgVPCDependenciesMultiZone+`
 resource "yandex_mdb_postgresql_cluster_v2" "cluster_host_tests" {
   name        = "%s"
   description = "PostgreSQL Cluster Hosts Terraform Test"
@@ -2265,8 +2263,8 @@ func testAccMDBPGClusterHostsStep1(name, version string) string {
       subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
     }
     "nb" = {
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     }
     "nd" = {
       zone      = "ru-central1-d"
@@ -2281,8 +2279,8 @@ func testAccMDBPGClusterHostsStep2(name, version string) string {
 	return testAccMDBPGClusterHostsStep0(name, version, `
   hosts = {
     "nb" = {
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     }
   }
 `)
@@ -2298,8 +2296,8 @@ func testAccMDBPGClusterHostsStep3(name, version string) string {
       assign_public_ip = true
     }
     "nb" = {
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     }
     "nd" = {
       zone      = "ru-central1-d"
@@ -2320,8 +2318,8 @@ func testAccMDBPGClusterHostsStep4(name, version string) string {
       assign_public_ip = false
     }
     "nb" = {
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
       assign_public_ip = true
     }
     "nd" = {
@@ -2395,8 +2393,8 @@ func testAccMDBPGClusterPriorityStep1(name, version string) string {
 	return testAccMDBPGClusterPriorityStep0(name, version, `
   hosts = {
     "na" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
       priority  = 10
     }
   }
@@ -2408,8 +2406,8 @@ func testAccMDBPGClusterPriorityStep2(name, version string) string {
 	return testAccMDBPGClusterPriorityStep0(name, version, `
   hosts = {
     "na" = {
-      zone      = "ru-central1-a"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     }
   }
 `)
@@ -2496,8 +2494,8 @@ resource "yandex_mdb_postgresql_cluster_v2" "encryption_tests" {
 	
   hosts = {
     "nb" = {
-      zone      = "ru-central1-b"
-      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+      zone      = "ru-central1-d"
+      subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     }
   }
 
@@ -2538,8 +2536,8 @@ func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection boo
 	  
 		hosts = {
 			"host" = {
-				zone      = "ru-central1-a"
-				subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+				zone      = "ru-central1-d"
+				subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 			}
 		}
 	  
@@ -2590,8 +2588,8 @@ func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId
 	  
 		hosts = {
 			"host" = {
-				zone      = "ru-central1-a"
-				subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+				zone      = "ru-central1-d"
+				subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 			}
 		}
 

@@ -320,12 +320,14 @@ func TestAccMDBPostgreSQLCluster_full(t *testing.T) {
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
-			// 12. remove pooler_config section
+			// 12. Omitting the computed pooler_config block preserves existing settings.
 			{
 				Config: testAccMDBPGClusterConfigUpdated_removePoolerConfig(clusterName, pgDesc2, version, 18),
 				Check: resource.ComposeTestCheckFunc(
 					suite.testAccCheckMDBPGClusterExists(clusterResource, &cluster, 1),
-					testAccCheckMDBPGClusterHasNoPoolerConfig(&cluster),
+					testAccCheckMDBPGClusterHasPoolerConfig(&cluster, "TRANSACTION", false),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.pooler_config.0.pooling_mode", "TRANSACTION"),
+					resource.TestCheckResourceAttr(clusterResource, "config.0.pooler_config.0.pooler_pool_discard", "false"),
 				),
 			},
 			mdbPGClusterImportStep(clusterResource),
@@ -487,6 +489,7 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-update")
 	clusterResource := "yandex_mdb_postgresql_cluster.ha_cluster"
 	var hostNames *[]string = new([]string)
+	savedHosts := new(map[string]map[string]string)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { acceptance.PreCheck(t) },
@@ -502,17 +505,18 @@ func TestAccMDBPostgreSQLCluster_HAWithoutNames_update(t *testing.T) {
 					resource.TestCheckResourceAttrSet(clusterResource, "host.1.fqdn"),
 					resource.TestCheckResourceAttrSet(clusterResource, "host.2.fqdn"),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.zone", "ru-central1-a"),
-					resource.TestCheckResourceAttr(clusterResource, "host.1.zone", "ru-central1-b"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.zone", "ru-central1-d"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.zone", "ru-central1-d"),
 					resource.TestCheckResourceAttr(clusterResource, "host.0.assign_public_ip", "false"),
-					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "false"),
+					resource.TestCheckResourceAttr(clusterResource, "host.1.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "host.2.assign_public_ip", "true"),
 					resource.TestCheckResourceAttr(clusterResource, "maintenance_window.0.type", "ANYTIME"),
 					statecheck.CheckCreatedAtAttr(clusterResource),
 					suite.testAccPGGetHostNames(clusterResource, hostNames),
+					testAccPGSaveHostAttrs(clusterResource, savedHosts),
 				),
 			},
-			mdbPGClusterImportStep(clusterResource),
+			mdbPGClusterImportStepCompareHostsByFQDN(clusterResource, savedHosts),
 			{
 				Config: testAccMDBPGClusterConfigHAChangePublicIP(clusterName, version),
 				Check: resource.ComposeTestCheckFunc(
@@ -539,7 +543,7 @@ func TestAccMDBPostgreSQLCluster_HAWithNames_update(t *testing.T) {
 	clusterName := acctest.RandomWithPrefix("tf-postgresql-cluster-names-update")
 	clusterResource := "yandex_mdb_postgresql_cluster.ha_cluster_with_names"
 	var hostNames *[]string = new([]string)
-	// hosts 'nd' and 'nb' share a zone, so they are compared by FQDN after import
+	// Multiple hosts share each zone, so they are compared by FQDN after import
 	savedHosts := new(map[string]map[string]string)
 
 	resource.Test(t, resource.TestCase{
@@ -886,17 +890,6 @@ func testAccCheckMDBPGClusterHasPoolerConfig(r *postgresql.Cluster, poolingMode 
 
 		if rs.PoolingMode.String() != poolingMode {
 			return fmt.Errorf("Expected pooling mode %v, got %v", poolingMode, rs.PoolingMode.String())
-		}
-
-		return nil
-	}
-}
-
-func testAccCheckMDBPGClusterHasNoPoolerConfig(r *postgresql.Cluster) resource.TestCheckFunc {
-	return func(s *terraform.State) error {
-		rs := r.Config.PoolerConfig
-		if rs != nil {
-			return fmt.Errorf("Expected pooling mode is absent, but it present %v", r.Config.PoolerConfig)
 		}
 
 		return nil
@@ -1403,19 +1396,7 @@ func testAccCheckMDBPGClusterContainsLabel(r *postgresql.Cluster, key string, va
 const pgVPCDependencies = `
 resource "yandex_vpc_network" "mdb-pg-test-net" {}
 
-resource "yandex_vpc_subnet" "mdb-pg-test-subnet-a" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.mdb-pg-test-net.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "mdb-pg-test-subnet-b" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.mdb-pg-test-net.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "mdb-pg-test-subnet-c" {
+resource "yandex_vpc_subnet" "mdb-pg-test-subnet-d" {
   zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.mdb-pg-test-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
@@ -1456,6 +1437,14 @@ resource "yandex_vpc_security_group" "mdb-pg-test-sg-y" {
     to_port           = 65535
     v4_cidr_blocks    = ["0.0.0.0/0"]
   }
+}
+`
+
+const pgVPCDependenciesMultiZone = pgVPCDependencies + `
+resource "yandex_vpc_subnet" "mdb-pg-test-subnet-a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.mdb-pg-test-net.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
 }
 `
 
@@ -1504,8 +1493,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   database {
@@ -1566,8 +1555,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   database {
@@ -1639,8 +1628,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
     backup_retain_period_days = 12
     
     pooler_config {
-      pooling_mode = "TRANSACTION"
-      pool_discard = false
+      pooling_mode        = "TRANSACTION"
+      pooler_pool_discard = "false"
     }
 
     postgresql_config = {
@@ -1691,8 +1680,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-    zone             = "ru-central1-a"
-    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    zone             = "ru-central1-d"
+    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     assign_public_ip = true
   }
 
@@ -1814,8 +1803,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-    zone             = "ru-central1-a"
-    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    zone             = "ru-central1-d"
+    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     assign_public_ip = true
   }
 
@@ -1929,8 +1918,8 @@ resource "yandex_mdb_postgresql_cluster" "foo" {
   }
 
   host {
-    zone             = "ru-central1-a"
-    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    zone             = "ru-central1-d"
+    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     assign_public_ip = true
   }
 
@@ -2025,8 +2014,8 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 		}
 	  
 		host {
-		  zone             = "ru-central1-a"
-		  subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+		  zone             = "ru-central1-d"
+		  subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 		}
 	  
 		database {
@@ -2042,7 +2031,7 @@ func testAccMDBPGClusterConfigCheckUsersAndDBsDropping(name, desc, version strin
 }
 
 func testAccMDBPGClusterConfigHABasicConfig(name, hosts, version string) string {
-	return fmt.Sprintf(pgVPCDependencies+`
+	return fmt.Sprintf(pgVPCDependenciesMultiZone+`
 resource "yandex_mdb_postgresql_cluster" "ha_cluster" {
   name        = "%s"
   description = "PostgreSQL HA Cluster without names Terraform Test"
@@ -2059,8 +2048,8 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster" {
     }
 
     pooler_config {
-      pooling_mode = "TRANSACTION"
-      pool_discard = false
+      pooling_mode        = "TRANSACTION"
+      pooler_pool_discard = "false"
     }
   }
 
@@ -2069,6 +2058,7 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster" {
 `, name, version, hosts)
 }
 
+// Unnamed hosts sharing a zone and subnet need identical options because refresh matches only those fields.
 func testAccMDBPGClusterConfigHA(name, version string) string {
 	return testAccMDBPGClusterConfigHABasicConfig(name, `
 	host {
@@ -2076,12 +2066,13 @@ func testAccMDBPGClusterConfigHA(name, version string) string {
 		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
 	}
 	host {
-		zone             = "ru-central1-b"
-		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+		zone             = "ru-central1-d"
+		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
+		assign_public_ip = true
 	}
 	host {
 		zone             = "ru-central1-d"
-		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
+		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 		assign_public_ip = true
 	}
 
@@ -2099,12 +2090,12 @@ func testAccMDBPGClusterConfigHAChangePublicIP(name, version string) string {
 		assign_public_ip = true
 	}
 	host {
-		zone             = "ru-central1-b"
-		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+		zone             = "ru-central1-d"
+		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 	}
 	host {
 		zone             = "ru-central1-d"
-		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
+		subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 	}
 
 	maintenance_window {
@@ -2114,7 +2105,7 @@ func testAccMDBPGClusterConfigHAChangePublicIP(name, version string) string {
 }
 
 func testAccMDBPGClusterConfigHANamedBasicConfig(name, hosts, version string) string {
-	return fmt.Sprintf(pgVPCDependencies+`
+	return fmt.Sprintf(pgVPCDependenciesMultiZone+`
 resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
   name        = "%s"
   description = "PostgreSQL HA Cluster Terraform Test"
@@ -2135,8 +2126,8 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
     }
 
     pooler_config {
-      pooling_mode = "TRANSACTION"
-      pool_discard = false
+      pooling_mode        = "TRANSACTION"
+      pooler_pool_discard = "false"
     }
   }
 
@@ -2145,6 +2136,7 @@ resource "yandex_mdb_postgresql_cluster" "ha_cluster_with_names" {
 `, name, version, hosts)
 }
 
+// Keep the na -> nb -> nc cascade across zones A -> D -> A in every named-host step.
 func testAccMDBPGClusterConfigHANamed(name, version string) string {
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
   host {
@@ -2157,20 +2149,20 @@ func testAccMDBPGClusterConfigHANamed(name, version string) string {
 
   host {
     name                    = "nd"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   host {
     name                    = "nb"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   host {
     name             = "nc"
-    zone             = "ru-central1-d"
-    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
+    zone             = "ru-central1-a"
+    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
   }
 `, version)
 }
@@ -2188,14 +2180,14 @@ func testAccMDBPGClusterConfigHANamedSwitchMaster(name, version string) string {
 
   host {
     name      = "nb"
-    zone      = "ru-central1-b"
-    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   host {
     name      = "nc"
-    zone      = "ru-central1-d"
-    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
+    zone      = "ru-central1-a"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
   }
 `, version)
 }
@@ -2210,20 +2202,20 @@ func testAccMDBPGClusterConfigHANamedChangePublicIP(name, version string) string
 
   host {
     name                    = "nd"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   host {
     name                    = "nb"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   host {
     name             = "nc"
-    zone             = "ru-central1-d"
-    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
+    zone             = "ru-central1-a"
+    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
     
     assign_public_ip = true
   }
@@ -2240,22 +2232,22 @@ func testAccMDBPGClusterConfigHANamedWithCascade(name, version string) string {
 
   host {
     name                    = "nd"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   host {
     name                    = "nb"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     
     replication_source_name = "na"
   }
 
   host {
     name             = "nc"
-    zone             = "ru-central1-d"
-    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-c.id
+    zone             = "ru-central1-a"
+    subnet_id        = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
     assign_public_ip = true
 
     replication_source_name = "nb"
@@ -2273,14 +2265,14 @@ func testAccMDBPGClusterConfigHANamedDeleteLastHost(name, version string) string
 
   host {
     name                    = "nd"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   host {
     name                    = "nb"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 `, version)
 }
@@ -2289,14 +2281,14 @@ func testAccMDBPGClusterConfigHANamedDeleteFirstHost(name, version string) strin
 	return testAccMDBPGClusterConfigHANamedBasicConfig(name, `
   host {
     name                    = "nd"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 
   host {
     name                    = "nb"
-    zone                    = "ru-central1-b"
-    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-b.id
+    zone                    = "ru-central1-d"
+    subnet_id               = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 `, version)
 }
@@ -2342,8 +2334,8 @@ func testAccMDBPGClusterConfigRestore(clusterName string, deletionProtection boo
 		}
 	  
 		host {
-		  zone      = "ru-central1-a"
-		  subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+		  zone      = "ru-central1-d"
+		  subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 		}
 	  
 		security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id]
@@ -2392,8 +2384,8 @@ func testAccMDBPGClusterConfigRestoreWithEncryption(clusterName string, backupId
 		}
 	  
 		host {
-		  zone      = "ru-central1-a"
-		  subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+		  zone      = "ru-central1-d"
+		  subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
 		}
 	  
 		security_group_ids = [yandex_vpc_security_group.mdb-pg-test-sg-x.id]
@@ -2472,8 +2464,8 @@ resource "yandex_mdb_postgresql_cluster" "test_priority" {
 
   host {
     name      = "host-a"
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     priority  = %d
   }
 }
@@ -2499,8 +2491,8 @@ resource "yandex_mdb_postgresql_cluster" "test_priority" {
 
   host {
     name      = "host-a"
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 }
 `, name, version)
@@ -2524,8 +2516,8 @@ resource "yandex_mdb_postgresql_cluster" "test_priority" {
   }
 
   host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
     priority  = 10
   }
 }
@@ -2592,8 +2584,8 @@ resource "yandex_mdb_postgresql_cluster" "test_connection_manager" {
   }
 
   host {
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-a.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mdb-pg-test-subnet-d.id
   }
 }
 `, name, version, enabled)

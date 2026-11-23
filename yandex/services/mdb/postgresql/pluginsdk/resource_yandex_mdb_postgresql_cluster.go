@@ -229,6 +229,7 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 				Type:             schema.TypeList,
 				Description:      "Configuration of the connection pooler.",
 				Optional:         true,
+				Computed:         true,
 				MaxItems:         1,
 				DiffSuppressFunc: suppressPoolerConfigDiffFunc,
 				Elem: &schema.Resource{
@@ -239,21 +240,13 @@ func resourceYandexMDBPostgreSQLClusterConfig() *schema.Resource {
 							DiffSuppressFunc: suppressPoolingModeDiffFunc,
 							Optional:         true,
 						},
-						"pool_discard": {
-							Type:             schema.TypeBool,
-							Description:      "Deprecated field. Setting `pool_discard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_discard).",
-							DiffSuppressFunc: suppressPoolDiscardDiffFunc,
-							Optional:         true,
-							Deprecated:       sdkcommon.FieldDeprecatedForAnother("pool_discard", "pooler_pool_discard"),
-							ConflictsWith:    []string{"config.0.pooler_config.0.pooler_pool_discard"},
-						},
 						"pooler_pool_discard": {
 							Type:             schema.TypeString,
 							Description:      "Setting `pool_discard` [parameter in Odyssey](https://github.com/yandex/odyssey/blob/master/docs/configuration/rules.md#pool_discard). One of:\n  - 1: `true`\n  - 2: `false`\n  - 3: `unspecified`.",
 							Optional:         true,
+							Computed:         true,
 							DiffSuppressFunc: suppressPoolerPoolDiscardDiffFunc,
 							ValidateFunc:     validation.StringInSlice([]string{"true", "false", "unspecified"}, false),
-							ConflictsWith:    []string{"config.0.pooler_config.0.pool_discard"},
 						},
 					},
 				},
@@ -670,7 +663,7 @@ func resourceYandexMDBPostgreSQLClusterRead(d *schema.ResourceData, meta interfa
 		return err
 	}
 
-	pgClusterConf, err := flattenPGClusterConfig(d, cluster.Config)
+	pgClusterConf, err := flattenPGClusterConfig(cluster.Config)
 	if err != nil {
 		return err
 	}
@@ -2026,13 +2019,6 @@ func suppressPoolingModeDiffFunc(k, old, new string, d *schema.ResourceData) boo
 	return sdkcommon.StringOfEnumCompareWithDefault(mdbPGPoolerConfigFieldsInfo, old, new, "pooling_mode")
 }
 
-func suppressPoolDiscardDiffFunc(k, old, new string, d *schema.ResourceData) bool {
-	if isStringOfBoolEqualDefault(old) && isStringOfBoolEqualDefault(new) {
-		return true
-	}
-	return false
-}
-
 func suppressPoolerPoolDiscardDiffFunc(k, old, new string, d *schema.ResourceData) bool {
 	if old == "" && new == "unspecified" {
 		return true
@@ -2048,17 +2034,12 @@ func suppressPoolerConfigDiffFunc(k, old, new string, d *schema.ResourceData) bo
 
 		if oldVal == 0 && newVal == 1 {
 			poolingMode := d.Get("config.0.pooler_config.0.pooling_mode")
-			poolDiscard := d.Get("config.0.pooler_config.0.pool_discard")
 			poolerPoolDiscard := d.Get("config.0.pooler_config.0.pooler_pool_discard")
 
-			if poolingMode == "" && poolDiscard == false && (poolerPoolDiscard == "" || poolerPoolDiscard == "unspecified") {
+			if poolingMode == "" && (poolerPoolDiscard == "" || poolerPoolDiscard == "unspecified") {
 				return true
 			}
 		}
 	}
 	return false
-}
-
-func isStringOfBoolEqualDefault(bString string) bool {
-	return bString == "" || bString == "false"
 }
