@@ -163,7 +163,7 @@ jobs:
         if: steps.state.outputs.publish == 'true'
         uses: actions/setup-go@v6
         with:
-          go-version: '1.25.10'
+          go-version-file: go.mod
           cache: false
 
       - name: Import GPG key
