@@ -12,21 +12,20 @@ builds:
     - -mod=vendor
   ldflags:
     - '-s -w -X github.com/yandex-cloud/terraform-provider-yandex/version.ProviderVersion={{.Version}}'
-  goos:
-    - freebsd
-    - windows
-    - linux
-    - darwin
-  goarch:
-    - amd64
-    - '386'
-    - arm
-    - arm64
-  ignore:
-    - goos: darwin
-      goarch: '386'
-    - goos: windows
-      goarch: arm64
+  # Single source for the build and publication checks. Use explicit os_arch targets.
+  targets:
+    - freebsd_amd64
+    - freebsd_386
+    - freebsd_arm
+    - freebsd_arm64
+    - windows_amd64
+    - windows_386
+    - linux_amd64
+    - linux_386
+    - linux_arm
+    - linux_arm64
+    - darwin_amd64
+    - darwin_arm64
   binary: '{{ .ProjectName }}_v{{ .Version }}'
 archives:
 - format: zip

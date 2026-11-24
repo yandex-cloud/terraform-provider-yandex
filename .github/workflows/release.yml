@@ -118,14 +118,14 @@ jobs:
             assets="$(gh api "/repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '.assets[] | select(.state == "uploaded" and .size > 0) | .name')"
             checksum="terraform-provider-yandex_${RELEASE_TAG#v}_SHA256SUMS"
             expected=("$checksum" "$checksum.sig")
-            for goos in freebsd windows linux darwin; do
-              for arch in amd64 386 arm arm64; do
-                if [[ "$goos:$arch" == "darwin:386" || "$goos:$arch" == "darwin:arm" || "$goos:$arch" == "windows:arm64" ]]; then
-                  continue
-                fi
-                expected+=("terraform-provider-yandex_${RELEASE_TAG#v}_${goos}_${arch}.zip")
-              done
-            done
+            targets="$(yq -er 'select((.builds | length) == 1) | .builds[0].targets[]' .goreleaser.yml)"
+            while IFS= read -r target; do
+              if [[ ! "$target" =~ ^[a-z0-9]+_[a-z0-9]+$ ]]; then
+                echo "Expected an explicit os_arch build target, got $target" >&2
+                exit 1
+              fi
+              expected+=("terraform-provider-yandex_${RELEASE_TAG#v}_${target}.zip")
+            done <<< "$targets"
             for name in "${expected[@]}"; do
               if ! grep -Fxq "$name" <<< "$assets"; then
                 echo "Published release $RELEASE_TAG is incomplete: missing $name" >&2

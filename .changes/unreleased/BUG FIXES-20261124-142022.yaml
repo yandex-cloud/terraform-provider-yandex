@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'release: share the build target list with publication checks and exclude unsupported 32-bit Windows ARM builds'
+time: 2026-11-24T14:20:22.289339+03:00
