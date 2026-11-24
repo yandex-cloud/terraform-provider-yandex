@@ -38,8 +38,8 @@ func infraResources(t *testing.T, randSuffix, folderID string) string {
 	tpl, err := template.New("trino").Parse(`
 resource "yandex_vpc_network" "trino-net" {}
 
-resource "yandex_vpc_subnet" "trino-a" {
-  zone           = "ru-central1-a"
+resource "yandex_vpc_subnet" "trino-d" {
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.trino-net.id
   v4_cidr_blocks = ["10.1.0.0/24"]
 }
@@ -59,7 +59,7 @@ resource "yandex_trino_cluster" "trino_cluster" {
   name               = "trino-{{ .RandSuffix }}"
   service_account_id = yandex_iam_service_account.trino-sa-{{ .RandSuffix }}.id
   subnet_ids = [
-    yandex_vpc_subnet.trino-a.id
+    yandex_vpc_subnet.trino-d.id
   ]
   coordinator = {
     resource_preset_id = "c4-m16"

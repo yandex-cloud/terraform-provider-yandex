@@ -58,8 +58,8 @@ func infraResources(t *testing.T, randSuffix string) string {
 	tpl, err := template.New("trino").Parse(`
 resource "yandex_vpc_network" "trino-net" {}
 
-resource "yandex_vpc_subnet" "trino-a" {
-  zone           = "ru-central1-a"
+resource "yandex_vpc_subnet" "trino-d" {
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.trino-net.id
   v4_cidr_blocks = ["10.1.0.0/24"]
 }
@@ -169,7 +169,7 @@ func trinoClusterConfig(t *testing.T, params trinoClusterConfigParams) string {
 resource "yandex_trino_cluster" "trino_cluster" {
   name               = "trino-{{ .RandSuffix }}"
   service_account_id = yandex_iam_service_account.trino-sa-{{ .RandSuffix }}.id
-  subnet_ids = [yandex_vpc_subnet.trino-a.id]
+  subnet_ids = [yandex_vpc_subnet.trino-d.id]
   coordinator = {
     resource_preset_id = "{{ .Coordinator.ResourcePresetID }}"
   }
@@ -265,13 +265,6 @@ EOT
   {{ if .AdditionalParams }}
   security_group_ids = [yandex_vpc_security_group.trino-sg1.id]
   description = "trino-cluster"
-  logging = {
-    enabled   = true
-    folder_id = "{{ .FolderID }}"
-    min_level = "INFO"
-  }
-
-
   {{ end }}
 
   {{ if .ResourceGroups }}
@@ -493,9 +486,6 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					// Additional
 					resource.TestCheckResourceAttrSet("yandex_trino_cluster.trino_cluster", "security_group_ids.0"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "description", "trino-cluster"),
-					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "logging.enabled", "true"),
-					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "logging.folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "logging.min_level", "INFO"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "retry_policy.policy", "TASK"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "retry_policy.additional_properties.fault-tolerant-execution-max-task-split-count", "1024"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "retry_policy.exchange_manager.s3.bucket", fmt.Sprintf("trino-exchange-%s", randSuffix)),

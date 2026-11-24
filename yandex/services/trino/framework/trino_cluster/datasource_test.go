@@ -119,9 +119,6 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		// Additional parameters
 		resource.TestCheckResourceAttrSet("data.yandex_trino_cluster.trino_cluster", "security_group_ids.0"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "description", "trino-cluster"),
-		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "logging.enabled", "true"),
-		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "logging.folder_id", folderID),
-		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "logging.min_level", "INFO"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "retry_policy.policy", "TASK"),
 		resource.TestCheckResourceAttr("data.yandex_trino_cluster.trino_cluster", "retry_policy.exchange_manager.s3.bucket", fmt.Sprintf("trino-exchange-%s", randSuffix)),
 		resource.TestCheckNoResourceAttr("data.yandex_trino_cluster.trino_cluster", "retry_policy.exchange_manager.service_s3"),

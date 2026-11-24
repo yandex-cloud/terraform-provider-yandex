@@ -84,9 +84,12 @@ func TestAccMDBMetastoreClusterIamBinding_multiple(t *testing.T) {
 					Description:    newOptional(description),
 					RandSuffix:     clusterName,
 					FolderID:       os.Getenv("YC_FOLDER_ID"),
-					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+					SubnetIDVar:    "yandex_vpc_subnet.metastore-d.id",
 					ResourcePreset: "c2-m4",
 					Version:        newOptional("3.1"),
+					WarehouseConfig: &WarehouseConfigTestParams{
+						Bucket: fmt.Sprintf("metastore-wh-%s", clusterName),
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists(metastoreResourceType+".metastore_cluster", &cluster),
@@ -127,9 +130,12 @@ func TestAccMDBMetastoreClusterIamBinding_multiple(t *testing.T) {
 					Description:    newOptional(description),
 					RandSuffix:     clusterName,
 					FolderID:       os.Getenv("YC_FOLDER_ID"),
-					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+					SubnetIDVar:    "yandex_vpc_subnet.metastore-d.id",
 					ResourcePreset: "c2-m4",
 					Version:        newOptional("3.1"),
+					WarehouseConfig: &WarehouseConfigTestParams{
+						Bucket: fmt.Sprintf("metastore-wh-%s", clusterName),
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					iam.TestAccCheckIamBindingEmpty(ctx, func() (iam.BindingsGetter, error) {
@@ -152,8 +158,11 @@ func testAccMDBMetastoreClusterIamBindingConfig(t *testing.T, role, userID, name
 		FolderID:       os.Getenv("YC_FOLDER_ID"),
 		RandSuffix:     nameSuffix,
 		ResourcePreset: "c2-m4",
-		SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+		SubnetIDVar:    "yandex_vpc_subnet.metastore-d.id",
 		Version:        newOptional("3.1"),
+		WarehouseConfig: &WarehouseConfigTestParams{
+			Bucket: fmt.Sprintf("metastore-wh-%s", nameSuffix),
+		},
 	})
 
 	return fmt.Sprintf(`
@@ -171,8 +180,11 @@ func testAccMDBMetastoreClusterIamBindingMultipleConfig(t *testing.T, roleFoo, r
 		FolderID:       os.Getenv("YC_FOLDER_ID"),
 		RandSuffix:     nameSuffix,
 		ResourcePreset: "c2-m4",
-		SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+		SubnetIDVar:    "yandex_vpc_subnet.metastore-d.id",
 		Version:        newOptional("3.1"),
+		WarehouseConfig: &WarehouseConfigTestParams{
+			Bucket: fmt.Sprintf("metastore-wh-%s", nameSuffix),
+		},
 	})
 
 	return fmt.Sprintf(`

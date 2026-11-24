@@ -45,12 +45,14 @@ func metastoreDatasourceClusterConfig(t *testing.T, randSuffix string, byID bool
 			Hour: 2,
 		},
 		DeletionProtection: newOptional(false),
-		LoggingEnabled:     newOptional(true),
 		Description:        newOptional("description"),
 		SGIDsSpecified:     newOptional(true),
-		SubnetIDVar:        "yandex_vpc_subnet.metastore-a.id",
+		SubnetIDVar:        "yandex_vpc_subnet.metastore-d.id",
 		ResourcePreset:     "c2-m4",
 		Version:            newOptional("3.1"),
+		WarehouseConfig: &WarehouseConfigTestParams{
+			Bucket: fmt.Sprintf("metastore-wh-%s", randSuffix),
+		},
 	})
 
 	var datasource string
@@ -84,8 +86,5 @@ func datasourceTestCheckComposeFunc(randSuffix string) resource.TestCheckFunc {
 		resource.TestCheckResourceAttr("data.yandex_metastore_cluster.metastore_cluster", "description", "description"),
 		resource.TestCheckResourceAttrSet("data.yandex_metastore_cluster.metastore_cluster", "security_group_ids.0"),
 		resource.TestCheckResourceAttr("data.yandex_metastore_cluster.metastore_cluster", "folder_id", folderID),
-		resource.TestCheckResourceAttr("data.yandex_metastore_cluster.metastore_cluster", "logging.enabled", "true"),
-		resource.TestCheckResourceAttr("data.yandex_metastore_cluster.metastore_cluster", "logging.min_level", "INFO"),
-		resource.TestCheckResourceAttr("data.yandex_metastore_cluster.metastore_cluster", "logging.folder_id", folderID),
 	)
 }

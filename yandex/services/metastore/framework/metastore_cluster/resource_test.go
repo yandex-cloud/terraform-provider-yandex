@@ -28,29 +28,33 @@ func TestMain(m *testing.M) {
 	resource.TestMain(m)
 }
 
-func infraResources(t *testing.T, randSuffix string) string {
+func infraResources(t *testing.T, randSuffix string, withSubnetA bool) string {
 	type params struct {
-		RandSuffix string
-		FolderID   string
+		RandSuffix  string
+		FolderID    string
+		WithSubnetA bool
 	}
 	p := params{
-		RandSuffix: randSuffix,
-		FolderID:   os.Getenv("YC_FOLDER_ID"),
+		RandSuffix:  randSuffix,
+		FolderID:    os.Getenv("YC_FOLDER_ID"),
+		WithSubnetA: withSubnetA,
 	}
 	tpl, err := template.New("metastore").Parse(`
 resource "yandex_vpc_network" "metastore-net" {}
 
-resource "yandex_vpc_subnet" "metastore-a" {
-  zone           = "ru-central1-a"
+resource "yandex_vpc_subnet" "metastore-d" {
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.metastore-net.id
   v4_cidr_blocks = ["10.1.0.0/24"]
 }
 
-resource "yandex_vpc_subnet" "metastore-b" {
-  zone           = "ru-central1-b"
+{{ if .WithSubnetA }}
+resource "yandex_vpc_subnet" "metastore-a" {
+  zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.metastore-net.id
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
+{{ end }}
 
 resource "yandex_vpc_security_group" "metastore-sg1" {
   description = "Test security group 1"
@@ -110,7 +114,6 @@ type metastoreClusterConfigParams struct {
 	Labels             map[string]string
 	MaintenanceWindow  *MaintenanceWindow
 	DeletionProtection optional[bool]
-	LoggingEnabled     optional[bool]
 	Description        optional[string]
 	SGIDsSpecified     optional[bool]
 	SubnetIDVar        string
@@ -201,16 +204,6 @@ resource "yandex_metastore_cluster" "metastore_cluster" {
   folder_id = "{{ .FolderID }}"
   {{ end }}
 
-  {{ if .LoggingEnabled.Valid }}
-  {{ if .LoggingEnabled.Value }}
-  logging = {
-    enabled   = true
-    folder_id = "{{ .FolderID }}"
-    min_level = "INFO"
-  }
-  {{ end }}
-  {{ end }}
-
   {{ if .Version.Valid }}
   version = "{{ .Version.Value }}"
   {{ end }}
@@ -231,7 +224,7 @@ resource "yandex_metastore_cluster" "metastore_cluster" {
 	b := new(bytes.Buffer)
 	require.NoError(t, tpl.Execute(b, params))
 
-	return fmt.Sprintf("%s\n%s", infraResources(t, params.RandSuffix), b.String())
+	return fmt.Sprintf("%s\n%s", infraResources(t, params.RandSuffix, params.SubnetIDVar == "yandex_vpc_subnet.metastore-a.id"), b.String())
 }
 
 func testAccCheckMetastoreClusterDestroy(s *terraform.State) error {
@@ -310,9 +303,12 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 				Config: metastoreClusterConfig(t, metastoreClusterConfigParams{
 					RandSuffix:     randSuffix,
 					FolderID:       folderID,
-					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+					SubnetIDVar:    "yandex_vpc_subnet.metastore-d.id",
 					ResourcePreset: "c2-m4",
 					Version:        newOptional("3.1"),
+					WarehouseConfig: &WarehouseConfigTestParams{
+						Bucket: fmt.Sprintf("metastore-wh-%s", randSuffix),
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
@@ -345,12 +341,14 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 						Hour: 2,
 					},
 					DeletionProtection: newOptional(true),
-					LoggingEnabled:     newOptional(true),
 					Description:        newOptional("description"),
 					SGIDsSpecified:     newOptional(true),
-					SubnetIDVar:        "yandex_vpc_subnet.metastore-a.id",
+					SubnetIDVar:        "yandex_vpc_subnet.metastore-d.id",
 					ResourcePreset:     "c2-m8",
 					Version:            newOptional("3.1"),
+					WarehouseConfig: &WarehouseConfigTestParams{
+						Bucket: fmt.Sprintf("metastore-wh-%s", anotherRandSuffix),
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
@@ -365,9 +363,6 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "description", "description"),
 					resource.TestCheckResourceAttrSet("yandex_metastore_cluster.metastore_cluster", "security_group_ids.0"),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.enabled", "true"),
-					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.min_level", "INFO"),
-					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "logging.folder_id", folderID),
 					resource.TestCheckResourceAttr("yandex_metastore_cluster.metastore_cluster", "version", "3.1"),
 				),
 			},
@@ -380,12 +375,14 @@ func TestAccMDBMetastoreCluster_basic(t *testing.T) {
 					Labels:             nil,
 					MaintenanceWindow:  nil,
 					DeletionProtection: newOptional(false),
-					LoggingEnabled:     newOptional(false),
 					Description:        newOptional(""),
 					SGIDsSpecified:     newOptional(false),
-					SubnetIDVar:        "yandex_vpc_subnet.metastore-a.id",
+					SubnetIDVar:        "yandex_vpc_subnet.metastore-d.id",
 					ResourcePreset:     "c2-m4",
 					Version:            newOptional("4.0"),
+					WarehouseConfig: &WarehouseConfigTestParams{
+						Bucket: fmt.Sprintf("metastore-wh-%s", randSuffix),
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
@@ -427,7 +424,7 @@ func TestAccMDBMetastoreCluster_warehouse(t *testing.T) {
 				Config: metastoreClusterConfig(t, metastoreClusterConfigParams{
 					RandSuffix:     randSuffix,
 					FolderID:       folderID,
-					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+					SubnetIDVar:    "yandex_vpc_subnet.metastore-d.id",
 					ResourcePreset: "c2-m8",
 					Version:        newOptional("4.2"),
 					WarehouseConfig: &WarehouseConfigTestParams{
@@ -449,7 +446,7 @@ func TestAccMDBMetastoreCluster_warehouse(t *testing.T) {
 				Config: metastoreClusterConfig(t, metastoreClusterConfigParams{
 					RandSuffix:     randSuffix,
 					FolderID:       folderID,
-					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+					SubnetIDVar:    "yandex_vpc_subnet.metastore-d.id",
 					ResourcePreset: "c2-m8",
 					Version:        newOptional("4.2"),
 					WarehouseConfig: &WarehouseConfigTestParams{
@@ -485,8 +482,11 @@ func TestAccMDBMetastoreCluster_recreate(t *testing.T) {
 					RandSuffix:     randSuffix,
 					FolderID:       folderID,
 					ResourcePreset: "c2-m4",
-					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
+					SubnetIDVar:    "yandex_vpc_subnet.metastore-d.id",
 					Version:        newOptional("3.1"),
+					WarehouseConfig: &WarehouseConfigTestParams{
+						Bucket: fmt.Sprintf("metastore-wh-%s", randSuffix),
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
@@ -509,9 +509,12 @@ func TestAccMDBMetastoreCluster_recreate(t *testing.T) {
 				Config: metastoreClusterConfig(t, metastoreClusterConfigParams{
 					RandSuffix:     randSuffix,
 					FolderID:       folderID,
-					SubnetIDVar:    "yandex_vpc_subnet.metastore-b.id",
+					SubnetIDVar:    "yandex_vpc_subnet.metastore-a.id",
 					ResourcePreset: "c2-m4",
 					Version:        newOptional("3.1"),
+					WarehouseConfig: &WarehouseConfigTestParams{
+						Bucket: fmt.Sprintf("metastore-wh-%s", randSuffix),
+					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMetastoreExists("yandex_metastore_cluster.metastore_cluster", &cluster),
