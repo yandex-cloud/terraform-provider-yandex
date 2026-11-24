@@ -132,7 +132,7 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
 	}
 
 	host {
-		zone_id      = "ru-central1-a"
+		zone_id      = "ru-central1-d"
 		subnet_id  = yandex_vpc_subnet.foo.id
 	}
 	resources_mongod {

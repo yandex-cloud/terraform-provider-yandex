@@ -66,7 +66,7 @@ func TestAccDataSourceMDBMongoDBCluster_byName(t *testing.T) {
 		},
 		"Hosts": []map[string]interface{}{
 			{"ZoneId": "ru-central1-a", "SubnetId": "${yandex_vpc_subnet.foo.id}"},
-			{"ZoneId": "ru-central1-b", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
+			{"ZoneId": "ru-central1-d", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
 		},
 		"SecurityGroupIds": []string{"${yandex_vpc_security_group.sg-x.id}"},
 		"MaintenanceWindow": map[string]interface{}{

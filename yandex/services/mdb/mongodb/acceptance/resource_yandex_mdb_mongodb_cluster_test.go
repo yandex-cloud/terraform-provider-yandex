@@ -41,22 +41,10 @@ const (
 	mongodbVPCDependencies = `
 resource "yandex_vpc_network" "foo" {}
 
-resource "yandex_vpc_subnet" "foo" {
-  zone           = "ru-central1-a"
-  network_id     = "${yandex_vpc_network.foo.id}"
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
 resource "yandex_vpc_subnet" "bar" {
-  zone           = "ru-central1-b"
-  network_id     = "${yandex_vpc_network.foo.id}"
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "baz" {
   zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.foo.id}"
-  v4_cidr_blocks = ["10.3.0.0/24"]
+  v4_cidr_blocks = ["10.2.0.0/24"]
 }
 
 resource "yandex_vpc_security_group" "sg-x" {
@@ -97,7 +85,15 @@ resource "yandex_vpc_security_group" "sg-y" {
 }
 `
 
-	resourceYandexMdbMongodbClusterTemplateText = mongodbVPCDependencies + `
+	mongodbMultiZoneVPCDependencies = mongodbVPCDependencies + `
+resource "yandex_vpc_subnet" "foo" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.foo.id}"
+  v4_cidr_blocks = ["10.1.0.0/24"]
+}
+`
+
+	resourceYandexMdbMongodbClusterTemplateText = mongodbMultiZoneVPCDependencies + `
 resource "yandex_mdb_mongodb_cluster" "foo" {
   name        = "{{.ClusterName}}"
 {{- if .ClusterDescription}}
@@ -567,7 +563,7 @@ var mongoHosts = []mongodb.Host{
 		AssignPublicIp: false,
 	},
 	{
-		ZoneId:         "ru-central1-b",
+		ZoneId:         "ru-central1-d",
 		SubnetId:       "${yandex_vpc_subnet.bar.id}",
 		AssignPublicIp: true,
 	},
@@ -580,7 +576,7 @@ var shardedMongoInfraHosts = []mongodb.Host{
 		Type:     mongodb.Host_MONGOD,
 	},
 	{
-		ZoneId:   "ru-central1-b",
+		ZoneId:   "ru-central1-d",
 		SubnetId: "${yandex_vpc_subnet.bar.id}",
 		Type:     mongodb.Host_MONGOD,
 	},
@@ -590,7 +586,7 @@ var shardedMongoInfraHosts = []mongodb.Host{
 		Type:     mongodb.Host_MONGOINFRA,
 	},
 	{
-		ZoneId:   "ru-central1-b",
+		ZoneId:   "ru-central1-d",
 		SubnetId: "${yandex_vpc_subnet.bar.id}",
 		Type:     mongodb.Host_MONGOINFRA,
 	},
@@ -608,7 +604,7 @@ var shardedMongoCfgHosts = []mongodb.Host{
 		Type:     mongodb.Host_MONGOD,
 	},
 	{
-		ZoneId:   "ru-central1-b",
+		ZoneId:   "ru-central1-d",
 		SubnetId: "${yandex_vpc_subnet.bar.id}",
 		Type:     mongodb.Host_MONGOD,
 	},
@@ -618,7 +614,7 @@ var shardedMongoCfgHosts = []mongodb.Host{
 		Type:     mongodb.Host_MONGOCFG,
 	},
 	{
-		ZoneId:   "ru-central1-b",
+		ZoneId:   "ru-central1-d",
 		SubnetId: "${yandex_vpc_subnet.bar.id}",
 		Type:     mongodb.Host_MONGOCFG,
 	},
@@ -628,7 +624,7 @@ var shardedMongoCfgHosts = []mongodb.Host{
 		Type:     mongodb.Host_MONGOCFG,
 	},
 	{
-		ZoneId:   "ru-central1-b",
+		ZoneId:   "ru-central1-d",
 		SubnetId: "${yandex_vpc_subnet.bar.id}",
 		Type:     mongodb.Host_MONGOS,
 	},
@@ -1015,22 +1011,22 @@ func TestAccMDBMongoDBCluster_8_0(t *testing.T) {
 					"Hosts": []map[string]interface{}{
 						{
 							"ZoneId":   "ru-central1-d",
-							"SubnetId": "${yandex_vpc_subnet.baz.id}",
+							"SubnetId": "${yandex_vpc_subnet.bar.id}",
 							"HostParameters": map[string]interface{}{
 								"Priority": 1.05,
 							},
 						},
 						{
 							"ZoneId":   "ru-central1-d",
-							"SubnetId": "${yandex_vpc_subnet.baz.id}",
+							"SubnetId": "${yandex_vpc_subnet.bar.id}",
 							"HostParameters": map[string]interface{}{
 								"Priority": 1.15,
 							},
 						},
-						{"ZoneId": "ru-central1-d", "SubnetId": "${yandex_vpc_subnet.baz.id}"},
+						{"ZoneId": "ru-central1-d", "SubnetId": "${yandex_vpc_subnet.bar.id}"},
 						{
-							"ZoneId":   "ru-central1-b",
-							"SubnetId": "${yandex_vpc_subnet.bar.id}",
+							"ZoneId":   "ru-central1-a",
+							"SubnetId": "${yandex_vpc_subnet.foo.id}",
 							"HostParameters": map[string]interface{}{
 								"Priority": 0,
 								"Votes":    0,
@@ -2312,7 +2308,7 @@ func TestAccMDBMongoDBCluster_enableSharding(t *testing.T) {
 			Type:     mongodb.Host_MONGOINFRA,
 		},
 		{
-			ZoneId:   "ru-central1-b",
+			ZoneId:   "ru-central1-d",
 			SubnetId: "${yandex_vpc_subnet.bar.id}",
 			Type:     mongodb.Host_MONGOINFRA,
 		},
@@ -3043,8 +3039,8 @@ resource "yandex_mdb_mongodb_cluster" "foo" {
   }
 
   host {
-    zone_id   = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.foo.id}"
+    zone_id   = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.bar.id}"
   }
 
   disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
@@ -3076,8 +3072,8 @@ func testAccMDBMongoDBClusterConfigRestoreWithEncryption(clusterName string, bac
         }
 
         host {
-            zone_id   = "ru-central1-a"
-            subnet_id = yandex_vpc_subnet.foo.id
+            zone_id   = "ru-central1-d"
+            subnet_id = yandex_vpc_subnet.bar.id
         }
 
         deletion_protection = false
