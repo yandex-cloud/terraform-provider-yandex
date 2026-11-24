@@ -14,7 +14,7 @@ type AdvancedRateLimiterProfileClientIterator interface {
 }
 
 type advancedRateLimiterProfileServiceListInternal struct {
-	*advanced_rate_limiter.ListAdvancedRateLimiterProfilesResponse
+	ListAdvancedRateLimiterProfilesResponse *advanced_rate_limiter.ListAdvancedRateLimiterProfilesResponse
 }
 
 func (r advancedRateLimiterProfileServiceListInternal) Items() []*advanced_rate_limiter.AdvancedRateLimiterProfile {

@@ -14,11 +14,14 @@ type ResourcePresetClientIterator interface {
 }
 
 type resourcePresetServiceListInternal struct {
-	*kafka.ListResourcePresetsResponse
+	ListResourcePresetsResponse *kafka.ListResourcePresetsResponse
 }
 
 func (r resourcePresetServiceListInternal) Items() []*kafka.ResourcePreset {
 	return r.ListResourcePresetsResponse.ResourcePresets
+}
+func (r resourcePresetServiceListInternal) GetNextPageToken() string {
+	return r.ListResourcePresetsResponse.GetNextPageToken()
 }
 
 func (c resourcePresetClient) Iterator(ctx context.Context, req *kafka.ListResourcePresetsRequest, opts ...grpc.CallOption) *iterator.Iterator[*kafka.ListResourcePresetsRequest, *kafka.ResourcePreset] {

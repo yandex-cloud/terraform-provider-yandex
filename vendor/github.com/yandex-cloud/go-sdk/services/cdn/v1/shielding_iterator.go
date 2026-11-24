@@ -14,11 +14,14 @@ type ShieldingClientIterator interface {
 }
 
 type shieldingServiceListAvailableLocationsInternal struct {
-	*cdn.ListShieldingLocationsResponse
+	ListShieldingLocationsResponse *cdn.ListShieldingLocationsResponse
 }
 
 func (r shieldingServiceListAvailableLocationsInternal) Items() []*cdn.ShieldingDetails {
 	return r.ListShieldingLocationsResponse.ShieldingLocations
+}
+func (r shieldingServiceListAvailableLocationsInternal) GetNextPageToken() string {
+	return r.ListShieldingLocationsResponse.GetNextPageToken()
 }
 
 func (c shieldingClient) AvailableLocationsIterator(ctx context.Context, req *cdn.ListShieldingLocationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cdn.ListShieldingLocationsRequest, *cdn.ShieldingDetails] {

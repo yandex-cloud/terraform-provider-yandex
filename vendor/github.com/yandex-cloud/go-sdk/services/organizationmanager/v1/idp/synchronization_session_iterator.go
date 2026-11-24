@@ -14,11 +14,14 @@ type SynchronizationSessionClientIterator interface {
 }
 
 type synchronizationSessionServiceListSessionsInternal struct {
-	*idp.ListSessionsResponse
+	ListSessionsResponse *idp.ListSessionsResponse
 }
 
 func (r synchronizationSessionServiceListSessionsInternal) Items() []*idp.SynchronizationSession {
 	return r.ListSessionsResponse.Sessions
+}
+func (r synchronizationSessionServiceListSessionsInternal) GetNextPageToken() string {
+	return r.ListSessionsResponse.GetNextPageToken()
 }
 
 func (c synchronizationSessionClient) SessionsIterator(ctx context.Context, req *idp.ListSessionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*idp.ListSessionsRequest, *idp.SynchronizationSession] {

@@ -18,11 +18,14 @@ type FilesystemClientIterator interface {
 }
 
 type filesystemServiceListInternal struct {
-	*compute.ListFilesystemsResponse
+	ListFilesystemsResponse *compute.ListFilesystemsResponse
 }
 
 func (r filesystemServiceListInternal) Items() []*compute.Filesystem {
 	return r.ListFilesystemsResponse.Filesystems
+}
+func (r filesystemServiceListInternal) GetNextPageToken() string {
+	return r.ListFilesystemsResponse.GetNextPageToken()
 }
 
 func (c filesystemClient) Iterator(ctx context.Context, req *compute.ListFilesystemsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListFilesystemsRequest, *compute.Filesystem] {
@@ -37,11 +40,14 @@ func (c filesystemClient) Iterator(ctx context.Context, req *compute.ListFilesys
 }
 
 type filesystemServiceListOperationsInternal struct {
-	*compute.ListFilesystemOperationsResponse
+	ListFilesystemOperationsResponse *compute.ListFilesystemOperationsResponse
 }
 
 func (r filesystemServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListFilesystemOperationsResponse.Operations
+}
+func (r filesystemServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListFilesystemOperationsResponse.GetNextPageToken()
 }
 
 func (c filesystemClient) OperationsIterator(ctx context.Context, req *compute.ListFilesystemOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListFilesystemOperationsRequest, *operation.Operation] {
@@ -56,11 +62,14 @@ func (c filesystemClient) OperationsIterator(ctx context.Context, req *compute.L
 }
 
 type filesystemServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r filesystemServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r filesystemServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c filesystemClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

@@ -19,11 +19,14 @@ type UserpoolClientIterator interface {
 }
 
 type userpoolServiceListInternal struct {
-	*idp.ListUserpoolsResponse
+	ListUserpoolsResponse *idp.ListUserpoolsResponse
 }
 
 func (r userpoolServiceListInternal) Items() []*idp.Userpool {
 	return r.ListUserpoolsResponse.Userpools
+}
+func (r userpoolServiceListInternal) GetNextPageToken() string {
+	return r.ListUserpoolsResponse.GetNextPageToken()
 }
 
 func (c userpoolClient) Iterator(ctx context.Context, req *idp.ListUserpoolsRequest, opts ...grpc.CallOption) *iterator.Iterator[*idp.ListUserpoolsRequest, *idp.Userpool] {
@@ -38,11 +41,14 @@ func (c userpoolClient) Iterator(ctx context.Context, req *idp.ListUserpoolsRequ
 }
 
 type userpoolServiceListDomainsInternal struct {
-	*idp.ListUserpoolDomainsResponse
+	ListUserpoolDomainsResponse *idp.ListUserpoolDomainsResponse
 }
 
 func (r userpoolServiceListDomainsInternal) Items() []*idp.Domain {
 	return r.ListUserpoolDomainsResponse.Domains
+}
+func (r userpoolServiceListDomainsInternal) GetNextPageToken() string {
+	return r.ListUserpoolDomainsResponse.GetNextPageToken()
 }
 
 func (c userpoolClient) DomainsIterator(ctx context.Context, req *idp.ListUserpoolDomainsRequest, opts ...grpc.CallOption) *iterator.Iterator[*idp.ListUserpoolDomainsRequest, *idp.Domain] {
@@ -57,11 +63,14 @@ func (c userpoolClient) DomainsIterator(ctx context.Context, req *idp.ListUserpo
 }
 
 type userpoolServiceListOperationsInternal struct {
-	*idp.ListUserpoolOperationsResponse
+	ListUserpoolOperationsResponse *idp.ListUserpoolOperationsResponse
 }
 
 func (r userpoolServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListUserpoolOperationsResponse.Operations
+}
+func (r userpoolServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListUserpoolOperationsResponse.GetNextPageToken()
 }
 
 func (c userpoolClient) OperationsIterator(ctx context.Context, req *idp.ListUserpoolOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*idp.ListUserpoolOperationsRequest, *operation.Operation] {
@@ -76,11 +85,14 @@ func (c userpoolClient) OperationsIterator(ctx context.Context, req *idp.ListUse
 }
 
 type userpoolServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r userpoolServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r userpoolServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c userpoolClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

@@ -14,11 +14,14 @@ type SignatureCertificateClientIterator interface {
 }
 
 type signatureCertificateServiceListInternal struct {
-	*saml.ListSignatureCertificatesResponse
+	ListSignatureCertificatesResponse *saml.ListSignatureCertificatesResponse
 }
 
 func (r signatureCertificateServiceListInternal) Items() []*saml.SignatureCertificate {
 	return r.ListSignatureCertificatesResponse.SignatureCertificates
+}
+func (r signatureCertificateServiceListInternal) GetNextPageToken() string {
+	return r.ListSignatureCertificatesResponse.GetNextPageToken()
 }
 
 func (c signatureCertificateClient) Iterator(ctx context.Context, req *saml.ListSignatureCertificatesRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListSignatureCertificatesRequest, *saml.SignatureCertificate] {

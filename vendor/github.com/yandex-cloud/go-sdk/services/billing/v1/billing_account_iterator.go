@@ -17,11 +17,14 @@ type BillingAccountClientIterator interface {
 }
 
 type billingAccountServiceListInternal struct {
-	*billing.ListBillingAccountsResponse
+	ListBillingAccountsResponse *billing.ListBillingAccountsResponse
 }
 
 func (r billingAccountServiceListInternal) Items() []*billing.BillingAccount {
 	return r.ListBillingAccountsResponse.BillingAccounts
+}
+func (r billingAccountServiceListInternal) GetNextPageToken() string {
+	return r.ListBillingAccountsResponse.GetNextPageToken()
 }
 
 func (c billingAccountClient) Iterator(ctx context.Context, req *billing.ListBillingAccountsRequest, opts ...grpc.CallOption) *iterator.Iterator[*billing.ListBillingAccountsRequest, *billing.BillingAccount] {
@@ -36,11 +39,14 @@ func (c billingAccountClient) Iterator(ctx context.Context, req *billing.ListBil
 }
 
 type billingAccountServiceListBillableObjectBindingsInternal struct {
-	*billing.ListBillableObjectBindingsResponse
+	ListBillableObjectBindingsResponse *billing.ListBillableObjectBindingsResponse
 }
 
 func (r billingAccountServiceListBillableObjectBindingsInternal) Items() []*billing.BillableObjectBinding {
 	return r.ListBillableObjectBindingsResponse.BillableObjectBindings
+}
+func (r billingAccountServiceListBillableObjectBindingsInternal) GetNextPageToken() string {
+	return r.ListBillableObjectBindingsResponse.GetNextPageToken()
 }
 
 func (c billingAccountClient) BillableObjectBindingsIterator(ctx context.Context, req *billing.ListBillableObjectBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*billing.ListBillableObjectBindingsRequest, *billing.BillableObjectBinding] {
@@ -55,11 +61,14 @@ func (c billingAccountClient) BillableObjectBindingsIterator(ctx context.Context
 }
 
 type billingAccountServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r billingAccountServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r billingAccountServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c billingAccountClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

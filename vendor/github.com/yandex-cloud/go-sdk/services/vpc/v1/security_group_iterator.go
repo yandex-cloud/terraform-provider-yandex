@@ -16,11 +16,14 @@ type SecurityGroupClientIterator interface {
 }
 
 type securityGroupServiceListInternal struct {
-	*vpc.ListSecurityGroupsResponse
+	ListSecurityGroupsResponse *vpc.ListSecurityGroupsResponse
 }
 
 func (r securityGroupServiceListInternal) Items() []*vpc.SecurityGroup {
 	return r.ListSecurityGroupsResponse.SecurityGroups
+}
+func (r securityGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListSecurityGroupsResponse.GetNextPageToken()
 }
 
 func (c securityGroupClient) Iterator(ctx context.Context, req *vpc.ListSecurityGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListSecurityGroupsRequest, *vpc.SecurityGroup] {
@@ -35,11 +38,14 @@ func (c securityGroupClient) Iterator(ctx context.Context, req *vpc.ListSecurity
 }
 
 type securityGroupServiceListOperationsInternal struct {
-	*vpc.ListSecurityGroupOperationsResponse
+	ListSecurityGroupOperationsResponse *vpc.ListSecurityGroupOperationsResponse
 }
 
 func (r securityGroupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListSecurityGroupOperationsResponse.Operations
+}
+func (r securityGroupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListSecurityGroupOperationsResponse.GetNextPageToken()
 }
 
 func (c securityGroupClient) OperationsIterator(ctx context.Context, req *vpc.ListSecurityGroupOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListSecurityGroupOperationsRequest, *operation.Operation] {

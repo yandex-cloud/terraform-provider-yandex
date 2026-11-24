@@ -15,11 +15,14 @@ type ScannerClientIterator interface {
 }
 
 type scannerServiceListInternal struct {
-	*cloudregistry.ListScanResultsResponse
+	ListScanResultsResponse *cloudregistry.ListScanResultsResponse
 }
 
 func (r scannerServiceListInternal) Items() []*cloudregistry.ScanResult {
 	return r.ListScanResultsResponse.ScanResults
+}
+func (r scannerServiceListInternal) GetNextPageToken() string {
+	return r.ListScanResultsResponse.GetNextPageToken()
 }
 
 func (c scannerClient) Iterator(ctx context.Context, req *cloudregistry.ListScanResultsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudregistry.ListScanResultsRequest, *cloudregistry.ScanResult] {
@@ -34,11 +37,14 @@ func (c scannerClient) Iterator(ctx context.Context, req *cloudregistry.ListScan
 }
 
 type scannerServiceListVulnerabilitiesInternal struct {
-	*cloudregistry.ListVulnerabilitiesResponse
+	ListVulnerabilitiesResponse *cloudregistry.ListVulnerabilitiesResponse
 }
 
 func (r scannerServiceListVulnerabilitiesInternal) Items() []*cloudregistry.Vulnerability {
 	return r.ListVulnerabilitiesResponse.Vulnerabilities
+}
+func (r scannerServiceListVulnerabilitiesInternal) GetNextPageToken() string {
+	return r.ListVulnerabilitiesResponse.GetNextPageToken()
 }
 
 func (c scannerClient) VulnerabilitiesIterator(ctx context.Context, req *cloudregistry.ListVulnerabilitiesRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudregistry.ListVulnerabilitiesRequest, *cloudregistry.Vulnerability] {

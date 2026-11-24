@@ -19,11 +19,14 @@ type DiskPlacementGroupClientIterator interface {
 }
 
 type diskPlacementGroupServiceListInternal struct {
-	*compute.ListDiskPlacementGroupsResponse
+	ListDiskPlacementGroupsResponse *compute.ListDiskPlacementGroupsResponse
 }
 
 func (r diskPlacementGroupServiceListInternal) Items() []*compute.DiskPlacementGroup {
 	return r.ListDiskPlacementGroupsResponse.DiskPlacementGroups
+}
+func (r diskPlacementGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListDiskPlacementGroupsResponse.GetNextPageToken()
 }
 
 func (c diskPlacementGroupClient) Iterator(ctx context.Context, req *compute.ListDiskPlacementGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListDiskPlacementGroupsRequest, *compute.DiskPlacementGroup] {
@@ -38,11 +41,14 @@ func (c diskPlacementGroupClient) Iterator(ctx context.Context, req *compute.Lis
 }
 
 type diskPlacementGroupServiceListDisksInternal struct {
-	*compute.ListDiskPlacementGroupDisksResponse
+	ListDiskPlacementGroupDisksResponse *compute.ListDiskPlacementGroupDisksResponse
 }
 
 func (r diskPlacementGroupServiceListDisksInternal) Items() []*compute.Disk {
 	return r.ListDiskPlacementGroupDisksResponse.Disks
+}
+func (r diskPlacementGroupServiceListDisksInternal) GetNextPageToken() string {
+	return r.ListDiskPlacementGroupDisksResponse.GetNextPageToken()
 }
 
 func (c diskPlacementGroupClient) DisksIterator(ctx context.Context, req *compute.ListDiskPlacementGroupDisksRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListDiskPlacementGroupDisksRequest, *compute.Disk] {
@@ -57,11 +63,14 @@ func (c diskPlacementGroupClient) DisksIterator(ctx context.Context, req *comput
 }
 
 type diskPlacementGroupServiceListOperationsInternal struct {
-	*compute.ListDiskPlacementGroupOperationsResponse
+	ListDiskPlacementGroupOperationsResponse *compute.ListDiskPlacementGroupOperationsResponse
 }
 
 func (r diskPlacementGroupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListDiskPlacementGroupOperationsResponse.Operations
+}
+func (r diskPlacementGroupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListDiskPlacementGroupOperationsResponse.GetNextPageToken()
 }
 
 func (c diskPlacementGroupClient) OperationsIterator(ctx context.Context, req *compute.ListDiskPlacementGroupOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListDiskPlacementGroupOperationsRequest, *operation.Operation] {
@@ -76,11 +85,14 @@ func (c diskPlacementGroupClient) OperationsIterator(ctx context.Context, req *c
 }
 
 type diskPlacementGroupServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r diskPlacementGroupServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r diskPlacementGroupServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c diskPlacementGroupClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

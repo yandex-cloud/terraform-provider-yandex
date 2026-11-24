@@ -14,11 +14,14 @@ type DatabaseClientIterator interface {
 }
 
 type databaseServiceListInternal struct {
-	*spqr.ListDatabasesResponse
+	ListDatabasesResponse *spqr.ListDatabasesResponse
 }
 
 func (r databaseServiceListInternal) Items() []*spqr.Database {
 	return r.ListDatabasesResponse.Databases
+}
+func (r databaseServiceListInternal) GetNextPageToken() string {
+	return r.ListDatabasesResponse.GetNextPageToken()
 }
 
 func (c databaseClient) Iterator(ctx context.Context, req *spqr.ListDatabasesRequest, opts ...grpc.CallOption) *iterator.Iterator[*spqr.ListDatabasesRequest, *spqr.Database] {

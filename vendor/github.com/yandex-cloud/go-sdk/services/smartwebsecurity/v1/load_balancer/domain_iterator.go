@@ -14,7 +14,7 @@ type DomainClientIterator interface {
 }
 
 type domainServiceListInternal struct {
-	*load_balancer.ListDomainsResponse
+	ListDomainsResponse *load_balancer.ListDomainsResponse
 }
 
 func (r domainServiceListInternal) Items() []*load_balancer.Domain {

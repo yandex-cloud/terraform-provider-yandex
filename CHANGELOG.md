@@ -1,5 +1,24 @@
 # Release notes
 
+## 0.252.0 (November 24, 2026)
+
+##### FEATURES:
+* greenplum: support pool_discard in mdb_greenplum_cluster and mdb_greenplum_cluster_v2 resources and expose its effective value in their data sources
+
+##### BUG FIXES:
+* mdb_greenplum_cluster_v2: fix data source state conversion by aligning model types with the published schema
+* postgresql: restore `pooler_pool_discard` from the API on import and refresh of `yandex_mdb_postgresql_cluster` to avoid redundant updates
+
+##### ENHANCEMENTS:
+* compute: add `status` to `yandex_compute_reserved_instance_pool` data source
+* compute: add `status` to `yandex_compute_reserved_instance_pool` resource
+* mdb_clickhouse_cluster_v2: support write-only passwords for external shard replicas and use batch shard group updates with field masks to preserve unchanged passwords
+
+##### WARNING:
+* postgresql: remove the deprecated `pool_discard` field from the `yandex_mdb_postgresql_cluster` resource and data source; use `pooler_pool_discard` with string values `true`, `false` or `unspecified` instead. The `yandex_mdb_postgresql_cluster_v2` resource is unchanged.
+
+
+
 ## 0.251.0 (November 23, 2026)
 
 ##### BUG FIXES:

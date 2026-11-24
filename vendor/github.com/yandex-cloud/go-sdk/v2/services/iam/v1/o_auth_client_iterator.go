@@ -15,11 +15,14 @@ type OAuthClientClientIterator interface {
 }
 
 type oAuthClientServiceListInternal struct {
-	*iam.ListOAuthClientsResponse
+	ListOAuthClientsResponse *iam.ListOAuthClientsResponse
 }
 
 func (r oAuthClientServiceListInternal) Items() []*iam.OAuthClientListView {
 	return r.ListOAuthClientsResponse.OauthClients
+}
+func (r oAuthClientServiceListInternal) GetNextPageToken() string {
+	return r.ListOAuthClientsResponse.GetNextPageToken()
 }
 
 func (c oAuthClientClient) Iterator(ctx context.Context, req *iam.ListOAuthClientsRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListOAuthClientsRequest, *iam.OAuthClientListView] {
@@ -34,7 +37,7 @@ func (c oAuthClientClient) Iterator(ctx context.Context, req *iam.ListOAuthClien
 }
 
 type oAuthClientServiceListProfilesInternal struct {
-	*iam.ListProfilesResponse
+	ListProfilesResponse *iam.ListProfilesResponse
 }
 
 func (r oAuthClientServiceListProfilesInternal) Items() []*iam.Profile {

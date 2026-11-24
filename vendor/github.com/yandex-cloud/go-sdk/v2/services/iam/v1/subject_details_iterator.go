@@ -15,11 +15,14 @@ type SubjectDetailsClientIterator interface {
 }
 
 type subjectDetailsServiceListInternal struct {
-	*iam_.ListSubjectsResponse
+	ListSubjectsResponse *iam_.ListSubjectsResponse
 }
 
 func (r subjectDetailsServiceListInternal) Items() []*iam.Subject {
 	return r.ListSubjectsResponse.Subjects
+}
+func (r subjectDetailsServiceListInternal) GetNextPageToken() string {
+	return r.ListSubjectsResponse.GetNextPageToken()
 }
 
 func (c subjectDetailsClient) Iterator(ctx context.Context, req *iam_.ListSubjectsRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam_.ListSubjectsRequest, *iam.Subject] {

@@ -14,7 +14,7 @@ type SecurityProfileClientIterator interface {
 }
 
 type securityProfileServiceListInternal struct {
-	*smartwebsecurity.ListSecurityProfilesResponse
+	ListSecurityProfilesResponse *smartwebsecurity.ListSecurityProfilesResponse
 }
 
 func (r securityProfileServiceListInternal) Items() []*smartwebsecurity.SecurityProfile {

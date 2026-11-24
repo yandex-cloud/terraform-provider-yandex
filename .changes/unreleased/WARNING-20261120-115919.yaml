@@ -1,3 +1,0 @@
-kind: WARNING
-body: 'postgresql: remove the deprecated `pool_discard` field from the `yandex_mdb_postgresql_cluster` resource and data source; use `pooler_pool_discard` with string values `true`, `false` or `unspecified` instead. The `yandex_mdb_postgresql_cluster_v2` resource is unchanged.'
-time: 2026-11-20T19:31:46.441254+03:00

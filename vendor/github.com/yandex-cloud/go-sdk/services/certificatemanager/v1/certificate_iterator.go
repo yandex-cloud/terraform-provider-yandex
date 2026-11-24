@@ -19,11 +19,14 @@ type CertificateClientIterator interface {
 }
 
 type certificateServiceListInternal struct {
-	*certificatemanager.ListCertificatesResponse
+	ListCertificatesResponse *certificatemanager.ListCertificatesResponse
 }
 
 func (r certificateServiceListInternal) Items() []*certificatemanager.Certificate {
 	return r.ListCertificatesResponse.Certificates
+}
+func (r certificateServiceListInternal) GetNextPageToken() string {
+	return r.ListCertificatesResponse.GetNextPageToken()
 }
 
 func (c certificateClient) Iterator(ctx context.Context, req *certificatemanager.ListCertificatesRequest, opts ...grpc.CallOption) *iterator.Iterator[*certificatemanager.ListCertificatesRequest, *certificatemanager.Certificate] {
@@ -38,11 +41,14 @@ func (c certificateClient) Iterator(ctx context.Context, req *certificatemanager
 }
 
 type certificateServiceListVersionsInternal struct {
-	*certificatemanager.ListVersionsResponse
+	ListVersionsResponse *certificatemanager.ListVersionsResponse
 }
 
 func (r certificateServiceListVersionsInternal) Items() []*certificatemanager.Version {
 	return r.ListVersionsResponse.Versions
+}
+func (r certificateServiceListVersionsInternal) GetNextPageToken() string {
+	return r.ListVersionsResponse.GetNextPageToken()
 }
 
 func (c certificateClient) VersionsIterator(ctx context.Context, req *certificatemanager.ListVersionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*certificatemanager.ListVersionsRequest, *certificatemanager.Version] {
@@ -57,11 +63,14 @@ func (c certificateClient) VersionsIterator(ctx context.Context, req *certificat
 }
 
 type certificateServiceListOperationsInternal struct {
-	*certificatemanager.ListCertificateOperationsResponse
+	ListCertificateOperationsResponse *certificatemanager.ListCertificateOperationsResponse
 }
 
 func (r certificateServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListCertificateOperationsResponse.Operations
+}
+func (r certificateServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListCertificateOperationsResponse.GetNextPageToken()
 }
 
 func (c certificateClient) OperationsIterator(ctx context.Context, req *certificatemanager.ListCertificateOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*certificatemanager.ListCertificateOperationsRequest, *operation.Operation] {
@@ -76,11 +85,14 @@ func (c certificateClient) OperationsIterator(ctx context.Context, req *certific
 }
 
 type certificateServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r certificateServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r certificateServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c certificateClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

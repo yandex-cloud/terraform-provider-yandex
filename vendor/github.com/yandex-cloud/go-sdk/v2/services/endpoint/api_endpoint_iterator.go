@@ -14,11 +14,14 @@ type ApiEndpointClientIterator interface {
 }
 
 type apiEndpointServiceListInternal struct {
-	*endpoint.ListApiEndpointsResponse
+	ListApiEndpointsResponse *endpoint.ListApiEndpointsResponse
 }
 
 func (r apiEndpointServiceListInternal) Items() []*endpoint.ApiEndpoint {
 	return r.ListApiEndpointsResponse.Endpoints
+}
+func (r apiEndpointServiceListInternal) GetNextPageToken() string {
+	return r.ListApiEndpointsResponse.GetNextPageToken()
 }
 
 func (c apiEndpointClient) Iterator(ctx context.Context, req *endpoint.ListApiEndpointsRequest, opts ...grpc.CallOption) *iterator.Iterator[*endpoint.ListApiEndpointsRequest, *endpoint.ApiEndpoint] {

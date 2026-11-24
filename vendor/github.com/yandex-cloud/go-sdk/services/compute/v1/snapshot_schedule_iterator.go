@@ -20,11 +20,14 @@ type SnapshotScheduleClientIterator interface {
 }
 
 type snapshotScheduleServiceListInternal struct {
-	*compute.ListSnapshotSchedulesResponse
+	ListSnapshotSchedulesResponse *compute.ListSnapshotSchedulesResponse
 }
 
 func (r snapshotScheduleServiceListInternal) Items() []*compute.SnapshotSchedule {
 	return r.ListSnapshotSchedulesResponse.SnapshotSchedules
+}
+func (r snapshotScheduleServiceListInternal) GetNextPageToken() string {
+	return r.ListSnapshotSchedulesResponse.GetNextPageToken()
 }
 
 func (c snapshotScheduleClient) Iterator(ctx context.Context, req *compute.ListSnapshotSchedulesRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListSnapshotSchedulesRequest, *compute.SnapshotSchedule] {
@@ -39,11 +42,14 @@ func (c snapshotScheduleClient) Iterator(ctx context.Context, req *compute.ListS
 }
 
 type snapshotScheduleServiceListOperationsInternal struct {
-	*compute.ListSnapshotScheduleOperationsResponse
+	ListSnapshotScheduleOperationsResponse *compute.ListSnapshotScheduleOperationsResponse
 }
 
 func (r snapshotScheduleServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListSnapshotScheduleOperationsResponse.Operations
+}
+func (r snapshotScheduleServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListSnapshotScheduleOperationsResponse.GetNextPageToken()
 }
 
 func (c snapshotScheduleClient) OperationsIterator(ctx context.Context, req *compute.ListSnapshotScheduleOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListSnapshotScheduleOperationsRequest, *operation.Operation] {
@@ -58,11 +64,14 @@ func (c snapshotScheduleClient) OperationsIterator(ctx context.Context, req *com
 }
 
 type snapshotScheduleServiceListSnapshotsInternal struct {
-	*compute.ListSnapshotScheduleSnapshotsResponse
+	ListSnapshotScheduleSnapshotsResponse *compute.ListSnapshotScheduleSnapshotsResponse
 }
 
 func (r snapshotScheduleServiceListSnapshotsInternal) Items() []*compute.Snapshot {
 	return r.ListSnapshotScheduleSnapshotsResponse.Snapshots
+}
+func (r snapshotScheduleServiceListSnapshotsInternal) GetNextPageToken() string {
+	return r.ListSnapshotScheduleSnapshotsResponse.GetNextPageToken()
 }
 
 func (c snapshotScheduleClient) SnapshotsIterator(ctx context.Context, req *compute.ListSnapshotScheduleSnapshotsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListSnapshotScheduleSnapshotsRequest, *compute.Snapshot] {
@@ -77,11 +86,14 @@ func (c snapshotScheduleClient) SnapshotsIterator(ctx context.Context, req *comp
 }
 
 type snapshotScheduleServiceListDisksInternal struct {
-	*compute.ListSnapshotScheduleDisksResponse
+	ListSnapshotScheduleDisksResponse *compute.ListSnapshotScheduleDisksResponse
 }
 
 func (r snapshotScheduleServiceListDisksInternal) Items() []*compute.Disk {
 	return r.ListSnapshotScheduleDisksResponse.Disks
+}
+func (r snapshotScheduleServiceListDisksInternal) GetNextPageToken() string {
+	return r.ListSnapshotScheduleDisksResponse.GetNextPageToken()
 }
 
 func (c snapshotScheduleClient) DisksIterator(ctx context.Context, req *compute.ListSnapshotScheduleDisksRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListSnapshotScheduleDisksRequest, *compute.Disk] {
@@ -96,11 +108,14 @@ func (c snapshotScheduleClient) DisksIterator(ctx context.Context, req *compute.
 }
 
 type snapshotScheduleServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r snapshotScheduleServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r snapshotScheduleServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c snapshotScheduleClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

@@ -14,11 +14,14 @@ type VirtualHostClientIterator interface {
 }
 
 type virtualHostServiceListInternal struct {
-	*apploadbalancer.ListVirtualHostsResponse
+	ListVirtualHostsResponse *apploadbalancer.ListVirtualHostsResponse
 }
 
 func (r virtualHostServiceListInternal) Items() []*apploadbalancer.VirtualHost {
 	return r.ListVirtualHostsResponse.VirtualHosts
+}
+func (r virtualHostServiceListInternal) GetNextPageToken() string {
+	return r.ListVirtualHostsResponse.GetNextPageToken()
 }
 
 func (c virtualHostClient) Iterator(ctx context.Context, req *apploadbalancer.ListVirtualHostsRequest, opts ...grpc.CallOption) *iterator.Iterator[*apploadbalancer.ListVirtualHostsRequest, *apploadbalancer.VirtualHost] {

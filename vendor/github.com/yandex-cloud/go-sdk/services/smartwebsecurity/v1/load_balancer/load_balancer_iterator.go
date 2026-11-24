@@ -14,7 +14,7 @@ type LoadBalancerClientIterator interface {
 }
 
 type loadBalancerServiceListInternal struct {
-	*load_balancer.ListLoadBalancersResponse
+	ListLoadBalancersResponse *load_balancer.ListLoadBalancersResponse
 }
 
 func (r loadBalancerServiceListInternal) Items() []*load_balancer.LoadBalancer {

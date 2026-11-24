@@ -18,11 +18,14 @@ type AsymmetricSignatureKeyClientIterator interface {
 }
 
 type asymmetricSignatureKeyServiceListInternal struct {
-	*asymmetricsignature.ListAsymmetricSignatureKeysResponse
+	ListAsymmetricSignatureKeysResponse *asymmetricsignature.ListAsymmetricSignatureKeysResponse
 }
 
 func (r asymmetricSignatureKeyServiceListInternal) Items() []*asymmetricsignature.AsymmetricSignatureKey {
 	return r.ListAsymmetricSignatureKeysResponse.Keys
+}
+func (r asymmetricSignatureKeyServiceListInternal) GetNextPageToken() string {
+	return r.ListAsymmetricSignatureKeysResponse.GetNextPageToken()
 }
 
 func (c asymmetricSignatureKeyClient) Iterator(ctx context.Context, req *asymmetricsignature.ListAsymmetricSignatureKeysRequest, opts ...grpc.CallOption) *iterator.Iterator[*asymmetricsignature.ListAsymmetricSignatureKeysRequest, *asymmetricsignature.AsymmetricSignatureKey] {
@@ -37,11 +40,14 @@ func (c asymmetricSignatureKeyClient) Iterator(ctx context.Context, req *asymmet
 }
 
 type asymmetricSignatureKeyServiceListOperationsInternal struct {
-	*asymmetricsignature.ListAsymmetricSignatureKeyOperationsResponse
+	ListAsymmetricSignatureKeyOperationsResponse *asymmetricsignature.ListAsymmetricSignatureKeyOperationsResponse
 }
 
 func (r asymmetricSignatureKeyServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListAsymmetricSignatureKeyOperationsResponse.Operations
+}
+func (r asymmetricSignatureKeyServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListAsymmetricSignatureKeyOperationsResponse.GetNextPageToken()
 }
 
 func (c asymmetricSignatureKeyClient) OperationsIterator(ctx context.Context, req *asymmetricsignature.ListAsymmetricSignatureKeyOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*asymmetricsignature.ListAsymmetricSignatureKeyOperationsRequest, *operation.Operation] {
@@ -56,11 +62,14 @@ func (c asymmetricSignatureKeyClient) OperationsIterator(ctx context.Context, re
 }
 
 type asymmetricSignatureKeyServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r asymmetricSignatureKeyServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r asymmetricSignatureKeyServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c asymmetricSignatureKeyClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

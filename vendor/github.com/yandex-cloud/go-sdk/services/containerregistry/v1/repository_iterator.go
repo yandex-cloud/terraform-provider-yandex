@@ -16,11 +16,14 @@ type RepositoryClientIterator interface {
 }
 
 type repositoryServiceListInternal struct {
-	*containerregistry.ListRepositoriesResponse
+	ListRepositoriesResponse *containerregistry.ListRepositoriesResponse
 }
 
 func (r repositoryServiceListInternal) Items() []*containerregistry.Repository {
 	return r.ListRepositoriesResponse.Repositories
+}
+func (r repositoryServiceListInternal) GetNextPageToken() string {
+	return r.ListRepositoriesResponse.GetNextPageToken()
 }
 
 func (c repositoryClient) Iterator(ctx context.Context, req *containerregistry.ListRepositoriesRequest, opts ...grpc.CallOption) *iterator.Iterator[*containerregistry.ListRepositoriesRequest, *containerregistry.Repository] {
@@ -35,11 +38,14 @@ func (c repositoryClient) Iterator(ctx context.Context, req *containerregistry.L
 }
 
 type repositoryServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r repositoryServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r repositoryServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c repositoryClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

@@ -16,11 +16,14 @@ type BackendGroupClientIterator interface {
 }
 
 type backendGroupServiceListInternal struct {
-	*apploadbalancer.ListBackendGroupsResponse
+	ListBackendGroupsResponse *apploadbalancer.ListBackendGroupsResponse
 }
 
 func (r backendGroupServiceListInternal) Items() []*apploadbalancer.BackendGroup {
 	return r.ListBackendGroupsResponse.BackendGroups
+}
+func (r backendGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListBackendGroupsResponse.GetNextPageToken()
 }
 
 func (c backendGroupClient) Iterator(ctx context.Context, req *apploadbalancer.ListBackendGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*apploadbalancer.ListBackendGroupsRequest, *apploadbalancer.BackendGroup] {
@@ -35,11 +38,14 @@ func (c backendGroupClient) Iterator(ctx context.Context, req *apploadbalancer.L
 }
 
 type backendGroupServiceListOperationsInternal struct {
-	*apploadbalancer.ListBackendGroupOperationsResponse
+	ListBackendGroupOperationsResponse *apploadbalancer.ListBackendGroupOperationsResponse
 }
 
 func (r backendGroupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListBackendGroupOperationsResponse.Operations
+}
+func (r backendGroupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListBackendGroupOperationsResponse.GetNextPageToken()
 }
 
 func (c backendGroupClient) OperationsIterator(ctx context.Context, req *apploadbalancer.ListBackendGroupOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*apploadbalancer.ListBackendGroupOperationsRequest, *operation.Operation] {

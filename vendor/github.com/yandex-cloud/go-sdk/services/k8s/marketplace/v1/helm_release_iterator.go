@@ -14,11 +14,14 @@ type HelmReleaseClientIterator interface {
 }
 
 type helmReleaseServiceListInternal struct {
-	*marketplace.ListHelmReleasesResponse
+	ListHelmReleasesResponse *marketplace.ListHelmReleasesResponse
 }
 
 func (r helmReleaseServiceListInternal) Items() []*marketplace.HelmRelease {
 	return r.ListHelmReleasesResponse.HelmReleases
+}
+func (r helmReleaseServiceListInternal) GetNextPageToken() string {
+	return r.ListHelmReleasesResponse.GetNextPageToken()
 }
 
 func (c helmReleaseClient) Iterator(ctx context.Context, req *marketplace.ListHelmReleasesRequest, opts ...grpc.CallOption) *iterator.Iterator[*marketplace.ListHelmReleasesRequest, *marketplace.HelmRelease] {

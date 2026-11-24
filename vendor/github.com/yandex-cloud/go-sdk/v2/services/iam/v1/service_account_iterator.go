@@ -18,11 +18,14 @@ type ServiceAccountClientIterator interface {
 }
 
 type serviceAccountServiceListInternal struct {
-	*iam.ListServiceAccountsResponse
+	ListServiceAccountsResponse *iam.ListServiceAccountsResponse
 }
 
 func (r serviceAccountServiceListInternal) Items() []*iam.ServiceAccount {
 	return r.ListServiceAccountsResponse.ServiceAccounts
+}
+func (r serviceAccountServiceListInternal) GetNextPageToken() string {
+	return r.ListServiceAccountsResponse.GetNextPageToken()
 }
 
 func (c serviceAccountClient) Iterator(ctx context.Context, req *iam.ListServiceAccountsRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListServiceAccountsRequest, *iam.ServiceAccount] {
@@ -37,11 +40,14 @@ func (c serviceAccountClient) Iterator(ctx context.Context, req *iam.ListService
 }
 
 type serviceAccountServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r serviceAccountServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r serviceAccountServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c serviceAccountClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -56,11 +62,14 @@ func (c serviceAccountClient) AccessBindingsIterator(ctx context.Context, req *a
 }
 
 type serviceAccountServiceListOperationsInternal struct {
-	*iam.ListServiceAccountOperationsResponse
+	ListServiceAccountOperationsResponse *iam.ListServiceAccountOperationsResponse
 }
 
 func (r serviceAccountServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListServiceAccountOperationsResponse.Operations
+}
+func (r serviceAccountServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListServiceAccountOperationsResponse.GetNextPageToken()
 }
 
 func (c serviceAccountClient) OperationsIterator(ctx context.Context, req *iam.ListServiceAccountOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListServiceAccountOperationsRequest, *operation.Operation] {

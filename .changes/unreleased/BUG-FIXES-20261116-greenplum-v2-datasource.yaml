@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'mdb_greenplum_cluster_v2: fix data source state conversion by aligning model types with the published schema'
-time: 2026-11-16T11:50:49+03:00

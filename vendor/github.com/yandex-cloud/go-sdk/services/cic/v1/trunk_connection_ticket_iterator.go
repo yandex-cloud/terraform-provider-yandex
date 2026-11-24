@@ -14,11 +14,14 @@ type TrunkConnectionTicketClientIterator interface {
 }
 
 type trunkConnectionTicketServiceListInternal struct {
-	*cic.ListTrunkConnectionTicketsResponse
+	ListTrunkConnectionTicketsResponse *cic.ListTrunkConnectionTicketsResponse
 }
 
 func (r trunkConnectionTicketServiceListInternal) Items() []*cic.TrunkConnectionTicket {
 	return r.ListTrunkConnectionTicketsResponse.TrunkConnectionTickets
+}
+func (r trunkConnectionTicketServiceListInternal) GetNextPageToken() string {
+	return r.ListTrunkConnectionTicketsResponse.GetNextPageToken()
 }
 
 func (c trunkConnectionTicketClient) Iterator(ctx context.Context, req *cic.ListTrunkConnectionTicketsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cic.ListTrunkConnectionTicketsRequest, *cic.TrunkConnectionTicket] {

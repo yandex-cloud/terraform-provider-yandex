@@ -14,11 +14,14 @@ type StorageTypeClientIterator interface {
 }
 
 type storageTypeServiceListInternal struct {
-	*ydb.ListStorageTypesResponse
+	ListStorageTypesResponse *ydb.ListStorageTypesResponse
 }
 
 func (r storageTypeServiceListInternal) Items() []*ydb.StorageType {
 	return r.ListStorageTypesResponse.StorageTypes
+}
+func (r storageTypeServiceListInternal) GetNextPageToken() string {
+	return r.ListStorageTypesResponse.GetNextPageToken()
 }
 
 func (c storageTypeClient) Iterator(ctx context.Context, req *ydb.ListStorageTypesRequest, opts ...grpc.CallOption) *iterator.Iterator[*ydb.ListStorageTypesRequest, *ydb.StorageType] {

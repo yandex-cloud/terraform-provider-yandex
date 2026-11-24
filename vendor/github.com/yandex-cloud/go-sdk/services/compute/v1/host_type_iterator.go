@@ -14,11 +14,14 @@ type HostTypeClientIterator interface {
 }
 
 type hostTypeServiceListInternal struct {
-	*compute.ListHostTypesResponse
+	ListHostTypesResponse *compute.ListHostTypesResponse
 }
 
 func (r hostTypeServiceListInternal) Items() []*compute.HostType {
 	return r.ListHostTypesResponse.HostTypes
+}
+func (r hostTypeServiceListInternal) GetNextPageToken() string {
+	return r.ListHostTypesResponse.GetNextPageToken()
 }
 
 func (c hostTypeClient) Iterator(ctx context.Context, req *compute.ListHostTypesRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListHostTypesRequest, *compute.HostType] {

@@ -21,11 +21,14 @@ type GroupClientIterator interface {
 }
 
 type groupServiceListInternal struct {
-	*organizationmanager.ListGroupsResponse
+	ListGroupsResponse *organizationmanager.ListGroupsResponse
 }
 
 func (r groupServiceListInternal) Items() []*organizationmanager.Group {
 	return r.ListGroupsResponse.Groups
+}
+func (r groupServiceListInternal) GetNextPageToken() string {
+	return r.ListGroupsResponse.GetNextPageToken()
 }
 
 func (c groupClient) Iterator(ctx context.Context, req *organizationmanager.ListGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListGroupsRequest, *organizationmanager.Group] {
@@ -40,11 +43,14 @@ func (c groupClient) Iterator(ctx context.Context, req *organizationmanager.List
 }
 
 type groupServiceListExternalInternal struct {
-	*organizationmanager.ListExternalGroupsResponse
+	ListExternalGroupsResponse *organizationmanager.ListExternalGroupsResponse
 }
 
 func (r groupServiceListExternalInternal) Items() []*organizationmanager.Group {
 	return r.ListExternalGroupsResponse.Groups
+}
+func (r groupServiceListExternalInternal) GetNextPageToken() string {
+	return r.ListExternalGroupsResponse.GetNextPageToken()
 }
 
 func (c groupClient) ExternalIterator(ctx context.Context, req *organizationmanager.ListExternalGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListExternalGroupsRequest, *organizationmanager.Group] {
@@ -59,11 +65,14 @@ func (c groupClient) ExternalIterator(ctx context.Context, req *organizationmana
 }
 
 type groupServiceListOperationsInternal struct {
-	*organizationmanager.ListGroupOperationsResponse
+	ListGroupOperationsResponse *organizationmanager.ListGroupOperationsResponse
 }
 
 func (r groupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListGroupOperationsResponse.Operations
+}
+func (r groupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListGroupOperationsResponse.GetNextPageToken()
 }
 
 func (c groupClient) OperationsIterator(ctx context.Context, req *organizationmanager.ListGroupOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListGroupOperationsRequest, *operation.Operation] {
@@ -78,11 +87,14 @@ func (c groupClient) OperationsIterator(ctx context.Context, req *organizationma
 }
 
 type groupServiceListMembersInternal struct {
-	*organizationmanager.ListGroupMembersResponse
+	ListGroupMembersResponse *organizationmanager.ListGroupMembersResponse
 }
 
 func (r groupServiceListMembersInternal) Items() []*organizationmanager.GroupMember {
 	return r.ListGroupMembersResponse.Members
+}
+func (r groupServiceListMembersInternal) GetNextPageToken() string {
+	return r.ListGroupMembersResponse.GetNextPageToken()
 }
 
 func (c groupClient) MembersIterator(ctx context.Context, req *organizationmanager.ListGroupMembersRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListGroupMembersRequest, *organizationmanager.GroupMember] {
@@ -97,11 +109,14 @@ func (c groupClient) MembersIterator(ctx context.Context, req *organizationmanag
 }
 
 type groupServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r groupServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r groupServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c groupClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -116,11 +131,14 @@ func (c groupClient) AccessBindingsIterator(ctx context.Context, req *access.Lis
 }
 
 type groupServiceListEffectiveInternal struct {
-	*organizationmanager.ListEffectiveResponse
+	ListEffectiveResponse *organizationmanager.ListEffectiveResponse
 }
 
 func (r groupServiceListEffectiveInternal) Items() []*organizationmanager.GroupMembershipInfo {
 	return r.ListEffectiveResponse.GroupMembershipInfo
+}
+func (r groupServiceListEffectiveInternal) GetNextPageToken() string {
+	return r.ListEffectiveResponse.GetNextPageToken()
 }
 
 func (c groupClient) EffectiveIterator(ctx context.Context, req *organizationmanager.ListEffectiveRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListEffectiveRequest, *organizationmanager.GroupMembershipInfo] {

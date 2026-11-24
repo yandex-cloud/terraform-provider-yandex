@@ -14,7 +14,7 @@ type VersionClientIterator interface {
 }
 
 type versionServiceListInternal struct {
-	*k8s.ListVersionsResponse
+	ListVersionsResponse *k8s.ListVersionsResponse
 }
 
 func (r versionServiceListInternal) Items() []*k8s.AvailableVersions {

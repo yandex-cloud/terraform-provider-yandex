@@ -18,11 +18,14 @@ type ResourceClientIterator interface {
 }
 
 type resourceServiceListInternal struct {
-	*backup.ListResourcesResponse
+	ListResourcesResponse *backup.ListResourcesResponse
 }
 
 func (r resourceServiceListInternal) Items() []*backup.Resource {
 	return r.ListResourcesResponse.Resources
+}
+func (r resourceServiceListInternal) GetNextPageToken() string {
+	return r.ListResourcesResponse.GetNextPageToken()
 }
 
 func (c resourceClient) Iterator(ctx context.Context, req *backup.ListResourcesRequest, opts ...grpc.CallOption) *iterator.Iterator[*backup.ListResourcesRequest, *backup.Resource] {
@@ -37,10 +40,13 @@ func (c resourceClient) Iterator(ctx context.Context, req *backup.ListResourcesR
 }
 
 type resourceServiceListTasksInternal struct {
-	*backup.ListTasksResponse
+	ListTasksResponse *backup.ListTasksResponse
 }
 
 func (r resourceServiceListTasksInternal) Items() []*backup.Task { return r.ListTasksResponse.Tasks }
+func (r resourceServiceListTasksInternal) GetNextPageToken() string {
+	return r.ListTasksResponse.GetNextPageToken()
+}
 
 func (c resourceClient) TasksIterator(ctx context.Context, req *backup.ListTasksRequest, opts ...grpc.CallOption) *iterator.Iterator[*backup.ListTasksRequest, *backup.Task] {
 	return iterator.NewIterator[*backup.ListTasksRequest, *backup.Task](ctx, req,
@@ -54,7 +60,7 @@ func (c resourceClient) TasksIterator(ctx context.Context, req *backup.ListTasks
 }
 
 type resourceServiceListDirectoryInternal struct {
-	*backup.ListDirectoryResponse
+	ListDirectoryResponse *backup.ListDirectoryResponse
 }
 
 func (r resourceServiceListDirectoryInternal) Items() []*backup.ListDirectoryResponse_FilesystemItem {
@@ -73,11 +79,14 @@ func (c resourceClient) DirectoryIterator(ctx context.Context, req *backup.ListD
 }
 
 type resourceServiceListOperationsInternal struct {
-	*backup.ListResourceOperationsResponse
+	ListResourceOperationsResponse *backup.ListResourceOperationsResponse
 }
 
 func (r resourceServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListResourceOperationsResponse.Operations
+}
+func (r resourceServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListResourceOperationsResponse.GetNextPageToken()
 }
 
 func (c resourceClient) OperationsIterator(ctx context.Context, req *backup.ListResourceOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*backup.ListResourceOperationsRequest, *operation.Operation] {

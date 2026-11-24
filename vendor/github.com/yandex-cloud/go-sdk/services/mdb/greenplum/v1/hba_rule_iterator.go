@@ -15,7 +15,7 @@ type HBARuleClientIterator interface {
 }
 
 type hbaRuleServiceListInternal struct {
-	*greenplum.ListHBARulesResponse
+	ListHBARulesResponse *greenplum.ListHBARulesResponse
 }
 
 func (r hbaRuleServiceListInternal) Items() []*greenplum.HBARule {
@@ -34,7 +34,7 @@ func (c hbaRuleClient) Iterator(ctx context.Context, req *greenplum.ListHBARules
 }
 
 type hbaRuleServiceListAtRevisionInternal struct {
-	*greenplum.ListHBARulesResponse
+	ListHBARulesResponse *greenplum.ListHBARulesResponse
 }
 
 func (r hbaRuleServiceListAtRevisionInternal) Items() []*greenplum.HBARule {

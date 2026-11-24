@@ -14,10 +14,13 @@ type TopicClientIterator interface {
 }
 
 type topicServiceListInternal struct {
-	*kafka.ListTopicsResponse
+	ListTopicsResponse *kafka.ListTopicsResponse
 }
 
 func (r topicServiceListInternal) Items() []*kafka.Topic { return r.ListTopicsResponse.Topics }
+func (r topicServiceListInternal) GetNextPageToken() string {
+	return r.ListTopicsResponse.GetNextPageToken()
+}
 
 func (c topicClient) Iterator(ctx context.Context, req *kafka.ListTopicsRequest, opts ...grpc.CallOption) *iterator.Iterator[*kafka.ListTopicsRequest, *kafka.Topic] {
 	return iterator.NewIterator[*kafka.ListTopicsRequest, *kafka.Topic](ctx, req,

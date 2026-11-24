@@ -17,11 +17,14 @@ type NodeGroupClientIterator interface {
 }
 
 type nodeGroupServiceListInternal struct {
-	*k8s.ListNodeGroupsResponse
+	ListNodeGroupsResponse *k8s.ListNodeGroupsResponse
 }
 
 func (r nodeGroupServiceListInternal) Items() []*k8s.NodeGroup {
 	return r.ListNodeGroupsResponse.NodeGroups
+}
+func (r nodeGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListNodeGroupsResponse.GetNextPageToken()
 }
 
 func (c nodeGroupClient) Iterator(ctx context.Context, req *k8s.ListNodeGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*k8s.ListNodeGroupsRequest, *k8s.NodeGroup] {
@@ -36,11 +39,14 @@ func (c nodeGroupClient) Iterator(ctx context.Context, req *k8s.ListNodeGroupsRe
 }
 
 type nodeGroupServiceListNodesInternal struct {
-	*k8s.ListNodeGroupNodesResponse
+	ListNodeGroupNodesResponse *k8s.ListNodeGroupNodesResponse
 }
 
 func (r nodeGroupServiceListNodesInternal) Items() []*k8s.Node {
 	return r.ListNodeGroupNodesResponse.Nodes
+}
+func (r nodeGroupServiceListNodesInternal) GetNextPageToken() string {
+	return r.ListNodeGroupNodesResponse.GetNextPageToken()
 }
 
 func (c nodeGroupClient) NodesIterator(ctx context.Context, req *k8s.ListNodeGroupNodesRequest, opts ...grpc.CallOption) *iterator.Iterator[*k8s.ListNodeGroupNodesRequest, *k8s.Node] {
@@ -55,11 +61,14 @@ func (c nodeGroupClient) NodesIterator(ctx context.Context, req *k8s.ListNodeGro
 }
 
 type nodeGroupServiceListOperationsInternal struct {
-	*k8s.ListNodeGroupOperationsResponse
+	ListNodeGroupOperationsResponse *k8s.ListNodeGroupOperationsResponse
 }
 
 func (r nodeGroupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListNodeGroupOperationsResponse.Operations
+}
+func (r nodeGroupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListNodeGroupOperationsResponse.GetNextPageToken()
 }
 
 func (c nodeGroupClient) OperationsIterator(ctx context.Context, req *k8s.ListNodeGroupOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*k8s.ListNodeGroupOperationsRequest, *operation.Operation] {

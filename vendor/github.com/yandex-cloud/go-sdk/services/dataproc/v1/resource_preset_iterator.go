@@ -14,11 +14,14 @@ type ResourcePresetClientIterator interface {
 }
 
 type resourcePresetServiceListInternal struct {
-	*dataproc.ListResourcePresetsResponse
+	ListResourcePresetsResponse *dataproc.ListResourcePresetsResponse
 }
 
 func (r resourcePresetServiceListInternal) Items() []*dataproc.ResourcePreset {
 	return r.ListResourcePresetsResponse.ResourcePresets
+}
+func (r resourcePresetServiceListInternal) GetNextPageToken() string {
+	return r.ListResourcePresetsResponse.GetNextPageToken()
 }
 
 func (c resourcePresetClient) Iterator(ctx context.Context, req *dataproc.ListResourcePresetsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dataproc.ListResourcePresetsRequest, *dataproc.ResourcePreset] {

@@ -14,11 +14,14 @@ type LocationClientIterator interface {
 }
 
 type locationServiceListInternal struct {
-	*ydb.ListLocationsResponse
+	ListLocationsResponse *ydb.ListLocationsResponse
 }
 
 func (r locationServiceListInternal) Items() []*ydb.Location {
 	return r.ListLocationsResponse.Locations
+}
+func (r locationServiceListInternal) GetNextPageToken() string {
+	return r.ListLocationsResponse.GetNextPageToken()
 }
 
 func (c locationClient) Iterator(ctx context.Context, req *ydb.ListLocationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*ydb.ListLocationsRequest, *ydb.Location] {

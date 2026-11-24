@@ -16,11 +16,14 @@ type TargetGroupClientIterator interface {
 }
 
 type targetGroupServiceListInternal struct {
-	*apploadbalancer.ListTargetGroupsResponse
+	ListTargetGroupsResponse *apploadbalancer.ListTargetGroupsResponse
 }
 
 func (r targetGroupServiceListInternal) Items() []*apploadbalancer.TargetGroup {
 	return r.ListTargetGroupsResponse.TargetGroups
+}
+func (r targetGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListTargetGroupsResponse.GetNextPageToken()
 }
 
 func (c targetGroupClient) Iterator(ctx context.Context, req *apploadbalancer.ListTargetGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*apploadbalancer.ListTargetGroupsRequest, *apploadbalancer.TargetGroup] {
@@ -35,11 +38,14 @@ func (c targetGroupClient) Iterator(ctx context.Context, req *apploadbalancer.Li
 }
 
 type targetGroupServiceListOperationsInternal struct {
-	*apploadbalancer.ListTargetGroupOperationsResponse
+	ListTargetGroupOperationsResponse *apploadbalancer.ListTargetGroupOperationsResponse
 }
 
 func (r targetGroupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListTargetGroupOperationsResponse.Operations
+}
+func (r targetGroupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListTargetGroupOperationsResponse.GetNextPageToken()
 }
 
 func (c targetGroupClient) OperationsIterator(ctx context.Context, req *apploadbalancer.ListTargetGroupOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*apploadbalancer.ListTargetGroupOperationsRequest, *operation.Operation] {

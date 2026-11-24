@@ -18,11 +18,14 @@ type AsymmetricEncryptionKeyClientIterator interface {
 }
 
 type asymmetricEncryptionKeyServiceListInternal struct {
-	*asymmetricencryption.ListAsymmetricEncryptionKeysResponse
+	ListAsymmetricEncryptionKeysResponse *asymmetricencryption.ListAsymmetricEncryptionKeysResponse
 }
 
 func (r asymmetricEncryptionKeyServiceListInternal) Items() []*asymmetricencryption.AsymmetricEncryptionKey {
 	return r.ListAsymmetricEncryptionKeysResponse.Keys
+}
+func (r asymmetricEncryptionKeyServiceListInternal) GetNextPageToken() string {
+	return r.ListAsymmetricEncryptionKeysResponse.GetNextPageToken()
 }
 
 func (c asymmetricEncryptionKeyClient) Iterator(ctx context.Context, req *asymmetricencryption.ListAsymmetricEncryptionKeysRequest, opts ...grpc.CallOption) *iterator.Iterator[*asymmetricencryption.ListAsymmetricEncryptionKeysRequest, *asymmetricencryption.AsymmetricEncryptionKey] {
@@ -37,11 +40,14 @@ func (c asymmetricEncryptionKeyClient) Iterator(ctx context.Context, req *asymme
 }
 
 type asymmetricEncryptionKeyServiceListOperationsInternal struct {
-	*asymmetricencryption.ListAsymmetricEncryptionKeyOperationsResponse
+	ListAsymmetricEncryptionKeyOperationsResponse *asymmetricencryption.ListAsymmetricEncryptionKeyOperationsResponse
 }
 
 func (r asymmetricEncryptionKeyServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListAsymmetricEncryptionKeyOperationsResponse.Operations
+}
+func (r asymmetricEncryptionKeyServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListAsymmetricEncryptionKeyOperationsResponse.GetNextPageToken()
 }
 
 func (c asymmetricEncryptionKeyClient) OperationsIterator(ctx context.Context, req *asymmetricencryption.ListAsymmetricEncryptionKeyOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*asymmetricencryption.ListAsymmetricEncryptionKeyOperationsRequest, *operation.Operation] {
@@ -56,11 +62,14 @@ func (c asymmetricEncryptionKeyClient) OperationsIterator(ctx context.Context, r
 }
 
 type asymmetricEncryptionKeyServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r asymmetricEncryptionKeyServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r asymmetricEncryptionKeyServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c asymmetricEncryptionKeyClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

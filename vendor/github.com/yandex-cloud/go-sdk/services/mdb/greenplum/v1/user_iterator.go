@@ -14,7 +14,7 @@ type UserClientIterator interface {
 }
 
 type userServiceListInternal struct {
-	*greenplum.ListUsersResponse
+	ListUsersResponse *greenplum.ListUsersResponse
 }
 
 func (r userServiceListInternal) Items() []*greenplum.User { return r.ListUsersResponse.Users }

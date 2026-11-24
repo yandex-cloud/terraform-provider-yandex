@@ -16,11 +16,14 @@ type DashboardClientIterator interface {
 }
 
 type dashboardServiceListInternal struct {
-	*monitoring.ListDashboardsResponse
+	ListDashboardsResponse *monitoring.ListDashboardsResponse
 }
 
 func (r dashboardServiceListInternal) Items() []*monitoring.Dashboard {
 	return r.ListDashboardsResponse.Dashboards
+}
+func (r dashboardServiceListInternal) GetNextPageToken() string {
+	return r.ListDashboardsResponse.GetNextPageToken()
 }
 
 func (c dashboardClient) Iterator(ctx context.Context, req *monitoring.ListDashboardsRequest, opts ...grpc.CallOption) *iterator.Iterator[*monitoring.ListDashboardsRequest, *monitoring.Dashboard] {
@@ -35,11 +38,14 @@ func (c dashboardClient) Iterator(ctx context.Context, req *monitoring.ListDashb
 }
 
 type dashboardServiceListOperationsInternal struct {
-	*monitoring.ListDashboardOperationsResponse
+	ListDashboardOperationsResponse *monitoring.ListDashboardOperationsResponse
 }
 
 func (r dashboardServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListDashboardOperationsResponse.Operations
+}
+func (r dashboardServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListDashboardOperationsResponse.GetNextPageToken()
 }
 
 func (c dashboardClient) OperationsIterator(ctx context.Context, req *monitoring.ListDashboardOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*monitoring.ListDashboardOperationsRequest, *operation.Operation] {

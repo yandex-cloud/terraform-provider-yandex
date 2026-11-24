@@ -14,11 +14,14 @@ type ResourcePresetClientIterator interface {
 }
 
 type resourcePresetServiceListInternal struct {
-	*postgresql.ListResourcePresetsResponse
+	ListResourcePresetsResponse *postgresql.ListResourcePresetsResponse
 }
 
 func (r resourcePresetServiceListInternal) Items() []*postgresql.ResourcePreset {
 	return r.ListResourcePresetsResponse.ResourcePresets
+}
+func (r resourcePresetServiceListInternal) GetNextPageToken() string {
+	return r.ListResourcePresetsResponse.GetNextPageToken()
 }
 
 func (c resourcePresetClient) Iterator(ctx context.Context, req *postgresql.ListResourcePresetsRequest, opts ...grpc.CallOption) *iterator.Iterator[*postgresql.ListResourcePresetsRequest, *postgresql.ResourcePreset] {

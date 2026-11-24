@@ -19,11 +19,14 @@ type FederationClientIterator interface {
 }
 
 type federationServiceListInternal struct {
-	*saml.ListFederationsResponse
+	ListFederationsResponse *saml.ListFederationsResponse
 }
 
 func (r federationServiceListInternal) Items() []*saml.Federation {
 	return r.ListFederationsResponse.Federations
+}
+func (r federationServiceListInternal) GetNextPageToken() string {
+	return r.ListFederationsResponse.GetNextPageToken()
 }
 
 func (c federationClient) Iterator(ctx context.Context, req *saml.ListFederationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListFederationsRequest, *saml.Federation] {
@@ -38,11 +41,14 @@ func (c federationClient) Iterator(ctx context.Context, req *saml.ListFederation
 }
 
 type federationServiceListUserAccountsInternal struct {
-	*saml.ListFederatedUserAccountsResponse
+	ListFederatedUserAccountsResponse *saml.ListFederatedUserAccountsResponse
 }
 
 func (r federationServiceListUserAccountsInternal) Items() []*organizationmanager.UserAccount {
 	return r.ListFederatedUserAccountsResponse.UserAccounts
+}
+func (r federationServiceListUserAccountsInternal) GetNextPageToken() string {
+	return r.ListFederatedUserAccountsResponse.GetNextPageToken()
 }
 
 func (c federationClient) UserAccountsIterator(ctx context.Context, req *saml.ListFederatedUserAccountsRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListFederatedUserAccountsRequest, *organizationmanager.UserAccount] {
@@ -57,11 +63,14 @@ func (c federationClient) UserAccountsIterator(ctx context.Context, req *saml.Li
 }
 
 type federationServiceListOperationsInternal struct {
-	*saml.ListFederationOperationsResponse
+	ListFederationOperationsResponse *saml.ListFederationOperationsResponse
 }
 
 func (r federationServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListFederationOperationsResponse.Operations
+}
+func (r federationServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListFederationOperationsResponse.GetNextPageToken()
 }
 
 func (c federationClient) OperationsIterator(ctx context.Context, req *saml.ListFederationOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListFederationOperationsRequest, *operation.Operation] {
@@ -76,11 +85,14 @@ func (c federationClient) OperationsIterator(ctx context.Context, req *saml.List
 }
 
 type federationServiceListDomainsInternal struct {
-	*saml.ListFederationDomainsResponse
+	ListFederationDomainsResponse *saml.ListFederationDomainsResponse
 }
 
 func (r federationServiceListDomainsInternal) Items() []*saml.Domain {
 	return r.ListFederationDomainsResponse.Domains
+}
+func (r federationServiceListDomainsInternal) GetNextPageToken() string {
+	return r.ListFederationDomainsResponse.GetNextPageToken()
 }
 
 func (c federationClient) DomainsIterator(ctx context.Context, req *saml.ListFederationDomainsRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListFederationDomainsRequest, *saml.Domain] {

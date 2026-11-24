@@ -16,11 +16,14 @@ type RoutingInstanceClientIterator interface {
 }
 
 type routingInstanceServiceListInternal struct {
-	*cloudrouter.ListRoutingInstancesResponse
+	ListRoutingInstancesResponse *cloudrouter.ListRoutingInstancesResponse
 }
 
 func (r routingInstanceServiceListInternal) Items() []*cloudrouter.RoutingInstance {
 	return r.ListRoutingInstancesResponse.RoutingInstances
+}
+func (r routingInstanceServiceListInternal) GetNextPageToken() string {
+	return r.ListRoutingInstancesResponse.GetNextPageToken()
 }
 
 func (c routingInstanceClient) Iterator(ctx context.Context, req *cloudrouter.ListRoutingInstancesRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudrouter.ListRoutingInstancesRequest, *cloudrouter.RoutingInstance] {
@@ -35,11 +38,14 @@ func (c routingInstanceClient) Iterator(ctx context.Context, req *cloudrouter.Li
 }
 
 type routingInstanceServiceListOperationsInternal struct {
-	*cloudrouter.ListRoutingInstanceOperationsResponse
+	ListRoutingInstanceOperationsResponse *cloudrouter.ListRoutingInstanceOperationsResponse
 }
 
 func (r routingInstanceServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListRoutingInstanceOperationsResponse.Operations
+}
+func (r routingInstanceServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListRoutingInstanceOperationsResponse.GetNextPageToken()
 }
 
 func (c routingInstanceClient) OperationsIterator(ctx context.Context, req *cloudrouter.ListRoutingInstanceOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudrouter.ListRoutingInstanceOperationsRequest, *operation.Operation] {

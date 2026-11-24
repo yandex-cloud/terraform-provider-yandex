@@ -14,11 +14,14 @@ type TransferClientIterator interface {
 }
 
 type transferServiceListInternal struct {
-	*datatransfer.ListTransfersResponse
+	ListTransfersResponse *datatransfer.ListTransfersResponse
 }
 
 func (r transferServiceListInternal) Items() []*datatransfer.Transfer {
 	return r.ListTransfersResponse.Transfers
+}
+func (r transferServiceListInternal) GetNextPageToken() string {
+	return r.ListTransfersResponse.GetNextPageToken()
 }
 
 func (c transferClient) Iterator(ctx context.Context, req *datatransfer.ListTransfersRequest, opts ...grpc.CallOption) *iterator.Iterator[*datatransfer.ListTransfersRequest, *datatransfer.Transfer] {

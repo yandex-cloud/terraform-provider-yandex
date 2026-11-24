@@ -19,11 +19,14 @@ type ContainerClientIterator interface {
 }
 
 type containerServiceListInternal struct {
-	*containers.ListContainersResponse
+	ListContainersResponse *containers.ListContainersResponse
 }
 
 func (r containerServiceListInternal) Items() []*containers.Container {
 	return r.ListContainersResponse.Containers
+}
+func (r containerServiceListInternal) GetNextPageToken() string {
+	return r.ListContainersResponse.GetNextPageToken()
 }
 
 func (c containerClient) Iterator(ctx context.Context, req *containers.ListContainersRequest, opts ...grpc.CallOption) *iterator.Iterator[*containers.ListContainersRequest, *containers.Container] {
@@ -38,11 +41,14 @@ func (c containerClient) Iterator(ctx context.Context, req *containers.ListConta
 }
 
 type containerServiceListRevisionsInternal struct {
-	*containers.ListContainersRevisionsResponse
+	ListContainersRevisionsResponse *containers.ListContainersRevisionsResponse
 }
 
 func (r containerServiceListRevisionsInternal) Items() []*containers.Revision {
 	return r.ListContainersRevisionsResponse.Revisions
+}
+func (r containerServiceListRevisionsInternal) GetNextPageToken() string {
+	return r.ListContainersRevisionsResponse.GetNextPageToken()
 }
 
 func (c containerClient) RevisionsIterator(ctx context.Context, req *containers.ListContainersRevisionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*containers.ListContainersRevisionsRequest, *containers.Revision] {
@@ -57,11 +63,14 @@ func (c containerClient) RevisionsIterator(ctx context.Context, req *containers.
 }
 
 type containerServiceListOperationsInternal struct {
-	*containers.ListContainerOperationsResponse
+	ListContainerOperationsResponse *containers.ListContainerOperationsResponse
 }
 
 func (r containerServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListContainerOperationsResponse.Operations
+}
+func (r containerServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListContainerOperationsResponse.GetNextPageToken()
 }
 
 func (c containerClient) OperationsIterator(ctx context.Context, req *containers.ListContainerOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*containers.ListContainerOperationsRequest, *operation.Operation] {
@@ -76,11 +85,14 @@ func (c containerClient) OperationsIterator(ctx context.Context, req *containers
 }
 
 type containerServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r containerServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r containerServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c containerClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

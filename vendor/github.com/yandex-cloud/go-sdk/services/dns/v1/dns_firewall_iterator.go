@@ -18,11 +18,14 @@ type DnsFirewallClientIterator interface {
 }
 
 type dnsFirewallServiceListInternal struct {
-	*dns.ListDnsFirewallsResponse
+	ListDnsFirewallsResponse *dns.ListDnsFirewallsResponse
 }
 
 func (r dnsFirewallServiceListInternal) Items() []*dns.DnsFirewall {
 	return r.ListDnsFirewallsResponse.DnsFirewalls
+}
+func (r dnsFirewallServiceListInternal) GetNextPageToken() string {
+	return r.ListDnsFirewallsResponse.GetNextPageToken()
 }
 
 func (c dnsFirewallClient) Iterator(ctx context.Context, req *dns.ListDnsFirewallsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dns.ListDnsFirewallsRequest, *dns.DnsFirewall] {
@@ -37,11 +40,14 @@ func (c dnsFirewallClient) Iterator(ctx context.Context, req *dns.ListDnsFirewal
 }
 
 type dnsFirewallServiceListOperationsInternal struct {
-	*dns.ListDnsFirewallOperationsResponse
+	ListDnsFirewallOperationsResponse *dns.ListDnsFirewallOperationsResponse
 }
 
 func (r dnsFirewallServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListDnsFirewallOperationsResponse.Operations
+}
+func (r dnsFirewallServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListDnsFirewallOperationsResponse.GetNextPageToken()
 }
 
 func (c dnsFirewallClient) OperationsIterator(ctx context.Context, req *dns.ListDnsFirewallOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dns.ListDnsFirewallOperationsRequest, *operation.Operation] {
@@ -56,11 +62,14 @@ func (c dnsFirewallClient) OperationsIterator(ctx context.Context, req *dns.List
 }
 
 type dnsFirewallServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r dnsFirewallServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r dnsFirewallServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c dnsFirewallClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

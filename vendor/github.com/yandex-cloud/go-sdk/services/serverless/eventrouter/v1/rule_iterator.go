@@ -18,10 +18,13 @@ type RuleClientIterator interface {
 }
 
 type ruleServiceListInternal struct {
-	*eventrouter.ListRulesResponse
+	ListRulesResponse *eventrouter.ListRulesResponse
 }
 
 func (r ruleServiceListInternal) Items() []*eventrouter.Rule { return r.ListRulesResponse.Rules }
+func (r ruleServiceListInternal) GetNextPageToken() string {
+	return r.ListRulesResponse.GetNextPageToken()
+}
 
 func (c ruleClient) Iterator(ctx context.Context, req *eventrouter.ListRulesRequest, opts ...grpc.CallOption) *iterator.Iterator[*eventrouter.ListRulesRequest, *eventrouter.Rule] {
 	return iterator.NewIterator[*eventrouter.ListRulesRequest, *eventrouter.Rule](ctx, req,
@@ -35,11 +38,14 @@ func (c ruleClient) Iterator(ctx context.Context, req *eventrouter.ListRulesRequ
 }
 
 type ruleServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r ruleServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r ruleServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c ruleClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -54,11 +60,14 @@ func (c ruleClient) AccessBindingsIterator(ctx context.Context, req *access.List
 }
 
 type ruleServiceListOperationsInternal struct {
-	*eventrouter.ListRuleOperationsResponse
+	ListRuleOperationsResponse *eventrouter.ListRuleOperationsResponse
 }
 
 func (r ruleServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListRuleOperationsResponse.Operations
+}
+func (r ruleServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListRuleOperationsResponse.GetNextPageToken()
 }
 
 func (c ruleClient) OperationsIterator(ctx context.Context, req *eventrouter.ListRuleOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*eventrouter.ListRuleOperationsRequest, *operation.Operation] {

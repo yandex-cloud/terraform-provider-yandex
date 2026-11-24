@@ -14,11 +14,14 @@ type ResourcePresetClientIterator interface {
 }
 
 type resourcePresetServiceListInternal struct {
-	*mongodb.ListResourcePresetsResponse
+	ListResourcePresetsResponse *mongodb.ListResourcePresetsResponse
 }
 
 func (r resourcePresetServiceListInternal) Items() []*mongodb.ResourcePreset {
 	return r.ListResourcePresetsResponse.ResourcePresets
+}
+func (r resourcePresetServiceListInternal) GetNextPageToken() string {
+	return r.ListResourcePresetsResponse.GetNextPageToken()
 }
 
 func (c resourcePresetClient) Iterator(ctx context.Context, req *mongodb.ListResourcePresetsRequest, opts ...grpc.CallOption) *iterator.Iterator[*mongodb.ListResourcePresetsRequest, *mongodb.ResourcePreset] {

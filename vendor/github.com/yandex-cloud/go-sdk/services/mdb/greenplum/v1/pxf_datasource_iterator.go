@@ -14,7 +14,7 @@ type PXFDatasourceClientIterator interface {
 }
 
 type pxfDatasourceServiceListInternal struct {
-	*greenplum.ListPXFDatasourcesResponse
+	ListPXFDatasourcesResponse *greenplum.ListPXFDatasourcesResponse
 }
 
 func (r pxfDatasourceServiceListInternal) Items() []*greenplum.PXFDatasource {

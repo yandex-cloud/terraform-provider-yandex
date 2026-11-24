@@ -14,11 +14,14 @@ type FederatedCredentialClientIterator interface {
 }
 
 type federatedCredentialServiceListInternal struct {
-	*workload.ListFederatedCredentialsResponse
+	ListFederatedCredentialsResponse *workload.ListFederatedCredentialsResponse
 }
 
 func (r federatedCredentialServiceListInternal) Items() []*workload.FederatedCredential {
 	return r.ListFederatedCredentialsResponse.FederatedCredentials
+}
+func (r federatedCredentialServiceListInternal) GetNextPageToken() string {
+	return r.ListFederatedCredentialsResponse.GetNextPageToken()
 }
 
 func (c federatedCredentialClient) Iterator(ctx context.Context, req *workload.ListFederatedCredentialsRequest, opts ...grpc.CallOption) *iterator.Iterator[*workload.ListFederatedCredentialsRequest, *workload.FederatedCredential] {

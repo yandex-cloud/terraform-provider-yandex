@@ -16,11 +16,14 @@ type PrivateConnectionClientIterator interface {
 }
 
 type privateConnectionServiceListInternal struct {
-	*cic.ListPrivateConnectionsResponse
+	ListPrivateConnectionsResponse *cic.ListPrivateConnectionsResponse
 }
 
 func (r privateConnectionServiceListInternal) Items() []*cic.PrivateConnection {
 	return r.ListPrivateConnectionsResponse.PrivateConnections
+}
+func (r privateConnectionServiceListInternal) GetNextPageToken() string {
+	return r.ListPrivateConnectionsResponse.GetNextPageToken()
 }
 
 func (c privateConnectionClient) Iterator(ctx context.Context, req *cic.ListPrivateConnectionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cic.ListPrivateConnectionsRequest, *cic.PrivateConnection] {
@@ -35,11 +38,14 @@ func (c privateConnectionClient) Iterator(ctx context.Context, req *cic.ListPriv
 }
 
 type privateConnectionServiceListOperationsInternal struct {
-	*cic.ListPrivateConnectionOperationsResponse
+	ListPrivateConnectionOperationsResponse *cic.ListPrivateConnectionOperationsResponse
 }
 
 func (r privateConnectionServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListPrivateConnectionOperationsResponse.Operations
+}
+func (r privateConnectionServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListPrivateConnectionOperationsResponse.GetNextPageToken()
 }
 
 func (c privateConnectionClient) OperationsIterator(ctx context.Context, req *cic.ListPrivateConnectionOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cic.ListPrivateConnectionOperationsRequest, *operation.Operation] {

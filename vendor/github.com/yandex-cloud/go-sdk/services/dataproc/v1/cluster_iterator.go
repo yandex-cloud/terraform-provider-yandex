@@ -20,11 +20,14 @@ type ClusterClientIterator interface {
 }
 
 type clusterServiceListInternal struct {
-	*dataproc.ListClustersResponse
+	ListClustersResponse *dataproc.ListClustersResponse
 }
 
 func (r clusterServiceListInternal) Items() []*dataproc.Cluster {
 	return r.ListClustersResponse.Clusters
+}
+func (r clusterServiceListInternal) GetNextPageToken() string {
+	return r.ListClustersResponse.GetNextPageToken()
 }
 
 func (c clusterClient) Iterator(ctx context.Context, req *dataproc.ListClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*dataproc.ListClustersRequest, *dataproc.Cluster] {
@@ -39,11 +42,14 @@ func (c clusterClient) Iterator(ctx context.Context, req *dataproc.ListClustersR
 }
 
 type clusterServiceListOperationsInternal struct {
-	*dataproc.ListClusterOperationsResponse
+	ListClusterOperationsResponse *dataproc.ListClusterOperationsResponse
 }
 
 func (r clusterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListClusterOperationsResponse.Operations
+}
+func (r clusterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListClusterOperationsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) OperationsIterator(ctx context.Context, req *dataproc.ListClusterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dataproc.ListClusterOperationsRequest, *operation.Operation] {
@@ -58,11 +64,14 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *dataproc.Lis
 }
 
 type clusterServiceListHostsInternal struct {
-	*dataproc.ListClusterHostsResponse
+	ListClusterHostsResponse *dataproc.ListClusterHostsResponse
 }
 
 func (r clusterServiceListHostsInternal) Items() []*dataproc.Host {
 	return r.ListClusterHostsResponse.Hosts
+}
+func (r clusterServiceListHostsInternal) GetNextPageToken() string {
+	return r.ListClusterHostsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) HostsIterator(ctx context.Context, req *dataproc.ListClusterHostsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dataproc.ListClusterHostsRequest, *dataproc.Host] {
@@ -77,7 +86,7 @@ func (c clusterClient) HostsIterator(ctx context.Context, req *dataproc.ListClus
 }
 
 type clusterServiceListUILinksInternal struct {
-	*dataproc.ListUILinksResponse
+	ListUILinksResponse *dataproc.ListUILinksResponse
 }
 
 func (r clusterServiceListUILinksInternal) Items() []*dataproc.UILink {
@@ -96,11 +105,14 @@ func (c clusterClient) UILinksIterator(ctx context.Context, req *dataproc.ListUI
 }
 
 type clusterServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r clusterServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r clusterServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

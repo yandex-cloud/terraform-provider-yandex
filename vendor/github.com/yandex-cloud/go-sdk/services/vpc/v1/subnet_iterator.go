@@ -17,10 +17,13 @@ type SubnetClientIterator interface {
 }
 
 type subnetServiceListInternal struct {
-	*vpc.ListSubnetsResponse
+	ListSubnetsResponse *vpc.ListSubnetsResponse
 }
 
 func (r subnetServiceListInternal) Items() []*vpc.Subnet { return r.ListSubnetsResponse.Subnets }
+func (r subnetServiceListInternal) GetNextPageToken() string {
+	return r.ListSubnetsResponse.GetNextPageToken()
+}
 
 func (c subnetClient) Iterator(ctx context.Context, req *vpc.ListSubnetsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListSubnetsRequest, *vpc.Subnet] {
 	return iterator.NewIterator[*vpc.ListSubnetsRequest, *vpc.Subnet](ctx, req,
@@ -34,11 +37,14 @@ func (c subnetClient) Iterator(ctx context.Context, req *vpc.ListSubnetsRequest,
 }
 
 type subnetServiceListOperationsInternal struct {
-	*vpc.ListSubnetOperationsResponse
+	ListSubnetOperationsResponse *vpc.ListSubnetOperationsResponse
 }
 
 func (r subnetServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListSubnetOperationsResponse.Operations
+}
+func (r subnetServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListSubnetOperationsResponse.GetNextPageToken()
 }
 
 func (c subnetClient) OperationsIterator(ctx context.Context, req *vpc.ListSubnetOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListSubnetOperationsRequest, *operation.Operation] {
@@ -53,11 +59,14 @@ func (c subnetClient) OperationsIterator(ctx context.Context, req *vpc.ListSubne
 }
 
 type subnetServiceListUsedAddressesInternal struct {
-	*vpc.ListUsedAddressesResponse
+	ListUsedAddressesResponse *vpc.ListUsedAddressesResponse
 }
 
 func (r subnetServiceListUsedAddressesInternal) Items() []*vpc.UsedAddress {
 	return r.ListUsedAddressesResponse.Addresses
+}
+func (r subnetServiceListUsedAddressesInternal) GetNextPageToken() string {
+	return r.ListUsedAddressesResponse.GetNextPageToken()
 }
 
 func (c subnetClient) UsedAddressesIterator(ctx context.Context, req *vpc.ListUsedAddressesRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListUsedAddressesRequest, *vpc.UsedAddress] {

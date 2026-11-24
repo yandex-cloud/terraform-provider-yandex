@@ -16,11 +16,14 @@ type ArtifactClientIterator interface {
 }
 
 type artifactServiceListInternal struct {
-	*cloudregistry.ListArtifactsWithFiltersResponse
+	ListArtifactsWithFiltersResponse *cloudregistry.ListArtifactsWithFiltersResponse
 }
 
 func (r artifactServiceListInternal) Items() []*cloudregistry.Artifact {
 	return r.ListArtifactsWithFiltersResponse.Artifacts
+}
+func (r artifactServiceListInternal) GetNextPageToken() string {
+	return r.ListArtifactsWithFiltersResponse.GetNextPageToken()
 }
 
 func (c artifactClient) Iterator(ctx context.Context, req *cloudregistry.ListArtifactsWithFiltersRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudregistry.ListArtifactsWithFiltersRequest, *cloudregistry.Artifact] {
@@ -35,11 +38,14 @@ func (c artifactClient) Iterator(ctx context.Context, req *cloudregistry.ListArt
 }
 
 type artifactServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r artifactServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r artifactServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c artifactClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

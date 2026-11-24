@@ -14,11 +14,14 @@ type ClusterClientIterator interface {
 }
 
 type clusterServiceListInternal struct {
-	*ytsaurus.ListClustersResponse
+	ListClustersResponse *ytsaurus.ListClustersResponse
 }
 
 func (r clusterServiceListInternal) Items() []*ytsaurus.Cluster {
 	return r.ListClustersResponse.Clusters
+}
+func (r clusterServiceListInternal) GetNextPageToken() string {
+	return r.ListClustersResponse.GetNextPageToken()
 }
 
 func (c clusterClient) Iterator(ctx context.Context, req *ytsaurus.ListClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*ytsaurus.ListClustersRequest, *ytsaurus.Cluster] {

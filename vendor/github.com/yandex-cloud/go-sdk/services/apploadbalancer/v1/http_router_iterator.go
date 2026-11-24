@@ -16,11 +16,14 @@ type HttpRouterClientIterator interface {
 }
 
 type httpRouterServiceListInternal struct {
-	*apploadbalancer.ListHttpRoutersResponse
+	ListHttpRoutersResponse *apploadbalancer.ListHttpRoutersResponse
 }
 
 func (r httpRouterServiceListInternal) Items() []*apploadbalancer.HttpRouter {
 	return r.ListHttpRoutersResponse.HttpRouters
+}
+func (r httpRouterServiceListInternal) GetNextPageToken() string {
+	return r.ListHttpRoutersResponse.GetNextPageToken()
 }
 
 func (c httpRouterClient) Iterator(ctx context.Context, req *apploadbalancer.ListHttpRoutersRequest, opts ...grpc.CallOption) *iterator.Iterator[*apploadbalancer.ListHttpRoutersRequest, *apploadbalancer.HttpRouter] {
@@ -35,11 +38,14 @@ func (c httpRouterClient) Iterator(ctx context.Context, req *apploadbalancer.Lis
 }
 
 type httpRouterServiceListOperationsInternal struct {
-	*apploadbalancer.ListHttpRouterOperationsResponse
+	ListHttpRouterOperationsResponse *apploadbalancer.ListHttpRouterOperationsResponse
 }
 
 func (r httpRouterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListHttpRouterOperationsResponse.Operations
+}
+func (r httpRouterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListHttpRouterOperationsResponse.GetNextPageToken()
 }
 
 func (c httpRouterClient) OperationsIterator(ctx context.Context, req *apploadbalancer.ListHttpRouterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*apploadbalancer.ListHttpRouterOperationsRequest, *operation.Operation] {

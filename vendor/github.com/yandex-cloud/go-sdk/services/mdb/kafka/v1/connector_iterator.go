@@ -14,11 +14,14 @@ type ConnectorClientIterator interface {
 }
 
 type connectorServiceListInternal struct {
-	*kafka.ListConnectorsResponse
+	ListConnectorsResponse *kafka.ListConnectorsResponse
 }
 
 func (r connectorServiceListInternal) Items() []*kafka.Connector {
 	return r.ListConnectorsResponse.Connectors
+}
+func (r connectorServiceListInternal) GetNextPageToken() string {
+	return r.ListConnectorsResponse.GetNextPageToken()
 }
 
 func (c connectorClient) Iterator(ctx context.Context, req *kafka.ListConnectorsRequest, opts ...grpc.CallOption) *iterator.Iterator[*kafka.ListConnectorsRequest, *kafka.Connector] {

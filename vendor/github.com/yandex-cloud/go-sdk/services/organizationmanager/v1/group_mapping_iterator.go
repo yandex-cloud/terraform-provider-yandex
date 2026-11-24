@@ -14,11 +14,14 @@ type GroupMappingClientIterator interface {
 }
 
 type groupMappingServiceListItemsInternal struct {
-	*organizationmanager.ListGroupMappingItemsResponse
+	ListGroupMappingItemsResponse *organizationmanager.ListGroupMappingItemsResponse
 }
 
 func (r groupMappingServiceListItemsInternal) Items() []*organizationmanager.GroupMappingItem {
 	return r.ListGroupMappingItemsResponse.GroupMappingItems
+}
+func (r groupMappingServiceListItemsInternal) GetNextPageToken() string {
+	return r.ListGroupMappingItemsResponse.GetNextPageToken()
 }
 
 func (c groupMappingClient) ItemsIterator(ctx context.Context, req *organizationmanager.ListGroupMappingItemsRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListGroupMappingItemsRequest, *organizationmanager.GroupMappingItem] {

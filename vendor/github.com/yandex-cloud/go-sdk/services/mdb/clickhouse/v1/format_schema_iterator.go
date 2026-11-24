@@ -14,11 +14,14 @@ type FormatSchemaClientIterator interface {
 }
 
 type formatSchemaServiceListInternal struct {
-	*clickhouse.ListFormatSchemasResponse
+	ListFormatSchemasResponse *clickhouse.ListFormatSchemasResponse
 }
 
 func (r formatSchemaServiceListInternal) Items() []*clickhouse.FormatSchema {
 	return r.ListFormatSchemasResponse.FormatSchemas
+}
+func (r formatSchemaServiceListInternal) GetNextPageToken() string {
+	return r.ListFormatSchemasResponse.GetNextPageToken()
 }
 
 func (c formatSchemaClient) Iterator(ctx context.Context, req *clickhouse.ListFormatSchemasRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListFormatSchemasRequest, *clickhouse.FormatSchema] {

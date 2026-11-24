@@ -14,7 +14,7 @@ type WafProfileClientIterator interface {
 }
 
 type wafProfileServiceListInternal struct {
-	*waf.ListWafProfilesResponse
+	ListWafProfilesResponse *waf.ListWafProfilesResponse
 }
 
 func (r wafProfileServiceListInternal) Items() []*waf.WafProfile {

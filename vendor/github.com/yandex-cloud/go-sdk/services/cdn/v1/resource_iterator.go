@@ -14,11 +14,14 @@ type ResourceClientIterator interface {
 }
 
 type resourceServiceListInternal struct {
-	*cdn.ListResourcesResponse
+	ListResourcesResponse *cdn.ListResourcesResponse
 }
 
 func (r resourceServiceListInternal) Items() []*cdn.Resource {
 	return r.ListResourcesResponse.Resources
+}
+func (r resourceServiceListInternal) GetNextPageToken() string {
+	return r.ListResourcesResponse.GetNextPageToken()
 }
 
 func (c resourceClient) Iterator(ctx context.Context, req *cdn.ListResourcesRequest, opts ...grpc.CallOption) *iterator.Iterator[*cdn.ListResourcesRequest, *cdn.Resource] {

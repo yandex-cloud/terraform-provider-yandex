@@ -16,11 +16,14 @@ type BackupRetentionPolicyClientIterator interface {
 }
 
 type backupRetentionPolicyServiceListInternal struct {
-	*mysql.ListBackupRetentionPoliciesResponse
+	ListBackupRetentionPoliciesResponse *mysql.ListBackupRetentionPoliciesResponse
 }
 
 func (r backupRetentionPolicyServiceListInternal) Items() []*mdb.BackupRetentionPolicy {
 	return r.ListBackupRetentionPoliciesResponse.Policies
+}
+func (r backupRetentionPolicyServiceListInternal) GetNextPageToken() string {
+	return r.ListBackupRetentionPoliciesResponse.GetNextPageToken()
 }
 
 func (c backupRetentionPolicyClient) Iterator(ctx context.Context, req *mysql.ListBackupRetentionPoliciesRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListBackupRetentionPoliciesRequest, *mdb.BackupRetentionPolicy] {
@@ -35,11 +38,14 @@ func (c backupRetentionPolicyClient) Iterator(ctx context.Context, req *mysql.Li
 }
 
 type backupRetentionPolicyServiceListByFolderInternal struct {
-	*mysql.ListBackupRetentionPoliciesResponse
+	ListBackupRetentionPoliciesResponse *mysql.ListBackupRetentionPoliciesResponse
 }
 
 func (r backupRetentionPolicyServiceListByFolderInternal) Items() []*mdb.BackupRetentionPolicy {
 	return r.ListBackupRetentionPoliciesResponse.Policies
+}
+func (r backupRetentionPolicyServiceListByFolderInternal) GetNextPageToken() string {
+	return r.ListBackupRetentionPoliciesResponse.GetNextPageToken()
 }
 
 func (c backupRetentionPolicyClient) ByFolderIterator(ctx context.Context, req *mysql.ListBackupRetentionPoliciesByFolderRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListBackupRetentionPoliciesByFolderRequest, *mdb.BackupRetentionPolicy] {

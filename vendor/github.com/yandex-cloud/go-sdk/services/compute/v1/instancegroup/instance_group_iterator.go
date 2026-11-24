@@ -20,11 +20,14 @@ type InstanceGroupClientIterator interface {
 }
 
 type instanceGroupServiceListInternal struct {
-	*instancegroup.ListInstanceGroupsResponse
+	ListInstanceGroupsResponse *instancegroup.ListInstanceGroupsResponse
 }
 
 func (r instanceGroupServiceListInternal) Items() []*instancegroup.InstanceGroup {
 	return r.ListInstanceGroupsResponse.InstanceGroups
+}
+func (r instanceGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListInstanceGroupsResponse.GetNextPageToken()
 }
 
 func (c instanceGroupClient) Iterator(ctx context.Context, req *instancegroup.ListInstanceGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*instancegroup.ListInstanceGroupsRequest, *instancegroup.InstanceGroup] {
@@ -39,11 +42,14 @@ func (c instanceGroupClient) Iterator(ctx context.Context, req *instancegroup.Li
 }
 
 type instanceGroupServiceListInstancesInternal struct {
-	*instancegroup.ListInstanceGroupInstancesResponse
+	ListInstanceGroupInstancesResponse *instancegroup.ListInstanceGroupInstancesResponse
 }
 
 func (r instanceGroupServiceListInstancesInternal) Items() []*instancegroup.ManagedInstance {
 	return r.ListInstanceGroupInstancesResponse.Instances
+}
+func (r instanceGroupServiceListInstancesInternal) GetNextPageToken() string {
+	return r.ListInstanceGroupInstancesResponse.GetNextPageToken()
 }
 
 func (c instanceGroupClient) InstancesIterator(ctx context.Context, req *instancegroup.ListInstanceGroupInstancesRequest, opts ...grpc.CallOption) *iterator.Iterator[*instancegroup.ListInstanceGroupInstancesRequest, *instancegroup.ManagedInstance] {
@@ -58,11 +64,14 @@ func (c instanceGroupClient) InstancesIterator(ctx context.Context, req *instanc
 }
 
 type instanceGroupServiceListOperationsInternal struct {
-	*instancegroup.ListInstanceGroupOperationsResponse
+	ListInstanceGroupOperationsResponse *instancegroup.ListInstanceGroupOperationsResponse
 }
 
 func (r instanceGroupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListInstanceGroupOperationsResponse.Operations
+}
+func (r instanceGroupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListInstanceGroupOperationsResponse.GetNextPageToken()
 }
 
 func (c instanceGroupClient) OperationsIterator(ctx context.Context, req *instancegroup.ListInstanceGroupOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*instancegroup.ListInstanceGroupOperationsRequest, *operation.Operation] {
@@ -77,11 +86,14 @@ func (c instanceGroupClient) OperationsIterator(ctx context.Context, req *instan
 }
 
 type instanceGroupServiceListLogRecordsInternal struct {
-	*instancegroup.ListInstanceGroupLogRecordsResponse
+	ListInstanceGroupLogRecordsResponse *instancegroup.ListInstanceGroupLogRecordsResponse
 }
 
 func (r instanceGroupServiceListLogRecordsInternal) Items() []*instancegroup.LogRecord {
 	return r.ListInstanceGroupLogRecordsResponse.LogRecords
+}
+func (r instanceGroupServiceListLogRecordsInternal) GetNextPageToken() string {
+	return r.ListInstanceGroupLogRecordsResponse.GetNextPageToken()
 }
 
 func (c instanceGroupClient) LogRecordsIterator(ctx context.Context, req *instancegroup.ListInstanceGroupLogRecordsRequest, opts ...grpc.CallOption) *iterator.Iterator[*instancegroup.ListInstanceGroupLogRecordsRequest, *instancegroup.LogRecord] {
@@ -96,11 +108,14 @@ func (c instanceGroupClient) LogRecordsIterator(ctx context.Context, req *instan
 }
 
 type instanceGroupServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r instanceGroupServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r instanceGroupServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c instanceGroupClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

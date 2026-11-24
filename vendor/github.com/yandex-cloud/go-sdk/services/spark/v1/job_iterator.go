@@ -14,10 +14,13 @@ type JobClientIterator interface {
 }
 
 type jobServiceListInternal struct {
-	*spark.ListJobsResponse
+	ListJobsResponse *spark.ListJobsResponse
 }
 
 func (r jobServiceListInternal) Items() []*spark.Job { return r.ListJobsResponse.Jobs }
+func (r jobServiceListInternal) GetNextPageToken() string {
+	return r.ListJobsResponse.GetNextPageToken()
+}
 
 func (c jobClient) Iterator(ctx context.Context, req *spark.ListJobsRequest, opts ...grpc.CallOption) *iterator.Iterator[*spark.ListJobsRequest, *spark.Job] {
 	return iterator.NewIterator[*spark.ListJobsRequest, *spark.Job](ctx, req,

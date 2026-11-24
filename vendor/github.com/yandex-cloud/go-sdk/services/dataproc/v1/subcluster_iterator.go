@@ -14,11 +14,14 @@ type SubclusterClientIterator interface {
 }
 
 type subclusterServiceListInternal struct {
-	*dataproc.ListSubclustersResponse
+	ListSubclustersResponse *dataproc.ListSubclustersResponse
 }
 
 func (r subclusterServiceListInternal) Items() []*dataproc.Subcluster {
 	return r.ListSubclustersResponse.Subclusters
+}
+func (r subclusterServiceListInternal) GetNextPageToken() string {
+	return r.ListSubclustersResponse.GetNextPageToken()
 }
 
 func (c subclusterClient) Iterator(ctx context.Context, req *dataproc.ListSubclustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*dataproc.ListSubclustersRequest, *dataproc.Subcluster] {

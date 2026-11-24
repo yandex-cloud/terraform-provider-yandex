@@ -16,11 +16,14 @@ type DatabaseClientIterator interface {
 }
 
 type databaseServiceListInternal struct {
-	*ydb.ListDatabasesResponse
+	ListDatabasesResponse *ydb.ListDatabasesResponse
 }
 
 func (r databaseServiceListInternal) Items() []*ydb.Database {
 	return r.ListDatabasesResponse.Databases
+}
+func (r databaseServiceListInternal) GetNextPageToken() string {
+	return r.ListDatabasesResponse.GetNextPageToken()
 }
 
 func (c databaseClient) Iterator(ctx context.Context, req *ydb.ListDatabasesRequest, opts ...grpc.CallOption) *iterator.Iterator[*ydb.ListDatabasesRequest, *ydb.Database] {
@@ -35,11 +38,14 @@ func (c databaseClient) Iterator(ctx context.Context, req *ydb.ListDatabasesRequ
 }
 
 type databaseServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r databaseServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r databaseServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c databaseClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

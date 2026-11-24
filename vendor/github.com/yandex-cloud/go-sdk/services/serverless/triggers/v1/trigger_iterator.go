@@ -16,11 +16,14 @@ type TriggerClientIterator interface {
 }
 
 type triggerServiceListInternal struct {
-	*triggers.ListTriggersResponse
+	ListTriggersResponse *triggers.ListTriggersResponse
 }
 
 func (r triggerServiceListInternal) Items() []*triggers.Trigger {
 	return r.ListTriggersResponse.Triggers
+}
+func (r triggerServiceListInternal) GetNextPageToken() string {
+	return r.ListTriggersResponse.GetNextPageToken()
 }
 
 func (c triggerClient) Iterator(ctx context.Context, req *triggers.ListTriggersRequest, opts ...grpc.CallOption) *iterator.Iterator[*triggers.ListTriggersRequest, *triggers.Trigger] {
@@ -35,11 +38,14 @@ func (c triggerClient) Iterator(ctx context.Context, req *triggers.ListTriggersR
 }
 
 type triggerServiceListOperationsInternal struct {
-	*triggers.ListTriggerOperationsResponse
+	ListTriggerOperationsResponse *triggers.ListTriggerOperationsResponse
 }
 
 func (r triggerServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListTriggerOperationsResponse.Operations
+}
+func (r triggerServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListTriggerOperationsResponse.GetNextPageToken()
 }
 
 func (c triggerClient) OperationsIterator(ctx context.Context, req *triggers.ListTriggerOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*triggers.ListTriggerOperationsRequest, *operation.Operation] {

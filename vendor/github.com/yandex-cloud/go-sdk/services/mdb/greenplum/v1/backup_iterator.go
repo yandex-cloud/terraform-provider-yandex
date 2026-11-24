@@ -14,10 +14,13 @@ type BackupClientIterator interface {
 }
 
 type backupServiceListInternal struct {
-	*greenplum.ListBackupsResponse
+	ListBackupsResponse *greenplum.ListBackupsResponse
 }
 
 func (r backupServiceListInternal) Items() []*greenplum.Backup { return r.ListBackupsResponse.Backups }
+func (r backupServiceListInternal) GetNextPageToken() string {
+	return r.ListBackupsResponse.GetNextPageToken()
+}
 
 func (c backupClient) Iterator(ctx context.Context, req *greenplum.ListBackupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*greenplum.ListBackupsRequest, *greenplum.Backup] {
 	return iterator.NewIterator[*greenplum.ListBackupsRequest, *greenplum.Backup](ctx, req,

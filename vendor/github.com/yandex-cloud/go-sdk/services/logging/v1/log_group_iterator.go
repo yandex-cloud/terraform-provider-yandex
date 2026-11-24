@@ -19,11 +19,14 @@ type LogGroupClientIterator interface {
 }
 
 type logGroupServiceListInternal struct {
-	*logging.ListLogGroupsResponse
+	ListLogGroupsResponse *logging.ListLogGroupsResponse
 }
 
 func (r logGroupServiceListInternal) Items() []*logging.LogGroup {
 	return r.ListLogGroupsResponse.Groups
+}
+func (r logGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListLogGroupsResponse.GetNextPageToken()
 }
 
 func (c logGroupClient) Iterator(ctx context.Context, req *logging.ListLogGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*logging.ListLogGroupsRequest, *logging.LogGroup] {
@@ -38,7 +41,7 @@ func (c logGroupClient) Iterator(ctx context.Context, req *logging.ListLogGroups
 }
 
 type logGroupServiceListResourcesInternal struct {
-	*logging.ListResourcesResponse
+	ListResourcesResponse *logging.ListResourcesResponse
 }
 
 func (r logGroupServiceListResourcesInternal) Items() []*logging.LogGroupResource {
@@ -57,11 +60,14 @@ func (c logGroupClient) ResourcesIterator(ctx context.Context, req *logging.List
 }
 
 type logGroupServiceListOperationsInternal struct {
-	*logging.ListOperationsResponse
+	ListOperationsResponse *logging.ListOperationsResponse
 }
 
 func (r logGroupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListOperationsResponse.Operations
+}
+func (r logGroupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListOperationsResponse.GetNextPageToken()
 }
 
 func (c logGroupClient) OperationsIterator(ctx context.Context, req *logging.ListOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*logging.ListOperationsRequest, *operation.Operation] {
@@ -76,11 +82,14 @@ func (c logGroupClient) OperationsIterator(ctx context.Context, req *logging.Lis
 }
 
 type logGroupServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r logGroupServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r logGroupServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c logGroupClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

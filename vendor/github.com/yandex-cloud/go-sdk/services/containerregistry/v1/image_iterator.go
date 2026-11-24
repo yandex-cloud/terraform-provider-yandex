@@ -14,11 +14,14 @@ type ImageClientIterator interface {
 }
 
 type imageServiceListInternal struct {
-	*containerregistry.ListImagesResponse
+	ListImagesResponse *containerregistry.ListImagesResponse
 }
 
 func (r imageServiceListInternal) Items() []*containerregistry.Image {
 	return r.ListImagesResponse.Images
+}
+func (r imageServiceListInternal) GetNextPageToken() string {
+	return r.ListImagesResponse.GetNextPageToken()
 }
 
 func (c imageClient) Iterator(ctx context.Context, req *containerregistry.ListImagesRequest, opts ...grpc.CallOption) *iterator.Iterator[*containerregistry.ListImagesRequest, *containerregistry.Image] {

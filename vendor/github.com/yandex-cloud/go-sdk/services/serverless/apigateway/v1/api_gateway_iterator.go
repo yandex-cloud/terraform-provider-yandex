@@ -18,11 +18,14 @@ type ApiGatewayClientIterator interface {
 }
 
 type apiGatewayServiceListInternal struct {
-	*apigateway.ListApiGatewayResponse
+	ListApiGatewayResponse *apigateway.ListApiGatewayResponse
 }
 
 func (r apiGatewayServiceListInternal) Items() []*apigateway.ApiGateway {
 	return r.ListApiGatewayResponse.ApiGateways
+}
+func (r apiGatewayServiceListInternal) GetNextPageToken() string {
+	return r.ListApiGatewayResponse.GetNextPageToken()
 }
 
 func (c apiGatewayClient) Iterator(ctx context.Context, req *apigateway.ListApiGatewayRequest, opts ...grpc.CallOption) *iterator.Iterator[*apigateway.ListApiGatewayRequest, *apigateway.ApiGateway] {
@@ -37,11 +40,14 @@ func (c apiGatewayClient) Iterator(ctx context.Context, req *apigateway.ListApiG
 }
 
 type apiGatewayServiceListOperationsInternal struct {
-	*apigateway.ListOperationsResponse
+	ListOperationsResponse *apigateway.ListOperationsResponse
 }
 
 func (r apiGatewayServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListOperationsResponse.Operations
+}
+func (r apiGatewayServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListOperationsResponse.GetNextPageToken()
 }
 
 func (c apiGatewayClient) OperationsIterator(ctx context.Context, req *apigateway.ListOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*apigateway.ListOperationsRequest, *operation.Operation] {
@@ -56,11 +62,14 @@ func (c apiGatewayClient) OperationsIterator(ctx context.Context, req *apigatewa
 }
 
 type apiGatewayServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r apiGatewayServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r apiGatewayServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c apiGatewayClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

@@ -16,10 +16,13 @@ type BucketClientIterator interface {
 }
 
 type bucketServiceListInternal struct {
-	*storage.ListBucketsResponse
+	ListBucketsResponse *storage.ListBucketsResponse
 }
 
 func (r bucketServiceListInternal) Items() []*storage.Bucket { return r.ListBucketsResponse.Buckets }
+func (r bucketServiceListInternal) GetNextPageToken() string {
+	return r.ListBucketsResponse.GetNextPageToken()
+}
 
 func (c bucketClient) Iterator(ctx context.Context, req *storage.ListBucketsRequest, opts ...grpc.CallOption) *iterator.Iterator[*storage.ListBucketsRequest, *storage.Bucket] {
 	return iterator.NewIterator[*storage.ListBucketsRequest, *storage.Bucket](ctx, req,
@@ -33,11 +36,14 @@ func (c bucketClient) Iterator(ctx context.Context, req *storage.ListBucketsRequ
 }
 
 type bucketServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r bucketServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r bucketServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c bucketClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

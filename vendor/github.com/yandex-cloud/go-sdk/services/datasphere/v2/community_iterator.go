@@ -16,11 +16,14 @@ type CommunityClientIterator interface {
 }
 
 type communityServiceListInternal struct {
-	*datasphere.ListCommunitiesResponse
+	ListCommunitiesResponse *datasphere.ListCommunitiesResponse
 }
 
 func (r communityServiceListInternal) Items() []*datasphere.Community {
 	return r.ListCommunitiesResponse.Communities
+}
+func (r communityServiceListInternal) GetNextPageToken() string {
+	return r.ListCommunitiesResponse.GetNextPageToken()
 }
 
 func (c communityClient) Iterator(ctx context.Context, req *datasphere.ListCommunitiesRequest, opts ...grpc.CallOption) *iterator.Iterator[*datasphere.ListCommunitiesRequest, *datasphere.Community] {
@@ -35,11 +38,14 @@ func (c communityClient) Iterator(ctx context.Context, req *datasphere.ListCommu
 }
 
 type communityServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r communityServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r communityServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c communityClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

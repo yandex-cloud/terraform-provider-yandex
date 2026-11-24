@@ -14,11 +14,14 @@ type ChangeFreezeClientIterator interface {
 }
 
 type changeFreezeServiceListInternal struct {
-	*maintenance.ListChangeFreezesResponse
+	ListChangeFreezesResponse *maintenance.ListChangeFreezesResponse
 }
 
 func (r changeFreezeServiceListInternal) Items() []*maintenance.ChangeFreeze {
 	return r.ListChangeFreezesResponse.ChangeFreezes
+}
+func (r changeFreezeServiceListInternal) GetNextPageToken() string {
+	return r.ListChangeFreezesResponse.GetNextPageToken()
 }
 
 func (c changeFreezeClient) Iterator(ctx context.Context, req *maintenance.ListChangeFreezesRequest, opts ...grpc.CallOption) *iterator.Iterator[*maintenance.ListChangeFreezesRequest, *maintenance.ChangeFreeze] {

@@ -17,7 +17,7 @@ type PrivateEndpointClientIterator interface {
 }
 
 type privateEndpointServiceListYandexCloudServicesInternal struct {
-	*privatelink.ListYandexCloudServicesResponse
+	ListYandexCloudServicesResponse *privatelink.ListYandexCloudServicesResponse
 }
 
 func (r privateEndpointServiceListYandexCloudServicesInternal) Items() []*privatelink.YandexCloudService {
@@ -36,11 +36,14 @@ func (c privateEndpointClient) YandexCloudServicesIterator(ctx context.Context, 
 }
 
 type privateEndpointServiceListInternal struct {
-	*privatelink.ListPrivateEndpointsResponse
+	ListPrivateEndpointsResponse *privatelink.ListPrivateEndpointsResponse
 }
 
 func (r privateEndpointServiceListInternal) Items() []*privatelink.PrivateEndpoint {
 	return r.ListPrivateEndpointsResponse.PrivateEndpoints
+}
+func (r privateEndpointServiceListInternal) GetNextPageToken() string {
+	return r.ListPrivateEndpointsResponse.GetNextPageToken()
 }
 
 func (c privateEndpointClient) Iterator(ctx context.Context, req *privatelink.ListPrivateEndpointsRequest, opts ...grpc.CallOption) *iterator.Iterator[*privatelink.ListPrivateEndpointsRequest, *privatelink.PrivateEndpoint] {
@@ -55,11 +58,14 @@ func (c privateEndpointClient) Iterator(ctx context.Context, req *privatelink.Li
 }
 
 type privateEndpointServiceListOperationsInternal struct {
-	*privatelink.ListPrivateEndpointOperationsResponse
+	ListPrivateEndpointOperationsResponse *privatelink.ListPrivateEndpointOperationsResponse
 }
 
 func (r privateEndpointServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListPrivateEndpointOperationsResponse.Operations
+}
+func (r privateEndpointServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListPrivateEndpointOperationsResponse.GetNextPageToken()
 }
 
 func (c privateEndpointClient) OperationsIterator(ctx context.Context, req *privatelink.ListPrivateEndpointOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*privatelink.ListPrivateEndpointOperationsRequest, *operation.Operation] {

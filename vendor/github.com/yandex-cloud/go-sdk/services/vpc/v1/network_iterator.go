@@ -19,10 +19,13 @@ type NetworkClientIterator interface {
 }
 
 type networkServiceListInternal struct {
-	*vpc.ListNetworksResponse
+	ListNetworksResponse *vpc.ListNetworksResponse
 }
 
 func (r networkServiceListInternal) Items() []*vpc.Network { return r.ListNetworksResponse.Networks }
+func (r networkServiceListInternal) GetNextPageToken() string {
+	return r.ListNetworksResponse.GetNextPageToken()
+}
 
 func (c networkClient) Iterator(ctx context.Context, req *vpc.ListNetworksRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListNetworksRequest, *vpc.Network] {
 	return iterator.NewIterator[*vpc.ListNetworksRequest, *vpc.Network](ctx, req,
@@ -36,11 +39,14 @@ func (c networkClient) Iterator(ctx context.Context, req *vpc.ListNetworksReques
 }
 
 type networkServiceListSubnetsInternal struct {
-	*vpc.ListNetworkSubnetsResponse
+	ListNetworkSubnetsResponse *vpc.ListNetworkSubnetsResponse
 }
 
 func (r networkServiceListSubnetsInternal) Items() []*vpc.Subnet {
 	return r.ListNetworkSubnetsResponse.Subnets
+}
+func (r networkServiceListSubnetsInternal) GetNextPageToken() string {
+	return r.ListNetworkSubnetsResponse.GetNextPageToken()
 }
 
 func (c networkClient) SubnetsIterator(ctx context.Context, req *vpc.ListNetworkSubnetsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListNetworkSubnetsRequest, *vpc.Subnet] {
@@ -55,11 +61,14 @@ func (c networkClient) SubnetsIterator(ctx context.Context, req *vpc.ListNetwork
 }
 
 type networkServiceListSecurityGroupsInternal struct {
-	*vpc.ListNetworkSecurityGroupsResponse
+	ListNetworkSecurityGroupsResponse *vpc.ListNetworkSecurityGroupsResponse
 }
 
 func (r networkServiceListSecurityGroupsInternal) Items() []*vpc.SecurityGroup {
 	return r.ListNetworkSecurityGroupsResponse.SecurityGroups
+}
+func (r networkServiceListSecurityGroupsInternal) GetNextPageToken() string {
+	return r.ListNetworkSecurityGroupsResponse.GetNextPageToken()
 }
 
 func (c networkClient) SecurityGroupsIterator(ctx context.Context, req *vpc.ListNetworkSecurityGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListNetworkSecurityGroupsRequest, *vpc.SecurityGroup] {
@@ -74,11 +83,14 @@ func (c networkClient) SecurityGroupsIterator(ctx context.Context, req *vpc.List
 }
 
 type networkServiceListRouteTablesInternal struct {
-	*vpc.ListNetworkRouteTablesResponse
+	ListNetworkRouteTablesResponse *vpc.ListNetworkRouteTablesResponse
 }
 
 func (r networkServiceListRouteTablesInternal) Items() []*vpc.RouteTable {
 	return r.ListNetworkRouteTablesResponse.RouteTables
+}
+func (r networkServiceListRouteTablesInternal) GetNextPageToken() string {
+	return r.ListNetworkRouteTablesResponse.GetNextPageToken()
 }
 
 func (c networkClient) RouteTablesIterator(ctx context.Context, req *vpc.ListNetworkRouteTablesRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListNetworkRouteTablesRequest, *vpc.RouteTable] {
@@ -93,11 +105,14 @@ func (c networkClient) RouteTablesIterator(ctx context.Context, req *vpc.ListNet
 }
 
 type networkServiceListOperationsInternal struct {
-	*vpc.ListNetworkOperationsResponse
+	ListNetworkOperationsResponse *vpc.ListNetworkOperationsResponse
 }
 
 func (r networkServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListNetworkOperationsResponse.Operations
+}
+func (r networkServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListNetworkOperationsResponse.GetNextPageToken()
 }
 
 func (c networkClient) OperationsIterator(ctx context.Context, req *vpc.ListNetworkOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListNetworkOperationsRequest, *operation.Operation] {

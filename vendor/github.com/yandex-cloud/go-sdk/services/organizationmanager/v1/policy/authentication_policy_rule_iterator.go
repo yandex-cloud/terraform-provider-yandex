@@ -14,11 +14,14 @@ type AuthenticationPolicyRuleClientIterator interface {
 }
 
 type authenticationPolicyRuleServiceListInternal struct {
-	*policy.ListRulesResponse
+	ListRulesResponse *policy.ListRulesResponse
 }
 
 func (r authenticationPolicyRuleServiceListInternal) Items() []*policy.AuthenticationPolicyRule {
 	return r.ListRulesResponse.AuthPolicyRules
+}
+func (r authenticationPolicyRuleServiceListInternal) GetNextPageToken() string {
+	return r.ListRulesResponse.GetNextPageToken()
 }
 
 func (c authenticationPolicyRuleClient) Iterator(ctx context.Context, req *policy.ListRulesRequest, opts ...grpc.CallOption) *iterator.Iterator[*policy.ListRulesRequest, *policy.AuthenticationPolicyRule] {

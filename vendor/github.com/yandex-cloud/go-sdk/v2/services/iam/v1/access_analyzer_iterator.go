@@ -14,11 +14,14 @@ type AccessAnalyzerClientIterator interface {
 }
 
 type accessAnalyzerServiceListSubjectAccessBindingsInternal struct {
-	*iam.ListSubjectAccessBindingsResponse
+	ListSubjectAccessBindingsResponse *iam.ListSubjectAccessBindingsResponse
 }
 
 func (r accessAnalyzerServiceListSubjectAccessBindingsInternal) Items() []*iam.SubjectAccessBinding {
 	return r.ListSubjectAccessBindingsResponse.SubjectAccessBindings
+}
+func (r accessAnalyzerServiceListSubjectAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListSubjectAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c accessAnalyzerClient) SubjectAccessBindingsIterator(ctx context.Context, req *iam.ListSubjectAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListSubjectAccessBindingsRequest, *iam.SubjectAccessBinding] {

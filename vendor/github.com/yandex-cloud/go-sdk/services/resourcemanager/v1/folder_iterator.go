@@ -19,11 +19,14 @@ type FolderClientIterator interface {
 }
 
 type folderServiceListInternal struct {
-	*resourcemanager.ListFoldersResponse
+	ListFoldersResponse *resourcemanager.ListFoldersResponse
 }
 
 func (r folderServiceListInternal) Items() []*resourcemanager.Folder {
 	return r.ListFoldersResponse.Folders
+}
+func (r folderServiceListInternal) GetNextPageToken() string {
+	return r.ListFoldersResponse.GetNextPageToken()
 }
 
 func (c folderClient) Iterator(ctx context.Context, req *resourcemanager.ListFoldersRequest, opts ...grpc.CallOption) *iterator.Iterator[*resourcemanager.ListFoldersRequest, *resourcemanager.Folder] {
@@ -38,11 +41,14 @@ func (c folderClient) Iterator(ctx context.Context, req *resourcemanager.ListFol
 }
 
 type folderServiceListOperationsInternal struct {
-	*resourcemanager.ListFolderOperationsResponse
+	ListFolderOperationsResponse *resourcemanager.ListFolderOperationsResponse
 }
 
 func (r folderServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListFolderOperationsResponse.Operations
+}
+func (r folderServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListFolderOperationsResponse.GetNextPageToken()
 }
 
 func (c folderClient) OperationsIterator(ctx context.Context, req *resourcemanager.ListFolderOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*resourcemanager.ListFolderOperationsRequest, *operation.Operation] {
@@ -57,11 +63,14 @@ func (c folderClient) OperationsIterator(ctx context.Context, req *resourcemanag
 }
 
 type folderServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r folderServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r folderServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c folderClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -76,11 +85,14 @@ func (c folderClient) AccessBindingsIterator(ctx context.Context, req *access.Li
 }
 
 type folderServiceListAccessPolicyBindingsInternal struct {
-	*access.ListAccessPolicyBindingsResponse
+	ListAccessPolicyBindingsResponse *access.ListAccessPolicyBindingsResponse
 }
 
 func (r folderServiceListAccessPolicyBindingsInternal) Items() []*access.AccessPolicyBinding {
 	return r.ListAccessPolicyBindingsResponse.AccessPolicyBindings
+}
+func (r folderServiceListAccessPolicyBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessPolicyBindingsResponse.GetNextPageToken()
 }
 
 func (c folderClient) AccessPolicyBindingsIterator(ctx context.Context, req *access.ListAccessPolicyBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessPolicyBindingsRequest, *access.AccessPolicyBinding] {

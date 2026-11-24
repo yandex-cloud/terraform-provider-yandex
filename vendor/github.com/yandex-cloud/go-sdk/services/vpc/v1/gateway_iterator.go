@@ -16,10 +16,13 @@ type GatewayClientIterator interface {
 }
 
 type gatewayServiceListInternal struct {
-	*vpc.ListGatewaysResponse
+	ListGatewaysResponse *vpc.ListGatewaysResponse
 }
 
 func (r gatewayServiceListInternal) Items() []*vpc.Gateway { return r.ListGatewaysResponse.Gateways }
+func (r gatewayServiceListInternal) GetNextPageToken() string {
+	return r.ListGatewaysResponse.GetNextPageToken()
+}
 
 func (c gatewayClient) Iterator(ctx context.Context, req *vpc.ListGatewaysRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListGatewaysRequest, *vpc.Gateway] {
 	return iterator.NewIterator[*vpc.ListGatewaysRequest, *vpc.Gateway](ctx, req,
@@ -33,11 +36,14 @@ func (c gatewayClient) Iterator(ctx context.Context, req *vpc.ListGatewaysReques
 }
 
 type gatewayServiceListOperationsInternal struct {
-	*vpc.ListGatewayOperationsResponse
+	ListGatewayOperationsResponse *vpc.ListGatewayOperationsResponse
 }
 
 func (r gatewayServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListGatewayOperationsResponse.Operations
+}
+func (r gatewayServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListGatewayOperationsResponse.GetNextPageToken()
 }
 
 func (c gatewayClient) OperationsIterator(ctx context.Context, req *vpc.ListGatewayOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListGatewayOperationsRequest, *operation.Operation] {

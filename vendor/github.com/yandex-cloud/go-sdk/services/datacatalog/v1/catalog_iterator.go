@@ -14,11 +14,14 @@ type CatalogClientIterator interface {
 }
 
 type catalogServiceListCatalogsInternal struct {
-	*datacatalog.ListCatalogsResponse
+	ListCatalogsResponse *datacatalog.ListCatalogsResponse
 }
 
 func (r catalogServiceListCatalogsInternal) Items() []*datacatalog.Catalog {
 	return r.ListCatalogsResponse.Catalogs
+}
+func (r catalogServiceListCatalogsInternal) GetNextPageToken() string {
+	return r.ListCatalogsResponse.GetNextPageToken()
 }
 
 func (c catalogClient) CatalogsIterator(ctx context.Context, req *datacatalog.ListCatalogsRequest, opts ...grpc.CallOption) *iterator.Iterator[*datacatalog.ListCatalogsRequest, *datacatalog.Catalog] {

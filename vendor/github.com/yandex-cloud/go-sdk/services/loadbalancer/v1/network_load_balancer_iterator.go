@@ -16,11 +16,14 @@ type NetworkLoadBalancerClientIterator interface {
 }
 
 type networkLoadBalancerServiceListInternal struct {
-	*loadbalancer.ListNetworkLoadBalancersResponse
+	ListNetworkLoadBalancersResponse *loadbalancer.ListNetworkLoadBalancersResponse
 }
 
 func (r networkLoadBalancerServiceListInternal) Items() []*loadbalancer.NetworkLoadBalancer {
 	return r.ListNetworkLoadBalancersResponse.NetworkLoadBalancers
+}
+func (r networkLoadBalancerServiceListInternal) GetNextPageToken() string {
+	return r.ListNetworkLoadBalancersResponse.GetNextPageToken()
 }
 
 func (c networkLoadBalancerClient) Iterator(ctx context.Context, req *loadbalancer.ListNetworkLoadBalancersRequest, opts ...grpc.CallOption) *iterator.Iterator[*loadbalancer.ListNetworkLoadBalancersRequest, *loadbalancer.NetworkLoadBalancer] {
@@ -35,11 +38,14 @@ func (c networkLoadBalancerClient) Iterator(ctx context.Context, req *loadbalanc
 }
 
 type networkLoadBalancerServiceListOperationsInternal struct {
-	*loadbalancer.ListNetworkLoadBalancerOperationsResponse
+	ListNetworkLoadBalancerOperationsResponse *loadbalancer.ListNetworkLoadBalancerOperationsResponse
 }
 
 func (r networkLoadBalancerServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListNetworkLoadBalancerOperationsResponse.Operations
+}
+func (r networkLoadBalancerServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListNetworkLoadBalancerOperationsResponse.GetNextPageToken()
 }
 
 func (c networkLoadBalancerClient) OperationsIterator(ctx context.Context, req *loadbalancer.ListNetworkLoadBalancerOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*loadbalancer.ListNetworkLoadBalancerOperationsRequest, *operation.Operation] {

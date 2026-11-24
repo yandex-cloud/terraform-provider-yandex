@@ -14,10 +14,13 @@ type ZoneClientIterator interface {
 }
 
 type zoneServiceListInternal struct {
-	*compute.ListZonesResponse
+	ListZonesResponse *compute.ListZonesResponse
 }
 
 func (r zoneServiceListInternal) Items() []*compute.Zone { return r.ListZonesResponse.Zones }
+func (r zoneServiceListInternal) GetNextPageToken() string {
+	return r.ListZonesResponse.GetNextPageToken()
+}
 
 func (c zoneClient) Iterator(ctx context.Context, req *compute.ListZonesRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListZonesRequest, *compute.Zone] {
 	return iterator.NewIterator[*compute.ListZonesRequest, *compute.Zone](ctx, req,

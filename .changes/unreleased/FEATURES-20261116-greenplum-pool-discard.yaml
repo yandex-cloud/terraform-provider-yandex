@@ -1,3 +1,0 @@
-kind: FEATURES
-body: 'greenplum: support pool_discard in mdb_greenplum_cluster and mdb_greenplum_cluster_v2 resources and expose its effective value in their data sources'
-time: 2026-11-16T11:50:49+03:00

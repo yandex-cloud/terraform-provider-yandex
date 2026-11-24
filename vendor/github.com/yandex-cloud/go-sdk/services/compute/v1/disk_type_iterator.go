@@ -14,11 +14,14 @@ type DiskTypeClientIterator interface {
 }
 
 type diskTypeServiceListInternal struct {
-	*compute.ListDiskTypesResponse
+	ListDiskTypesResponse *compute.ListDiskTypesResponse
 }
 
 func (r diskTypeServiceListInternal) Items() []*compute.DiskType {
 	return r.ListDiskTypesResponse.DiskTypes
+}
+func (r diskTypeServiceListInternal) GetNextPageToken() string {
+	return r.ListDiskTypesResponse.GetNextPageToken()
 }
 
 func (c diskTypeClient) Iterator(ctx context.Context, req *compute.ListDiskTypesRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListDiskTypesRequest, *compute.DiskType] {

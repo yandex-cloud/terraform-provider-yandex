@@ -19,10 +19,13 @@ type DnsZoneClientIterator interface {
 }
 
 type dnsZoneServiceListInternal struct {
-	*dns.ListDnsZonesResponse
+	ListDnsZonesResponse *dns.ListDnsZonesResponse
 }
 
 func (r dnsZoneServiceListInternal) Items() []*dns.DnsZone { return r.ListDnsZonesResponse.DnsZones }
+func (r dnsZoneServiceListInternal) GetNextPageToken() string {
+	return r.ListDnsZonesResponse.GetNextPageToken()
+}
 
 func (c dnsZoneClient) Iterator(ctx context.Context, req *dns.ListDnsZonesRequest, opts ...grpc.CallOption) *iterator.Iterator[*dns.ListDnsZonesRequest, *dns.DnsZone] {
 	return iterator.NewIterator[*dns.ListDnsZonesRequest, *dns.DnsZone](ctx, req,
@@ -36,11 +39,14 @@ func (c dnsZoneClient) Iterator(ctx context.Context, req *dns.ListDnsZonesReques
 }
 
 type dnsZoneServiceListRecordSetsInternal struct {
-	*dns.ListDnsZoneRecordSetsResponse
+	ListDnsZoneRecordSetsResponse *dns.ListDnsZoneRecordSetsResponse
 }
 
 func (r dnsZoneServiceListRecordSetsInternal) Items() []*dns.RecordSet {
 	return r.ListDnsZoneRecordSetsResponse.RecordSets
+}
+func (r dnsZoneServiceListRecordSetsInternal) GetNextPageToken() string {
+	return r.ListDnsZoneRecordSetsResponse.GetNextPageToken()
 }
 
 func (c dnsZoneClient) RecordSetsIterator(ctx context.Context, req *dns.ListDnsZoneRecordSetsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dns.ListDnsZoneRecordSetsRequest, *dns.RecordSet] {
@@ -55,11 +61,14 @@ func (c dnsZoneClient) RecordSetsIterator(ctx context.Context, req *dns.ListDnsZ
 }
 
 type dnsZoneServiceListOperationsInternal struct {
-	*dns.ListDnsZoneOperationsResponse
+	ListDnsZoneOperationsResponse *dns.ListDnsZoneOperationsResponse
 }
 
 func (r dnsZoneServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListDnsZoneOperationsResponse.Operations
+}
+func (r dnsZoneServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListDnsZoneOperationsResponse.GetNextPageToken()
 }
 
 func (c dnsZoneClient) OperationsIterator(ctx context.Context, req *dns.ListDnsZoneOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dns.ListDnsZoneOperationsRequest, *operation.Operation] {
@@ -74,11 +83,14 @@ func (c dnsZoneClient) OperationsIterator(ctx context.Context, req *dns.ListDnsZ
 }
 
 type dnsZoneServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r dnsZoneServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r dnsZoneServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c dnsZoneClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

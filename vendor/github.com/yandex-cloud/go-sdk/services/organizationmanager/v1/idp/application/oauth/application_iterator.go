@@ -19,11 +19,14 @@ type ApplicationClientIterator interface {
 }
 
 type applicationServiceListInternal struct {
-	*oauth.ListApplicationsResponse
+	ListApplicationsResponse *oauth.ListApplicationsResponse
 }
 
 func (r applicationServiceListInternal) Items() []*oauth.Application {
 	return r.ListApplicationsResponse.Applications
+}
+func (r applicationServiceListInternal) GetNextPageToken() string {
+	return r.ListApplicationsResponse.GetNextPageToken()
 }
 
 func (c applicationClient) Iterator(ctx context.Context, req *oauth.ListApplicationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*oauth.ListApplicationsRequest, *oauth.Application] {
@@ -38,11 +41,14 @@ func (c applicationClient) Iterator(ctx context.Context, req *oauth.ListApplicat
 }
 
 type applicationServiceListOperationsInternal struct {
-	*oauth.ListApplicationOperationsResponse
+	ListApplicationOperationsResponse *oauth.ListApplicationOperationsResponse
 }
 
 func (r applicationServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListApplicationOperationsResponse.Operations
+}
+func (r applicationServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListApplicationOperationsResponse.GetNextPageToken()
 }
 
 func (c applicationClient) OperationsIterator(ctx context.Context, req *oauth.ListApplicationOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*oauth.ListApplicationOperationsRequest, *operation.Operation] {
@@ -57,11 +63,14 @@ func (c applicationClient) OperationsIterator(ctx context.Context, req *oauth.Li
 }
 
 type applicationServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r applicationServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r applicationServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c applicationClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -76,11 +85,14 @@ func (c applicationClient) AccessBindingsIterator(ctx context.Context, req *acce
 }
 
 type applicationServiceListAssignmentsInternal struct {
-	*oauth.ListAssignmentsResponse
+	ListAssignmentsResponse *oauth.ListAssignmentsResponse
 }
 
 func (r applicationServiceListAssignmentsInternal) Items() []*oauth.Assignment {
 	return r.ListAssignmentsResponse.Assignments
+}
+func (r applicationServiceListAssignmentsInternal) GetNextPageToken() string {
+	return r.ListAssignmentsResponse.GetNextPageToken()
 }
 
 func (c applicationClient) AssignmentsIterator(ctx context.Context, req *oauth.ListAssignmentsRequest, opts ...grpc.CallOption) *iterator.Iterator[*oauth.ListAssignmentsRequest, *oauth.Assignment] {

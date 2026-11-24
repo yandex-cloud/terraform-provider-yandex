@@ -15,7 +15,7 @@ type PolicyClientIterator interface {
 }
 
 type policyServiceListInternal struct {
-	*backup.ListPoliciesResponse
+	ListPoliciesResponse *backup.ListPoliciesResponse
 }
 
 func (r policyServiceListInternal) Items() []*backup.Policy { return r.ListPoliciesResponse.Policies }
@@ -32,7 +32,7 @@ func (c policyClient) Iterator(ctx context.Context, req *backup.ListPoliciesRequ
 }
 
 type policyServiceListApplicationsInternal struct {
-	*backup.ListApplicationsResponse
+	ListApplicationsResponse *backup.ListApplicationsResponse
 }
 
 func (r policyServiceListApplicationsInternal) Items() []*backup.PolicyApplication {

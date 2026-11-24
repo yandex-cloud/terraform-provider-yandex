@@ -18,11 +18,14 @@ type WorkflowClientIterator interface {
 }
 
 type workflowServiceListInternal struct {
-	*workflows.ListWorkflowsResponse
+	ListWorkflowsResponse *workflows.ListWorkflowsResponse
 }
 
 func (r workflowServiceListInternal) Items() []*workflows.WorkflowPreview {
 	return r.ListWorkflowsResponse.Workflows
+}
+func (r workflowServiceListInternal) GetNextPageToken() string {
+	return r.ListWorkflowsResponse.GetNextPageToken()
 }
 
 func (c workflowClient) Iterator(ctx context.Context, req *workflows.ListWorkflowsRequest, opts ...grpc.CallOption) *iterator.Iterator[*workflows.ListWorkflowsRequest, *workflows.WorkflowPreview] {
@@ -37,11 +40,14 @@ func (c workflowClient) Iterator(ctx context.Context, req *workflows.ListWorkflo
 }
 
 type workflowServiceListOperationsInternal struct {
-	*workflows.ListOperationsResponse
+	ListOperationsResponse *workflows.ListOperationsResponse
 }
 
 func (r workflowServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListOperationsResponse.Operations
+}
+func (r workflowServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListOperationsResponse.GetNextPageToken()
 }
 
 func (c workflowClient) OperationsIterator(ctx context.Context, req *workflows.ListOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*workflows.ListOperationsRequest, *operation.Operation] {
@@ -56,11 +62,14 @@ func (c workflowClient) OperationsIterator(ctx context.Context, req *workflows.L
 }
 
 type workflowServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r workflowServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r workflowServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c workflowClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

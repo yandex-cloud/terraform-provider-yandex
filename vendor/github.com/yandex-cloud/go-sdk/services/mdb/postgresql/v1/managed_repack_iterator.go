@@ -14,7 +14,7 @@ type ManagedRepackClientIterator interface {
 }
 
 type managedRepackServiceListRunningRepacksInternal struct {
-	*postgresql.ListRunningRepacksResponse
+	ListRunningRepacksResponse *postgresql.ListRunningRepacksResponse
 }
 
 func (r managedRepackServiceListRunningRepacksInternal) Items() []*postgresql.RunningRepack {

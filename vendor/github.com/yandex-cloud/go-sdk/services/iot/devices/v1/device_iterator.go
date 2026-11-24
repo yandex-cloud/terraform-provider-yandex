@@ -18,10 +18,13 @@ type DeviceClientIterator interface {
 }
 
 type deviceServiceListInternal struct {
-	*devices.ListDevicesResponse
+	ListDevicesResponse *devices.ListDevicesResponse
 }
 
 func (r deviceServiceListInternal) Items() []*devices.Device { return r.ListDevicesResponse.Devices }
+func (r deviceServiceListInternal) GetNextPageToken() string {
+	return r.ListDevicesResponse.GetNextPageToken()
+}
 
 func (c deviceClient) Iterator(ctx context.Context, req *devices.ListDevicesRequest, opts ...grpc.CallOption) *iterator.Iterator[*devices.ListDevicesRequest, *devices.Device] {
 	return iterator.NewIterator[*devices.ListDevicesRequest, *devices.Device](ctx, req,
@@ -35,7 +38,7 @@ func (c deviceClient) Iterator(ctx context.Context, req *devices.ListDevicesRequ
 }
 
 type deviceServiceListCertificatesInternal struct {
-	*devices.ListDeviceCertificatesResponse
+	ListDeviceCertificatesResponse *devices.ListDeviceCertificatesResponse
 }
 
 func (r deviceServiceListCertificatesInternal) Items() []*devices.DeviceCertificate {
@@ -54,7 +57,7 @@ func (c deviceClient) CertificatesIterator(ctx context.Context, req *devices.Lis
 }
 
 type deviceServiceListPasswordsInternal struct {
-	*devices.ListDevicePasswordsResponse
+	ListDevicePasswordsResponse *devices.ListDevicePasswordsResponse
 }
 
 func (r deviceServiceListPasswordsInternal) Items() []*devices.DevicePassword {
@@ -73,11 +76,14 @@ func (c deviceClient) PasswordsIterator(ctx context.Context, req *devices.ListDe
 }
 
 type deviceServiceListOperationsInternal struct {
-	*devices.ListDeviceOperationsResponse
+	ListDeviceOperationsResponse *devices.ListDeviceOperationsResponse
 }
 
 func (r deviceServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListDeviceOperationsResponse.Operations
+}
+func (r deviceServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListDeviceOperationsResponse.GetNextPageToken()
 }
 
 func (c deviceClient) OperationsIterator(ctx context.Context, req *devices.ListDeviceOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*devices.ListDeviceOperationsRequest, *operation.Operation] {

@@ -34,6 +34,7 @@ type yandexComputeReservedInstancePoolDatasourceModel struct {
 	ResourcesSpec          types.Object   `tfsdk:"resources_spec"`
 	Size                   types.Int64    `tfsdk:"size"`
 	SlotStats              types.Object   `tfsdk:"slot_stats"`
+	Status                 types.String   `tfsdk:"status"`
 	Zone                   types.String   `tfsdk:"zone"`
 	Timeouts               timeouts.Value `tfsdk:"timeouts"`
 }
@@ -94,6 +95,9 @@ func (m *yandexComputeReservedInstancePoolDatasourceModel) GetSize() types.Int64
 }
 func (m *yandexComputeReservedInstancePoolDatasourceModel) GetSlotStats() types.Object {
 	return m.SlotStats
+}
+func (m *yandexComputeReservedInstancePoolDatasourceModel) GetStatus() types.String {
+	return m.Status
 }
 func (m *yandexComputeReservedInstancePoolDatasourceModel) GetZone() types.String {
 	return m.Zone
@@ -156,6 +160,9 @@ func (m *yandexComputeReservedInstancePoolDatasourceModel) SetSize(target types.
 func (m *yandexComputeReservedInstancePoolDatasourceModel) SetSlotStats(target types.Object) {
 	m.SlotStats = target
 }
+func (m *yandexComputeReservedInstancePoolDatasourceModel) SetStatus(target types.String) {
+	m.Status = target
+}
 func (m *yandexComputeReservedInstancePoolDatasourceModel) SetZone(target types.String) {
 	m.Zone = target
 }
@@ -181,6 +188,7 @@ func NewYandexComputeReservedInstancePoolDatasourceModel() yandexComputeReserved
 		ResourcesSpec:          types.ObjectNull(yandexComputeReservedInstancePoolResourcesSpecModelType.AttrTypes),
 		Size:                   types.Int64Null(),
 		SlotStats:              types.ObjectNull(yandexComputeReservedInstancePoolSlotStatsModelType.AttrTypes),
+		Status:                 types.StringNull(),
 		Zone:                   types.StringNull(),
 	}
 }
@@ -243,6 +251,9 @@ func yandexComputeReservedInstancePoolDatasourceModelFillUnknown(target yandexCo
 	if target.SlotStats.IsUnknown() || target.SlotStats.IsNull() {
 		target.SlotStats = types.ObjectNull(yandexComputeReservedInstancePoolSlotStatsModelType.AttrTypes)
 	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
 	if target.Zone.IsUnknown() || target.Zone.IsNull() {
 		target.Zone = types.StringNull()
 	}
@@ -270,6 +281,7 @@ var yandexComputeReservedInstancePoolDatasourceModelType = types.ObjectType{
 		"resources_spec":            yandexComputeReservedInstancePoolResourcesSpecModelType,
 		"size":                      types.Int64Type,
 		"slot_stats":                yandexComputeReservedInstancePoolSlotStatsModelType,
+		"status":                    types.StringType,
 		"zone":                      types.StringType,
 		"timeouts":                  timeouts.AttributesAll(context.Background()).GetType(),
 	},
@@ -303,6 +315,7 @@ func flattenYandexComputeReservedInstancePoolDatasource(ctx context.Context,
 		ResourcesSpec:          flattenYandexComputeReservedInstancePoolResourcesSpec(ctx, yandexComputeReservedInstancePoolDatasource.GetResourcesSpec(), diags),
 		Size:                   types.Int64Value(int64(yandexComputeReservedInstancePoolDatasource.GetSize())),
 		SlotStats:              flattenYandexComputeReservedInstancePoolSlotStats(ctx, yandexComputeReservedInstancePoolDatasource.GetSlotStats(), diags),
+		Status:                 types.StringValue(yandexComputeReservedInstancePoolDatasource.GetStatus().String()),
 		Zone:                   types.StringValue(yandexComputeReservedInstancePoolDatasource.GetZoneId()),
 		Timeouts:               to,
 	})

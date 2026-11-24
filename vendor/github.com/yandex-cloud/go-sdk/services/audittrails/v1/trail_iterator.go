@@ -18,10 +18,13 @@ type TrailClientIterator interface {
 }
 
 type trailServiceListInternal struct {
-	*audittrails.ListTrailsResponse
+	ListTrailsResponse *audittrails.ListTrailsResponse
 }
 
 func (r trailServiceListInternal) Items() []*audittrails.Trail { return r.ListTrailsResponse.Trails }
+func (r trailServiceListInternal) GetNextPageToken() string {
+	return r.ListTrailsResponse.GetNextPageToken()
+}
 
 func (c trailClient) Iterator(ctx context.Context, req *audittrails.ListTrailsRequest, opts ...grpc.CallOption) *iterator.Iterator[*audittrails.ListTrailsRequest, *audittrails.Trail] {
 	return iterator.NewIterator[*audittrails.ListTrailsRequest, *audittrails.Trail](ctx, req,
@@ -35,11 +38,14 @@ func (c trailClient) Iterator(ctx context.Context, req *audittrails.ListTrailsRe
 }
 
 type trailServiceListOperationsInternal struct {
-	*audittrails.ListTrailOperationsResponse
+	ListTrailOperationsResponse *audittrails.ListTrailOperationsResponse
 }
 
 func (r trailServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListTrailOperationsResponse.Operations
+}
+func (r trailServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListTrailOperationsResponse.GetNextPageToken()
 }
 
 func (c trailClient) OperationsIterator(ctx context.Context, req *audittrails.ListTrailOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*audittrails.ListTrailOperationsRequest, *operation.Operation] {
@@ -54,11 +60,14 @@ func (c trailClient) OperationsIterator(ctx context.Context, req *audittrails.Li
 }
 
 type trailServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r trailServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r trailServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c trailClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

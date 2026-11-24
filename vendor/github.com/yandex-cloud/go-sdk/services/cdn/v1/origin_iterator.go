@@ -14,7 +14,7 @@ type OriginClientIterator interface {
 }
 
 type originServiceListInternal struct {
-	*cdn.ListOriginsResponse
+	ListOriginsResponse *cdn.ListOriginsResponse
 }
 
 func (r originServiceListInternal) Items() []*cdn.Origin { return r.ListOriginsResponse.Origins }

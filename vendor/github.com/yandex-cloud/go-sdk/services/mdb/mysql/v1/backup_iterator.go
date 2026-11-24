@@ -14,10 +14,13 @@ type BackupClientIterator interface {
 }
 
 type backupServiceListInternal struct {
-	*mysql.ListBackupsResponse
+	ListBackupsResponse *mysql.ListBackupsResponse
 }
 
 func (r backupServiceListInternal) Items() []*mysql.Backup { return r.ListBackupsResponse.Backups }
+func (r backupServiceListInternal) GetNextPageToken() string {
+	return r.ListBackupsResponse.GetNextPageToken()
+}
 
 func (c backupClient) Iterator(ctx context.Context, req *mysql.ListBackupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListBackupsRequest, *mysql.Backup] {
 	return iterator.NewIterator[*mysql.ListBackupsRequest, *mysql.Backup](ctx, req,

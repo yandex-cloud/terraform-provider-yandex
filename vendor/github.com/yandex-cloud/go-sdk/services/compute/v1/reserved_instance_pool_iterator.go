@@ -19,11 +19,14 @@ type ReservedInstancePoolClientIterator interface {
 }
 
 type reservedInstancePoolServiceListInternal struct {
-	*compute.ListReservedInstancePoolsResponse
+	ListReservedInstancePoolsResponse *compute.ListReservedInstancePoolsResponse
 }
 
 func (r reservedInstancePoolServiceListInternal) Items() []*compute.ReservedInstancePool {
 	return r.ListReservedInstancePoolsResponse.ReservedInstancePools
+}
+func (r reservedInstancePoolServiceListInternal) GetNextPageToken() string {
+	return r.ListReservedInstancePoolsResponse.GetNextPageToken()
 }
 
 func (c reservedInstancePoolClient) Iterator(ctx context.Context, req *compute.ListReservedInstancePoolsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListReservedInstancePoolsRequest, *compute.ReservedInstancePool] {
@@ -38,11 +41,14 @@ func (c reservedInstancePoolClient) Iterator(ctx context.Context, req *compute.L
 }
 
 type reservedInstancePoolServiceListOperationsInternal struct {
-	*compute.ListReservedInstancePoolOperationsResponse
+	ListReservedInstancePoolOperationsResponse *compute.ListReservedInstancePoolOperationsResponse
 }
 
 func (r reservedInstancePoolServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListReservedInstancePoolOperationsResponse.Operations
+}
+func (r reservedInstancePoolServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListReservedInstancePoolOperationsResponse.GetNextPageToken()
 }
 
 func (c reservedInstancePoolClient) OperationsIterator(ctx context.Context, req *compute.ListReservedInstancePoolOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListReservedInstancePoolOperationsRequest, *operation.Operation] {
@@ -57,11 +63,14 @@ func (c reservedInstancePoolClient) OperationsIterator(ctx context.Context, req 
 }
 
 type reservedInstancePoolServiceListInstancesInternal struct {
-	*compute.ListReservedInstancePoolInstancesResponse
+	ListReservedInstancePoolInstancesResponse *compute.ListReservedInstancePoolInstancesResponse
 }
 
 func (r reservedInstancePoolServiceListInstancesInternal) Items() []*compute.Instance {
 	return r.ListReservedInstancePoolInstancesResponse.Instances
+}
+func (r reservedInstancePoolServiceListInstancesInternal) GetNextPageToken() string {
+	return r.ListReservedInstancePoolInstancesResponse.GetNextPageToken()
 }
 
 func (c reservedInstancePoolClient) InstancesIterator(ctx context.Context, req *compute.ListReservedInstancePoolInstancesRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListReservedInstancePoolInstancesRequest, *compute.Instance] {
@@ -76,11 +85,14 @@ func (c reservedInstancePoolClient) InstancesIterator(ctx context.Context, req *
 }
 
 type reservedInstancePoolServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r reservedInstancePoolServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r reservedInstancePoolServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c reservedInstancePoolClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

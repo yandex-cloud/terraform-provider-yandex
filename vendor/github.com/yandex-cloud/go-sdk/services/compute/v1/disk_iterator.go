@@ -19,10 +19,13 @@ type DiskClientIterator interface {
 }
 
 type diskServiceListInternal struct {
-	*compute.ListDisksResponse
+	ListDisksResponse *compute.ListDisksResponse
 }
 
 func (r diskServiceListInternal) Items() []*compute.Disk { return r.ListDisksResponse.Disks }
+func (r diskServiceListInternal) GetNextPageToken() string {
+	return r.ListDisksResponse.GetNextPageToken()
+}
 
 func (c diskClient) Iterator(ctx context.Context, req *compute.ListDisksRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListDisksRequest, *compute.Disk] {
 	return iterator.NewIterator[*compute.ListDisksRequest, *compute.Disk](ctx, req,
@@ -36,11 +39,14 @@ func (c diskClient) Iterator(ctx context.Context, req *compute.ListDisksRequest,
 }
 
 type diskServiceListOperationsInternal struct {
-	*compute.ListDiskOperationsResponse
+	ListDiskOperationsResponse *compute.ListDiskOperationsResponse
 }
 
 func (r diskServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListDiskOperationsResponse.Operations
+}
+func (r diskServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListDiskOperationsResponse.GetNextPageToken()
 }
 
 func (c diskClient) OperationsIterator(ctx context.Context, req *compute.ListDiskOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListDiskOperationsRequest, *operation.Operation] {
@@ -55,11 +61,14 @@ func (c diskClient) OperationsIterator(ctx context.Context, req *compute.ListDis
 }
 
 type diskServiceListSnapshotSchedulesInternal struct {
-	*compute.ListDiskSnapshotSchedulesResponse
+	ListDiskSnapshotSchedulesResponse *compute.ListDiskSnapshotSchedulesResponse
 }
 
 func (r diskServiceListSnapshotSchedulesInternal) Items() []*compute.SnapshotSchedule {
 	return r.ListDiskSnapshotSchedulesResponse.SnapshotSchedules
+}
+func (r diskServiceListSnapshotSchedulesInternal) GetNextPageToken() string {
+	return r.ListDiskSnapshotSchedulesResponse.GetNextPageToken()
 }
 
 func (c diskClient) SnapshotSchedulesIterator(ctx context.Context, req *compute.ListDiskSnapshotSchedulesRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListDiskSnapshotSchedulesRequest, *compute.SnapshotSchedule] {
@@ -74,11 +83,14 @@ func (c diskClient) SnapshotSchedulesIterator(ctx context.Context, req *compute.
 }
 
 type diskServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r diskServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r diskServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c diskClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

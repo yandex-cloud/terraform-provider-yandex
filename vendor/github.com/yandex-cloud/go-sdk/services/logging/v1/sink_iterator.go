@@ -18,10 +18,13 @@ type SinkClientIterator interface {
 }
 
 type sinkServiceListInternal struct {
-	*logging.ListSinksResponse
+	ListSinksResponse *logging.ListSinksResponse
 }
 
 func (r sinkServiceListInternal) Items() []*logging.Sink { return r.ListSinksResponse.Sinks }
+func (r sinkServiceListInternal) GetNextPageToken() string {
+	return r.ListSinksResponse.GetNextPageToken()
+}
 
 func (c sinkClient) Iterator(ctx context.Context, req *logging.ListSinksRequest, opts ...grpc.CallOption) *iterator.Iterator[*logging.ListSinksRequest, *logging.Sink] {
 	return iterator.NewIterator[*logging.ListSinksRequest, *logging.Sink](ctx, req,
@@ -35,11 +38,14 @@ func (c sinkClient) Iterator(ctx context.Context, req *logging.ListSinksRequest,
 }
 
 type sinkServiceListOperationsInternal struct {
-	*logging.ListSinkOperationsResponse
+	ListSinkOperationsResponse *logging.ListSinkOperationsResponse
 }
 
 func (r sinkServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListSinkOperationsResponse.Operations
+}
+func (r sinkServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListSinkOperationsResponse.GetNextPageToken()
 }
 
 func (c sinkClient) OperationsIterator(ctx context.Context, req *logging.ListSinkOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*logging.ListSinkOperationsRequest, *operation.Operation] {
@@ -54,11 +60,14 @@ func (c sinkClient) OperationsIterator(ctx context.Context, req *logging.ListSin
 }
 
 type sinkServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r sinkServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r sinkServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c sinkClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

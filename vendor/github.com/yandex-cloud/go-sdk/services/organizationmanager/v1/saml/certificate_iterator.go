@@ -16,11 +16,14 @@ type CertificateClientIterator interface {
 }
 
 type certificateServiceListInternal struct {
-	*saml.ListCertificatesResponse
+	ListCertificatesResponse *saml.ListCertificatesResponse
 }
 
 func (r certificateServiceListInternal) Items() []*saml.Certificate {
 	return r.ListCertificatesResponse.Certificates
+}
+func (r certificateServiceListInternal) GetNextPageToken() string {
+	return r.ListCertificatesResponse.GetNextPageToken()
 }
 
 func (c certificateClient) Iterator(ctx context.Context, req *saml.ListCertificatesRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListCertificatesRequest, *saml.Certificate] {
@@ -35,11 +38,14 @@ func (c certificateClient) Iterator(ctx context.Context, req *saml.ListCertifica
 }
 
 type certificateServiceListOperationsInternal struct {
-	*saml.ListCertificateOperationsResponse
+	ListCertificateOperationsResponse *saml.ListCertificateOperationsResponse
 }
 
 func (r certificateServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListCertificateOperationsResponse.Operations
+}
+func (r certificateServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListCertificateOperationsResponse.GetNextPageToken()
 }
 
 func (c certificateClient) OperationsIterator(ctx context.Context, req *saml.ListCertificateOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListCertificateOperationsRequest, *operation.Operation] {

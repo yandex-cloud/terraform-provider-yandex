@@ -14,7 +14,7 @@ type ResourceRulesClientIterator interface {
 }
 
 type resourceRulesServiceListInternal struct {
-	*cdn.ListResourceRulesResponse
+	ListResourceRulesResponse *cdn.ListResourceRulesResponse
 }
 
 func (r resourceRulesServiceListInternal) Items() []*cdn.Rule {

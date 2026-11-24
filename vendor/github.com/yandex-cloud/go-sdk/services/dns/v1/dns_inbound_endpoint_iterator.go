@@ -18,11 +18,14 @@ type DnsInboundEndpointClientIterator interface {
 }
 
 type dnsInboundEndpointServiceListInternal struct {
-	*dns.ListDnsInboundEndpointsResponse
+	ListDnsInboundEndpointsResponse *dns.ListDnsInboundEndpointsResponse
 }
 
 func (r dnsInboundEndpointServiceListInternal) Items() []*dns.DnsInboundEndpoint {
 	return r.ListDnsInboundEndpointsResponse.Endpoints
+}
+func (r dnsInboundEndpointServiceListInternal) GetNextPageToken() string {
+	return r.ListDnsInboundEndpointsResponse.GetNextPageToken()
 }
 
 func (c dnsInboundEndpointClient) Iterator(ctx context.Context, req *dns.ListDnsInboundEndpointsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dns.ListDnsInboundEndpointsRequest, *dns.DnsInboundEndpoint] {
@@ -37,11 +40,14 @@ func (c dnsInboundEndpointClient) Iterator(ctx context.Context, req *dns.ListDns
 }
 
 type dnsInboundEndpointServiceListOperationsInternal struct {
-	*dns.ListDnsInboundEndpointOperationsResponse
+	ListDnsInboundEndpointOperationsResponse *dns.ListDnsInboundEndpointOperationsResponse
 }
 
 func (r dnsInboundEndpointServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListDnsInboundEndpointOperationsResponse.Operations
+}
+func (r dnsInboundEndpointServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListDnsInboundEndpointOperationsResponse.GetNextPageToken()
 }
 
 func (c dnsInboundEndpointClient) OperationsIterator(ctx context.Context, req *dns.ListDnsInboundEndpointOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dns.ListDnsInboundEndpointOperationsRequest, *operation.Operation] {
@@ -56,11 +62,14 @@ func (c dnsInboundEndpointClient) OperationsIterator(ctx context.Context, req *d
 }
 
 type dnsInboundEndpointServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r dnsInboundEndpointServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r dnsInboundEndpointServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c dnsInboundEndpointClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

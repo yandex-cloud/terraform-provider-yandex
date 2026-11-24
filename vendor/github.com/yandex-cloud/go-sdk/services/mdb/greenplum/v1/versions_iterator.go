@@ -15,10 +15,13 @@ type VersionsClientIterator interface {
 }
 
 type versionsServiceListInternal struct {
-	*greenplum.ListVersionsResponse
+	ListVersionsResponse *greenplum.ListVersionsResponse
 }
 
 func (r versionsServiceListInternal) Items() []*mdb.Version { return r.ListVersionsResponse.Version }
+func (r versionsServiceListInternal) GetNextPageToken() string {
+	return r.ListVersionsResponse.GetNextPageToken()
+}
 
 func (c versionsClient) Iterator(ctx context.Context, req *greenplum.ListVersionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*greenplum.ListVersionsRequest, *mdb.Version] {
 	return iterator.NewIterator[*greenplum.ListVersionsRequest, *mdb.Version](ctx, req,

@@ -14,7 +14,7 @@ type ResourceGroupClientIterator interface {
 }
 
 type resourceGroupServiceListInternal struct {
-	*greenplum.ListResourceGroupsResponse
+	ListResourceGroupsResponse *greenplum.ListResourceGroupsResponse
 }
 
 func (r resourceGroupServiceListInternal) Items() []*greenplum.ResourceGroup {

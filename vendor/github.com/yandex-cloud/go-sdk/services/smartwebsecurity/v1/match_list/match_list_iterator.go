@@ -14,7 +14,7 @@ type MatchListClientIterator interface {
 }
 
 type matchListServiceListInternal struct {
-	*match_list.ListMatchListsResponse
+	ListMatchListsResponse *match_list.ListMatchListsResponse
 }
 
 func (r matchListServiceListInternal) Items() []*match_list.MatchList {

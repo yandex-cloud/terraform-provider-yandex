@@ -14,11 +14,14 @@ type ExtensionClientIterator interface {
 }
 
 type extensionServiceListInternal struct {
-	*clickhouse.ListExtensionsResponse
+	ListExtensionsResponse *clickhouse.ListExtensionsResponse
 }
 
 func (r extensionServiceListInternal) Items() []*clickhouse.Extension {
 	return r.ListExtensionsResponse.Extensions
+}
+func (r extensionServiceListInternal) GetNextPageToken() string {
+	return r.ListExtensionsResponse.GetNextPageToken()
 }
 
 func (c extensionClient) Iterator(ctx context.Context, req *clickhouse.ListExtensionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListExtensionsRequest, *clickhouse.Extension] {

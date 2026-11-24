@@ -19,11 +19,14 @@ type SymmetricKeyClientIterator interface {
 }
 
 type symmetricKeyServiceListInternal struct {
-	*kms.ListSymmetricKeysResponse
+	ListSymmetricKeysResponse *kms.ListSymmetricKeysResponse
 }
 
 func (r symmetricKeyServiceListInternal) Items() []*kms.SymmetricKey {
 	return r.ListSymmetricKeysResponse.Keys
+}
+func (r symmetricKeyServiceListInternal) GetNextPageToken() string {
+	return r.ListSymmetricKeysResponse.GetNextPageToken()
 }
 
 func (c symmetricKeyClient) Iterator(ctx context.Context, req *kms.ListSymmetricKeysRequest, opts ...grpc.CallOption) *iterator.Iterator[*kms.ListSymmetricKeysRequest, *kms.SymmetricKey] {
@@ -38,11 +41,14 @@ func (c symmetricKeyClient) Iterator(ctx context.Context, req *kms.ListSymmetric
 }
 
 type symmetricKeyServiceListVersionsInternal struct {
-	*kms.ListSymmetricKeyVersionsResponse
+	ListSymmetricKeyVersionsResponse *kms.ListSymmetricKeyVersionsResponse
 }
 
 func (r symmetricKeyServiceListVersionsInternal) Items() []*kms.SymmetricKeyVersion {
 	return r.ListSymmetricKeyVersionsResponse.KeyVersions
+}
+func (r symmetricKeyServiceListVersionsInternal) GetNextPageToken() string {
+	return r.ListSymmetricKeyVersionsResponse.GetNextPageToken()
 }
 
 func (c symmetricKeyClient) VersionsIterator(ctx context.Context, req *kms.ListSymmetricKeyVersionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*kms.ListSymmetricKeyVersionsRequest, *kms.SymmetricKeyVersion] {
@@ -57,11 +63,14 @@ func (c symmetricKeyClient) VersionsIterator(ctx context.Context, req *kms.ListS
 }
 
 type symmetricKeyServiceListOperationsInternal struct {
-	*kms.ListSymmetricKeyOperationsResponse
+	ListSymmetricKeyOperationsResponse *kms.ListSymmetricKeyOperationsResponse
 }
 
 func (r symmetricKeyServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListSymmetricKeyOperationsResponse.Operations
+}
+func (r symmetricKeyServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListSymmetricKeyOperationsResponse.GetNextPageToken()
 }
 
 func (c symmetricKeyClient) OperationsIterator(ctx context.Context, req *kms.ListSymmetricKeyOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*kms.ListSymmetricKeyOperationsRequest, *operation.Operation] {
@@ -76,11 +85,14 @@ func (c symmetricKeyClient) OperationsIterator(ctx context.Context, req *kms.Lis
 }
 
 type symmetricKeyServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r symmetricKeyServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r symmetricKeyServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c symmetricKeyClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

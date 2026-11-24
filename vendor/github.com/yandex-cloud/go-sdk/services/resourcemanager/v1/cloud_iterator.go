@@ -19,11 +19,14 @@ type CloudClientIterator interface {
 }
 
 type cloudServiceListInternal struct {
-	*resourcemanager.ListCloudsResponse
+	ListCloudsResponse *resourcemanager.ListCloudsResponse
 }
 
 func (r cloudServiceListInternal) Items() []*resourcemanager.Cloud {
 	return r.ListCloudsResponse.Clouds
+}
+func (r cloudServiceListInternal) GetNextPageToken() string {
+	return r.ListCloudsResponse.GetNextPageToken()
 }
 
 func (c cloudClient) Iterator(ctx context.Context, req *resourcemanager.ListCloudsRequest, opts ...grpc.CallOption) *iterator.Iterator[*resourcemanager.ListCloudsRequest, *resourcemanager.Cloud] {
@@ -38,11 +41,14 @@ func (c cloudClient) Iterator(ctx context.Context, req *resourcemanager.ListClou
 }
 
 type cloudServiceListOperationsInternal struct {
-	*resourcemanager.ListCloudOperationsResponse
+	ListCloudOperationsResponse *resourcemanager.ListCloudOperationsResponse
 }
 
 func (r cloudServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListCloudOperationsResponse.Operations
+}
+func (r cloudServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListCloudOperationsResponse.GetNextPageToken()
 }
 
 func (c cloudClient) OperationsIterator(ctx context.Context, req *resourcemanager.ListCloudOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*resourcemanager.ListCloudOperationsRequest, *operation.Operation] {
@@ -57,11 +63,14 @@ func (c cloudClient) OperationsIterator(ctx context.Context, req *resourcemanage
 }
 
 type cloudServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r cloudServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r cloudServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c cloudClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -76,11 +85,14 @@ func (c cloudClient) AccessBindingsIterator(ctx context.Context, req *access.Lis
 }
 
 type cloudServiceListAccessPolicyBindingsInternal struct {
-	*access.ListAccessPolicyBindingsResponse
+	ListAccessPolicyBindingsResponse *access.ListAccessPolicyBindingsResponse
 }
 
 func (r cloudServiceListAccessPolicyBindingsInternal) Items() []*access.AccessPolicyBinding {
 	return r.ListAccessPolicyBindingsResponse.AccessPolicyBindings
+}
+func (r cloudServiceListAccessPolicyBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessPolicyBindingsResponse.GetNextPageToken()
 }
 
 func (c cloudClient) AccessPolicyBindingsIterator(ctx context.Context, req *access.ListAccessPolicyBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessPolicyBindingsRequest, *access.AccessPolicyBinding] {

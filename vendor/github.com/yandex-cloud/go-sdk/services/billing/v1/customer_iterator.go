@@ -14,11 +14,14 @@ type CustomerClientIterator interface {
 }
 
 type customerServiceListInternal struct {
-	*billing.ListCustomersResponse
+	ListCustomersResponse *billing.ListCustomersResponse
 }
 
 func (r customerServiceListInternal) Items() []*billing.Customer {
 	return r.ListCustomersResponse.Customers
+}
+func (r customerServiceListInternal) GetNextPageToken() string {
+	return r.ListCustomersResponse.GetNextPageToken()
 }
 
 func (c customerClient) Iterator(ctx context.Context, req *billing.ListCustomersRequest, opts ...grpc.CallOption) *iterator.Iterator[*billing.ListCustomersRequest, *billing.Customer] {

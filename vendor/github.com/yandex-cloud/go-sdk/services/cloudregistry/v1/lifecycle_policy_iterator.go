@@ -16,11 +16,14 @@ type LifecyclePolicyClientIterator interface {
 }
 
 type lifecyclePolicyServiceListInternal struct {
-	*cloudregistry.ListLifecyclePolicyResponse
+	ListLifecyclePolicyResponse *cloudregistry.ListLifecyclePolicyResponse
 }
 
 func (r lifecyclePolicyServiceListInternal) Items() []*cloudregistry.LifecyclePolicy {
 	return r.ListLifecyclePolicyResponse.Policies
+}
+func (r lifecyclePolicyServiceListInternal) GetNextPageToken() string {
+	return r.ListLifecyclePolicyResponse.GetNextPageToken()
 }
 
 func (c lifecyclePolicyClient) Iterator(ctx context.Context, req *cloudregistry.ListLifecyclePolicyRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudregistry.ListLifecyclePolicyRequest, *cloudregistry.LifecyclePolicy] {
@@ -35,11 +38,14 @@ func (c lifecyclePolicyClient) Iterator(ctx context.Context, req *cloudregistry.
 }
 
 type lifecyclePolicyServiceListDryRunResultsInternal struct {
-	*cloudregistry.ListDryRunLifecyclePolicyResultsResponse
+	ListDryRunLifecyclePolicyResultsResponse *cloudregistry.ListDryRunLifecyclePolicyResultsResponse
 }
 
 func (r lifecyclePolicyServiceListDryRunResultsInternal) Items() []*cloudregistry.DryRunLifecyclePolicyResponse {
 	return r.ListDryRunLifecyclePolicyResultsResponse.Results
+}
+func (r lifecyclePolicyServiceListDryRunResultsInternal) GetNextPageToken() string {
+	return r.ListDryRunLifecyclePolicyResultsResponse.GetNextPageToken()
 }
 
 func (c lifecyclePolicyClient) DryRunResultsIterator(ctx context.Context, req *cloudregistry.ListDryRunLifecyclePolicyResultsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudregistry.ListDryRunLifecyclePolicyResultsRequest, *cloudregistry.DryRunLifecyclePolicyResponse] {
@@ -54,11 +60,14 @@ func (c lifecyclePolicyClient) DryRunResultsIterator(ctx context.Context, req *c
 }
 
 type lifecyclePolicyServiceListDryRunArtifactsInternal struct {
-	*cloudregistry.ListDryRunLifecyclePolicyArtifactsResponse
+	ListDryRunLifecyclePolicyArtifactsResponse *cloudregistry.ListDryRunLifecyclePolicyArtifactsResponse
 }
 
 func (r lifecyclePolicyServiceListDryRunArtifactsInternal) Items() []*cloudregistry.AffectedArtifact {
 	return r.ListDryRunLifecyclePolicyArtifactsResponse.Artifacts
+}
+func (r lifecyclePolicyServiceListDryRunArtifactsInternal) GetNextPageToken() string {
+	return r.ListDryRunLifecyclePolicyArtifactsResponse.GetNextPageToken()
 }
 
 func (c lifecyclePolicyClient) DryRunArtifactsIterator(ctx context.Context, req *cloudregistry.ListDryRunLifecyclePolicyArtifactsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudregistry.ListDryRunLifecyclePolicyArtifactsRequest, *cloudregistry.AffectedArtifact] {

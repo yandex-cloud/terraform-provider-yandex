@@ -14,11 +14,14 @@ type RefreshTokenClientIterator interface {
 }
 
 type refreshTokenServiceListInternal struct {
-	*iam.ListRefreshTokensResponse
+	ListRefreshTokensResponse *iam.ListRefreshTokensResponse
 }
 
 func (r refreshTokenServiceListInternal) Items() []*iam.RefreshToken {
 	return r.ListRefreshTokensResponse.RefreshTokens
+}
+func (r refreshTokenServiceListInternal) GetNextPageToken() string {
+	return r.ListRefreshTokensResponse.GetNextPageToken()
 }
 
 func (c refreshTokenClient) Iterator(ctx context.Context, req *iam.ListRefreshTokensRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListRefreshTokensRequest, *iam.RefreshToken] {

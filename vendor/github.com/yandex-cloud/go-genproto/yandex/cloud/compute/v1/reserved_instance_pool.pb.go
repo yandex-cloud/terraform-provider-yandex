@@ -22,6 +22,65 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ReservedInstancePool_Status int32
+
+const (
+	ReservedInstancePool_STATUS_UNSPECIFIED ReservedInstancePool_Status = 0
+	// Pool is being created.
+	ReservedInstancePool_CREATING ReservedInstancePool_Status = 1
+	// Pool is being updated.
+	ReservedInstancePool_UPDATING ReservedInstancePool_Status = 2
+	// Pool is ready to use.
+	ReservedInstancePool_READY ReservedInstancePool_Status = 3
+	// Pool is being deleted.
+	ReservedInstancePool_DELETING ReservedInstancePool_Status = 4
+)
+
+// Enum value maps for ReservedInstancePool_Status.
+var (
+	ReservedInstancePool_Status_name = map[int32]string{
+		0: "STATUS_UNSPECIFIED",
+		1: "CREATING",
+		2: "UPDATING",
+		3: "READY",
+		4: "DELETING",
+	}
+	ReservedInstancePool_Status_value = map[string]int32{
+		"STATUS_UNSPECIFIED": 0,
+		"CREATING":           1,
+		"UPDATING":           2,
+		"READY":              3,
+		"DELETING":           4,
+	}
+)
+
+func (x ReservedInstancePool_Status) Enum() *ReservedInstancePool_Status {
+	p := new(ReservedInstancePool_Status)
+	*p = x
+	return p
+}
+
+func (x ReservedInstancePool_Status) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ReservedInstancePool_Status) Descriptor() protoreflect.EnumDescriptor {
+	return file_yandex_cloud_compute_v1_reserved_instance_pool_proto_enumTypes[0].Descriptor()
+}
+
+func (ReservedInstancePool_Status) Type() protoreflect.EnumType {
+	return &file_yandex_cloud_compute_v1_reserved_instance_pool_proto_enumTypes[0]
+}
+
+func (x ReservedInstancePool_Status) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ReservedInstancePool_Status.Descriptor instead.
+func (ReservedInstancePool_Status) EnumDescriptor() ([]byte, []int) {
+	return file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDescGZIP(), []int{0, 0}
+}
+
 // A Reserved Instance Pool resource.
 type ReservedInstancePool struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -65,6 +124,8 @@ type ReservedInstancePool struct {
 	SlotStats *ReservedInstancePool_SlotStats `protobuf:"bytes,17,opt,name=slot_stats,json=slotStats,proto3" json:"slot_stats,omitempty"`
 	// Stats for instances of the pool
 	InstanceStats *ReservedInstancePool_InstanceStats `protobuf:"bytes,18,opt,name=instance_stats,json=instanceStats,proto3" json:"instance_stats,omitempty"`
+	// Status of the pool.
+	Status        ReservedInstancePool_Status `protobuf:"varint,20,opt,name=status,proto3,enum=yandex.cloud.compute.v1.ReservedInstancePool_Status" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,6 +291,13 @@ func (x *ReservedInstancePool) GetInstanceStats() *ReservedInstancePool_Instance
 		return x.InstanceStats
 	}
 	return nil
+}
+
+func (x *ReservedInstancePool) GetStatus() ReservedInstancePool_Status {
+	if x != nil {
+		return x.Status
+	}
+	return ReservedInstancePool_STATUS_UNSPECIFIED
 }
 
 type ProductIDs struct {
@@ -530,7 +598,7 @@ var File_yandex_cloud_compute_v1_reserved_instance_pool_proto protoreflect.FileD
 
 const file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDesc = "" +
 	"\n" +
-	"4yandex/cloud/compute/v1/reserved_instance_pool.proto\x12\x17yandex.cloud.compute.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&yandex/cloud/compute/v1/instance.proto\x1a.yandex/cloud/compute/v1/instance_service.proto\"\xe1\t\n" +
+	"4yandex/cloud/compute/v1/reserved_instance_pool.proto\x12\x17yandex.cloud.compute.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a&yandex/cloud/compute/v1/instance.proto\x1a.yandex/cloud/compute/v1/instance_service.proto\"\x86\v\n" +
 	"\x14ReservedInstancePool\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\azone_id\x18\x02 \x01(\tR\x06zoneId\x12\x19\n" +
@@ -555,7 +623,8 @@ const file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDesc = "" +
 	"\x16allow_oversubscription\x18\x10 \x01(\bR\x15allowOversubscription\x12V\n" +
 	"\n" +
 	"slot_stats\x18\x11 \x01(\v27.yandex.cloud.compute.v1.ReservedInstancePool.SlotStatsR\tslotStats\x12b\n" +
-	"\x0einstance_stats\x18\x12 \x01(\v2;.yandex.cloud.compute.v1.ReservedInstancePool.InstanceStatsR\rinstanceStats\x1a\x8f\x01\n" +
+	"\x0einstance_stats\x18\x12 \x01(\v2;.yandex.cloud.compute.v1.ReservedInstancePool.InstanceStatsR\rinstanceStats\x12L\n" +
+	"\x06status\x18\x14 \x01(\x0e24.yandex.cloud.compute.v1.ReservedInstancePool.StatusR\x06status\x1a\x8f\x01\n" +
 	"\tSlotStats\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12\x12\n" +
 	"\x04used\x18\x02 \x01(\x03R\x04used\x12\x1c\n" +
@@ -566,7 +635,13 @@ const file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDesc = "" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"-\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"U\n" +
+	"\x06Status\x12\x16\n" +
+	"\x12STATUS_UNSPECIFIED\x10\x00\x12\f\n" +
+	"\bCREATING\x10\x01\x12\f\n" +
+	"\bUPDATING\x10\x02\x12\t\n" +
+	"\x05READY\x10\x03\x12\f\n" +
+	"\bDELETING\x10\x04\"-\n" +
 	"\n" +
 	"ProductIDs\x12\x1f\n" +
 	"\vproduct_ids\x18\x01 \x03(\tR\n" +
@@ -593,35 +668,38 @@ func file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDescGZIP() []b
 	return file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDescData
 }
 
+var file_yandex_cloud_compute_v1_reserved_instance_pool_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_yandex_cloud_compute_v1_reserved_instance_pool_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_yandex_cloud_compute_v1_reserved_instance_pool_proto_goTypes = []any{
-	(*ReservedInstancePool)(nil),               // 0: yandex.cloud.compute.v1.ReservedInstancePool
-	(*ProductIDs)(nil),                         // 1: yandex.cloud.compute.v1.ProductIDs
-	(*BootDiskSpec)(nil),                       // 2: yandex.cloud.compute.v1.BootDiskSpec
-	(*ReservedInstancePool_SlotStats)(nil),     // 3: yandex.cloud.compute.v1.ReservedInstancePool.SlotStats
-	(*ReservedInstancePool_InstanceStats)(nil), // 4: yandex.cloud.compute.v1.ReservedInstancePool.InstanceStats
-	nil,                           // 5: yandex.cloud.compute.v1.ReservedInstancePool.LabelsEntry
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
-	(*ResourcesSpec)(nil),         // 7: yandex.cloud.compute.v1.ResourcesSpec
-	(*GpuSettings)(nil),           // 8: yandex.cloud.compute.v1.GpuSettings
-	(*PlacementPolicy)(nil),       // 9: yandex.cloud.compute.v1.PlacementPolicy
-	(*NetworkSettings)(nil),       // 10: yandex.cloud.compute.v1.NetworkSettings
+	(ReservedInstancePool_Status)(0),           // 0: yandex.cloud.compute.v1.ReservedInstancePool.Status
+	(*ReservedInstancePool)(nil),               // 1: yandex.cloud.compute.v1.ReservedInstancePool
+	(*ProductIDs)(nil),                         // 2: yandex.cloud.compute.v1.ProductIDs
+	(*BootDiskSpec)(nil),                       // 3: yandex.cloud.compute.v1.BootDiskSpec
+	(*ReservedInstancePool_SlotStats)(nil),     // 4: yandex.cloud.compute.v1.ReservedInstancePool.SlotStats
+	(*ReservedInstancePool_InstanceStats)(nil), // 5: yandex.cloud.compute.v1.ReservedInstancePool.InstanceStats
+	nil,                           // 6: yandex.cloud.compute.v1.ReservedInstancePool.LabelsEntry
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*ResourcesSpec)(nil),         // 8: yandex.cloud.compute.v1.ResourcesSpec
+	(*GpuSettings)(nil),           // 9: yandex.cloud.compute.v1.GpuSettings
+	(*PlacementPolicy)(nil),       // 10: yandex.cloud.compute.v1.PlacementPolicy
+	(*NetworkSettings)(nil),       // 11: yandex.cloud.compute.v1.NetworkSettings
 }
 var file_yandex_cloud_compute_v1_reserved_instance_pool_proto_depIdxs = []int32{
-	5,  // 0: yandex.cloud.compute.v1.ReservedInstancePool.labels:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.LabelsEntry
-	6,  // 1: yandex.cloud.compute.v1.ReservedInstancePool.created_at:type_name -> google.protobuf.Timestamp
-	7,  // 2: yandex.cloud.compute.v1.ReservedInstancePool.resources_spec:type_name -> yandex.cloud.compute.v1.ResourcesSpec
-	8,  // 3: yandex.cloud.compute.v1.ReservedInstancePool.gpu_settings:type_name -> yandex.cloud.compute.v1.GpuSettings
-	9,  // 4: yandex.cloud.compute.v1.ReservedInstancePool.placement_policy:type_name -> yandex.cloud.compute.v1.PlacementPolicy
-	10, // 5: yandex.cloud.compute.v1.ReservedInstancePool.network_settings:type_name -> yandex.cloud.compute.v1.NetworkSettings
-	3,  // 6: yandex.cloud.compute.v1.ReservedInstancePool.slot_stats:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.SlotStats
-	4,  // 7: yandex.cloud.compute.v1.ReservedInstancePool.instance_stats:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.InstanceStats
-	1,  // 8: yandex.cloud.compute.v1.BootDiskSpec.product_ids:type_name -> yandex.cloud.compute.v1.ProductIDs
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	6,  // 0: yandex.cloud.compute.v1.ReservedInstancePool.labels:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.LabelsEntry
+	7,  // 1: yandex.cloud.compute.v1.ReservedInstancePool.created_at:type_name -> google.protobuf.Timestamp
+	8,  // 2: yandex.cloud.compute.v1.ReservedInstancePool.resources_spec:type_name -> yandex.cloud.compute.v1.ResourcesSpec
+	9,  // 3: yandex.cloud.compute.v1.ReservedInstancePool.gpu_settings:type_name -> yandex.cloud.compute.v1.GpuSettings
+	10, // 4: yandex.cloud.compute.v1.ReservedInstancePool.placement_policy:type_name -> yandex.cloud.compute.v1.PlacementPolicy
+	11, // 5: yandex.cloud.compute.v1.ReservedInstancePool.network_settings:type_name -> yandex.cloud.compute.v1.NetworkSettings
+	4,  // 6: yandex.cloud.compute.v1.ReservedInstancePool.slot_stats:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.SlotStats
+	5,  // 7: yandex.cloud.compute.v1.ReservedInstancePool.instance_stats:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.InstanceStats
+	0,  // 8: yandex.cloud.compute.v1.ReservedInstancePool.status:type_name -> yandex.cloud.compute.v1.ReservedInstancePool.Status
+	2,  // 9: yandex.cloud.compute.v1.BootDiskSpec.product_ids:type_name -> yandex.cloud.compute.v1.ProductIDs
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_compute_v1_reserved_instance_pool_proto_init() }
@@ -642,13 +720,14 @@ func file_yandex_cloud_compute_v1_reserved_instance_pool_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDesc), len(file_yandex_cloud_compute_v1_reserved_instance_pool_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_yandex_cloud_compute_v1_reserved_instance_pool_proto_goTypes,
 		DependencyIndexes: file_yandex_cloud_compute_v1_reserved_instance_pool_proto_depIdxs,
+		EnumInfos:         file_yandex_cloud_compute_v1_reserved_instance_pool_proto_enumTypes,
 		MessageInfos:      file_yandex_cloud_compute_v1_reserved_instance_pool_proto_msgTypes,
 	}.Build()
 	File_yandex_cloud_compute_v1_reserved_instance_pool_proto = out.File

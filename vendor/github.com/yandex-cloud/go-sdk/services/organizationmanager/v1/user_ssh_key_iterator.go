@@ -14,11 +14,14 @@ type UserSshKeyClientIterator interface {
 }
 
 type userSshKeyServiceListInternal struct {
-	*organizationmanager.ListUserSshKeysResponse
+	ListUserSshKeysResponse *organizationmanager.ListUserSshKeysResponse
 }
 
 func (r userSshKeyServiceListInternal) Items() []*organizationmanager.UserSshKey {
 	return r.ListUserSshKeysResponse.SshKeys
+}
+func (r userSshKeyServiceListInternal) GetNextPageToken() string {
+	return r.ListUserSshKeysResponse.GetNextPageToken()
 }
 
 func (c userSshKeyClient) Iterator(ctx context.Context, req *organizationmanager.ListUserSshKeysRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListUserSshKeysRequest, *organizationmanager.UserSshKey] {

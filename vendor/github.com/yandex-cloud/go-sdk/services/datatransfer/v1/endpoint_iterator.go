@@ -14,11 +14,14 @@ type EndpointClientIterator interface {
 }
 
 type endpointServiceListInternal struct {
-	*datatransfer.ListEndpointsResponse
+	ListEndpointsResponse *datatransfer.ListEndpointsResponse
 }
 
 func (r endpointServiceListInternal) Items() []*datatransfer.Endpoint {
 	return r.ListEndpointsResponse.Endpoints
+}
+func (r endpointServiceListInternal) GetNextPageToken() string {
+	return r.ListEndpointsResponse.GetNextPageToken()
 }
 
 func (c endpointClient) Iterator(ctx context.Context, req *datatransfer.ListEndpointsRequest, opts ...grpc.CallOption) *iterator.Iterator[*datatransfer.ListEndpointsRequest, *datatransfer.Endpoint] {

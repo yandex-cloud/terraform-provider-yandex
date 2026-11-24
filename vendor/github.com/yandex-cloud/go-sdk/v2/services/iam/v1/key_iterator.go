@@ -16,10 +16,13 @@ type KeyClientIterator interface {
 }
 
 type keyServiceListInternal struct {
-	*iam.ListKeysResponse
+	ListKeysResponse *iam.ListKeysResponse
 }
 
 func (r keyServiceListInternal) Items() []*iam.Key { return r.ListKeysResponse.Keys }
+func (r keyServiceListInternal) GetNextPageToken() string {
+	return r.ListKeysResponse.GetNextPageToken()
+}
 
 func (c keyClient) Iterator(ctx context.Context, req *iam.ListKeysRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListKeysRequest, *iam.Key] {
 	return iterator.NewIterator[*iam.ListKeysRequest, *iam.Key](ctx, req,
@@ -33,11 +36,14 @@ func (c keyClient) Iterator(ctx context.Context, req *iam.ListKeysRequest, opts 
 }
 
 type keyServiceListOperationsInternal struct {
-	*iam.ListKeyOperationsResponse
+	ListKeyOperationsResponse *iam.ListKeyOperationsResponse
 }
 
 func (r keyServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListKeyOperationsResponse.Operations
+}
+func (r keyServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListKeyOperationsResponse.GetNextPageToken()
 }
 
 func (c keyClient) OperationsIterator(ctx context.Context, req *iam.ListKeyOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListKeyOperationsRequest, *operation.Operation] {

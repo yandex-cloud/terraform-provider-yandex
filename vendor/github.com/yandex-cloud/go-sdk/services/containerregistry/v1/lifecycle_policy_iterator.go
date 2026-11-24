@@ -16,11 +16,14 @@ type LifecyclePolicyClientIterator interface {
 }
 
 type lifecyclePolicyServiceListInternal struct {
-	*containerregistry.ListLifecyclePoliciesResponse
+	ListLifecyclePoliciesResponse *containerregistry.ListLifecyclePoliciesResponse
 }
 
 func (r lifecyclePolicyServiceListInternal) Items() []*containerregistry.LifecyclePolicy {
 	return r.ListLifecyclePoliciesResponse.LifecyclePolicies
+}
+func (r lifecyclePolicyServiceListInternal) GetNextPageToken() string {
+	return r.ListLifecyclePoliciesResponse.GetNextPageToken()
 }
 
 func (c lifecyclePolicyClient) Iterator(ctx context.Context, req *containerregistry.ListLifecyclePoliciesRequest, opts ...grpc.CallOption) *iterator.Iterator[*containerregistry.ListLifecyclePoliciesRequest, *containerregistry.LifecyclePolicy] {
@@ -35,11 +38,14 @@ func (c lifecyclePolicyClient) Iterator(ctx context.Context, req *containerregis
 }
 
 type lifecyclePolicyServiceListDryRunResultsInternal struct {
-	*containerregistry.ListDryRunLifecyclePolicyResultsResponse
+	ListDryRunLifecyclePolicyResultsResponse *containerregistry.ListDryRunLifecyclePolicyResultsResponse
 }
 
 func (r lifecyclePolicyServiceListDryRunResultsInternal) Items() []*containerregistry.DryRunLifecyclePolicyResult {
 	return r.ListDryRunLifecyclePolicyResultsResponse.DryRunLifecyclePolicyResults
+}
+func (r lifecyclePolicyServiceListDryRunResultsInternal) GetNextPageToken() string {
+	return r.ListDryRunLifecyclePolicyResultsResponse.GetNextPageToken()
 }
 
 func (c lifecyclePolicyClient) DryRunResultsIterator(ctx context.Context, req *containerregistry.ListDryRunLifecyclePolicyResultsRequest, opts ...grpc.CallOption) *iterator.Iterator[*containerregistry.ListDryRunLifecyclePolicyResultsRequest, *containerregistry.DryRunLifecyclePolicyResult] {
@@ -54,11 +60,14 @@ func (c lifecyclePolicyClient) DryRunResultsIterator(ctx context.Context, req *c
 }
 
 type lifecyclePolicyServiceListDryRunResultAffectedImagesInternal struct {
-	*containerregistry.ListDryRunLifecyclePolicyResultAffectedImagesResponse
+	ListDryRunLifecyclePolicyResultAffectedImagesResponse *containerregistry.ListDryRunLifecyclePolicyResultAffectedImagesResponse
 }
 
 func (r lifecyclePolicyServiceListDryRunResultAffectedImagesInternal) Items() []*containerregistry.Image {
 	return r.ListDryRunLifecyclePolicyResultAffectedImagesResponse.AffectedImages
+}
+func (r lifecyclePolicyServiceListDryRunResultAffectedImagesInternal) GetNextPageToken() string {
+	return r.ListDryRunLifecyclePolicyResultAffectedImagesResponse.GetNextPageToken()
 }
 
 func (c lifecyclePolicyClient) DryRunResultAffectedImagesIterator(ctx context.Context, req *containerregistry.ListDryRunLifecyclePolicyResultAffectedImagesRequest, opts ...grpc.CallOption) *iterator.Iterator[*containerregistry.ListDryRunLifecyclePolicyResultAffectedImagesRequest, *containerregistry.Image] {

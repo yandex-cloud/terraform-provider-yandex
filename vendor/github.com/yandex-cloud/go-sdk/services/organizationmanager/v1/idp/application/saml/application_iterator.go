@@ -20,11 +20,14 @@ type ApplicationClientIterator interface {
 }
 
 type applicationServiceListInternal struct {
-	*saml.ListApplicationsResponse
+	ListApplicationsResponse *saml.ListApplicationsResponse
 }
 
 func (r applicationServiceListInternal) Items() []*saml.Application {
 	return r.ListApplicationsResponse.Applications
+}
+func (r applicationServiceListInternal) GetNextPageToken() string {
+	return r.ListApplicationsResponse.GetNextPageToken()
 }
 
 func (c applicationClient) Iterator(ctx context.Context, req *saml.ListApplicationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListApplicationsRequest, *saml.Application] {
@@ -39,7 +42,7 @@ func (c applicationClient) Iterator(ctx context.Context, req *saml.ListApplicati
 }
 
 type applicationServiceListSupportedAttributeValuesInternal struct {
-	*saml.ListSupportedAttributeValuesResponse
+	ListSupportedAttributeValuesResponse *saml.ListSupportedAttributeValuesResponse
 }
 
 func (r applicationServiceListSupportedAttributeValuesInternal) Items() []*saml.SupportedAttributeValue {
@@ -58,11 +61,14 @@ func (c applicationClient) SupportedAttributeValuesIterator(ctx context.Context,
 }
 
 type applicationServiceListOperationsInternal struct {
-	*saml.ListApplicationOperationsResponse
+	ListApplicationOperationsResponse *saml.ListApplicationOperationsResponse
 }
 
 func (r applicationServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListApplicationOperationsResponse.Operations
+}
+func (r applicationServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListApplicationOperationsResponse.GetNextPageToken()
 }
 
 func (c applicationClient) OperationsIterator(ctx context.Context, req *saml.ListApplicationOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListApplicationOperationsRequest, *operation.Operation] {
@@ -77,11 +83,14 @@ func (c applicationClient) OperationsIterator(ctx context.Context, req *saml.Lis
 }
 
 type applicationServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r applicationServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r applicationServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c applicationClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -96,11 +105,14 @@ func (c applicationClient) AccessBindingsIterator(ctx context.Context, req *acce
 }
 
 type applicationServiceListAssignmentsInternal struct {
-	*saml.ListAssignmentsResponse
+	ListAssignmentsResponse *saml.ListAssignmentsResponse
 }
 
 func (r applicationServiceListAssignmentsInternal) Items() []*saml.Assignment {
 	return r.ListAssignmentsResponse.Assignments
+}
+func (r applicationServiceListAssignmentsInternal) GetNextPageToken() string {
+	return r.ListAssignmentsResponse.GetNextPageToken()
 }
 
 func (c applicationClient) AssignmentsIterator(ctx context.Context, req *saml.ListAssignmentsRequest, opts ...grpc.CallOption) *iterator.Iterator[*saml.ListAssignmentsRequest, *saml.Assignment] {

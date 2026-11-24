@@ -14,11 +14,14 @@ type ResourcePresetClientIterator interface {
 }
 
 type resourcePresetServiceListInternal struct {
-	*mysql.ListResourcePresetsResponse
+	ListResourcePresetsResponse *mysql.ListResourcePresetsResponse
 }
 
 func (r resourcePresetServiceListInternal) Items() []*mysql.ResourcePreset {
 	return r.ListResourcePresetsResponse.ResourcePresets
+}
+func (r resourcePresetServiceListInternal) GetNextPageToken() string {
+	return r.ListResourcePresetsResponse.GetNextPageToken()
 }
 
 func (c resourcePresetClient) Iterator(ctx context.Context, req *mysql.ListResourcePresetsRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListResourcePresetsRequest, *mysql.ResourcePreset] {

@@ -21,10 +21,13 @@ type ClusterClientIterator interface {
 }
 
 type clusterServiceListInternal struct {
-	*mysql.ListClustersResponse
+	ListClustersResponse *mysql.ListClustersResponse
 }
 
 func (r clusterServiceListInternal) Items() []*mysql.Cluster { return r.ListClustersResponse.Clusters }
+func (r clusterServiceListInternal) GetNextPageToken() string {
+	return r.ListClustersResponse.GetNextPageToken()
+}
 
 func (c clusterClient) Iterator(ctx context.Context, req *mysql.ListClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListClustersRequest, *mysql.Cluster] {
 	return iterator.NewIterator[*mysql.ListClustersRequest, *mysql.Cluster](ctx, req,
@@ -38,11 +41,14 @@ func (c clusterClient) Iterator(ctx context.Context, req *mysql.ListClustersRequ
 }
 
 type clusterServiceListLogsInternal struct {
-	*mysql.ListClusterLogsResponse
+	ListClusterLogsResponse *mysql.ListClusterLogsResponse
 }
 
 func (r clusterServiceListLogsInternal) Items() []*mysql.LogRecord {
 	return r.ListClusterLogsResponse.Logs
+}
+func (r clusterServiceListLogsInternal) GetNextPageToken() string {
+	return r.ListClusterLogsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) LogsIterator(ctx context.Context, req *mysql.ListClusterLogsRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListClusterLogsRequest, *mysql.LogRecord] {
@@ -57,11 +63,14 @@ func (c clusterClient) LogsIterator(ctx context.Context, req *mysql.ListClusterL
 }
 
 type clusterServiceListOperationsInternal struct {
-	*mysql.ListClusterOperationsResponse
+	ListClusterOperationsResponse *mysql.ListClusterOperationsResponse
 }
 
 func (r clusterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListClusterOperationsResponse.Operations
+}
+func (r clusterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListClusterOperationsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) OperationsIterator(ctx context.Context, req *mysql.ListClusterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListClusterOperationsRequest, *operation.Operation] {
@@ -76,11 +85,14 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *mysql.ListCl
 }
 
 type clusterServiceListBackupsInternal struct {
-	*mysql.ListClusterBackupsResponse
+	ListClusterBackupsResponse *mysql.ListClusterBackupsResponse
 }
 
 func (r clusterServiceListBackupsInternal) Items() []*mysql.Backup {
 	return r.ListClusterBackupsResponse.Backups
+}
+func (r clusterServiceListBackupsInternal) GetNextPageToken() string {
+	return r.ListClusterBackupsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) BackupsIterator(ctx context.Context, req *mysql.ListClusterBackupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListClusterBackupsRequest, *mysql.Backup] {
@@ -95,11 +107,14 @@ func (c clusterClient) BackupsIterator(ctx context.Context, req *mysql.ListClust
 }
 
 type clusterServiceListHostsInternal struct {
-	*mysql.ListClusterHostsResponse
+	ListClusterHostsResponse *mysql.ListClusterHostsResponse
 }
 
 func (r clusterServiceListHostsInternal) Items() []*mysql.Host {
 	return r.ListClusterHostsResponse.Hosts
+}
+func (r clusterServiceListHostsInternal) GetNextPageToken() string {
+	return r.ListClusterHostsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) HostsIterator(ctx context.Context, req *mysql.ListClusterHostsRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListClusterHostsRequest, *mysql.Host] {
@@ -114,11 +129,14 @@ func (c clusterClient) HostsIterator(ctx context.Context, req *mysql.ListCluster
 }
 
 type clusterServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r clusterServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r clusterServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

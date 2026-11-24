@@ -18,10 +18,13 @@ type BrokerClientIterator interface {
 }
 
 type brokerServiceListInternal struct {
-	*broker.ListBrokersResponse
+	ListBrokersResponse *broker.ListBrokersResponse
 }
 
 func (r brokerServiceListInternal) Items() []*broker.Broker { return r.ListBrokersResponse.Brokers }
+func (r brokerServiceListInternal) GetNextPageToken() string {
+	return r.ListBrokersResponse.GetNextPageToken()
+}
 
 func (c brokerClient) Iterator(ctx context.Context, req *broker.ListBrokersRequest, opts ...grpc.CallOption) *iterator.Iterator[*broker.ListBrokersRequest, *broker.Broker] {
 	return iterator.NewIterator[*broker.ListBrokersRequest, *broker.Broker](ctx, req,
@@ -35,7 +38,7 @@ func (c brokerClient) Iterator(ctx context.Context, req *broker.ListBrokersReque
 }
 
 type brokerServiceListCertificatesInternal struct {
-	*broker.ListBrokerCertificatesResponse
+	ListBrokerCertificatesResponse *broker.ListBrokerCertificatesResponse
 }
 
 func (r brokerServiceListCertificatesInternal) Items() []*broker.BrokerCertificate {
@@ -54,7 +57,7 @@ func (c brokerClient) CertificatesIterator(ctx context.Context, req *broker.List
 }
 
 type brokerServiceListPasswordsInternal struct {
-	*broker.ListBrokerPasswordsResponse
+	ListBrokerPasswordsResponse *broker.ListBrokerPasswordsResponse
 }
 
 func (r brokerServiceListPasswordsInternal) Items() []*broker.BrokerPassword {
@@ -73,11 +76,14 @@ func (c brokerClient) PasswordsIterator(ctx context.Context, req *broker.ListBro
 }
 
 type brokerServiceListOperationsInternal struct {
-	*broker.ListBrokerOperationsResponse
+	ListBrokerOperationsResponse *broker.ListBrokerOperationsResponse
 }
 
 func (r brokerServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListBrokerOperationsResponse.Operations
+}
+func (r brokerServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListBrokerOperationsResponse.GetNextPageToken()
 }
 
 func (c brokerClient) OperationsIterator(ctx context.Context, req *broker.ListBrokerOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*broker.ListBrokerOperationsRequest, *operation.Operation] {

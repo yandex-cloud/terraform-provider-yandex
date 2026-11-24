@@ -20,10 +20,13 @@ type ClusterClientIterator interface {
 }
 
 type clusterServiceListInternal struct {
-	*k8s.ListClustersResponse
+	ListClustersResponse *k8s.ListClustersResponse
 }
 
 func (r clusterServiceListInternal) Items() []*k8s.Cluster { return r.ListClustersResponse.Clusters }
+func (r clusterServiceListInternal) GetNextPageToken() string {
+	return r.ListClustersResponse.GetNextPageToken()
+}
 
 func (c clusterClient) Iterator(ctx context.Context, req *k8s.ListClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*k8s.ListClustersRequest, *k8s.Cluster] {
 	return iterator.NewIterator[*k8s.ListClustersRequest, *k8s.Cluster](ctx, req,
@@ -37,11 +40,14 @@ func (c clusterClient) Iterator(ctx context.Context, req *k8s.ListClustersReques
 }
 
 type clusterServiceListNodeGroupsInternal struct {
-	*k8s.ListClusterNodeGroupsResponse
+	ListClusterNodeGroupsResponse *k8s.ListClusterNodeGroupsResponse
 }
 
 func (r clusterServiceListNodeGroupsInternal) Items() []*k8s.NodeGroup {
 	return r.ListClusterNodeGroupsResponse.NodeGroups
+}
+func (r clusterServiceListNodeGroupsInternal) GetNextPageToken() string {
+	return r.ListClusterNodeGroupsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) NodeGroupsIterator(ctx context.Context, req *k8s.ListClusterNodeGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*k8s.ListClusterNodeGroupsRequest, *k8s.NodeGroup] {
@@ -56,10 +62,13 @@ func (c clusterClient) NodeGroupsIterator(ctx context.Context, req *k8s.ListClus
 }
 
 type clusterServiceListNodesInternal struct {
-	*k8s.ListClusterNodesResponse
+	ListClusterNodesResponse *k8s.ListClusterNodesResponse
 }
 
 func (r clusterServiceListNodesInternal) Items() []*k8s.Node { return r.ListClusterNodesResponse.Nodes }
+func (r clusterServiceListNodesInternal) GetNextPageToken() string {
+	return r.ListClusterNodesResponse.GetNextPageToken()
+}
 
 func (c clusterClient) NodesIterator(ctx context.Context, req *k8s.ListClusterNodesRequest, opts ...grpc.CallOption) *iterator.Iterator[*k8s.ListClusterNodesRequest, *k8s.Node] {
 	return iterator.NewIterator[*k8s.ListClusterNodesRequest, *k8s.Node](ctx, req,
@@ -73,11 +82,14 @@ func (c clusterClient) NodesIterator(ctx context.Context, req *k8s.ListClusterNo
 }
 
 type clusterServiceListOperationsInternal struct {
-	*k8s.ListClusterOperationsResponse
+	ListClusterOperationsResponse *k8s.ListClusterOperationsResponse
 }
 
 func (r clusterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListClusterOperationsResponse.Operations
+}
+func (r clusterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListClusterOperationsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) OperationsIterator(ctx context.Context, req *k8s.ListClusterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*k8s.ListClusterOperationsRequest, *operation.Operation] {
@@ -92,11 +104,14 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *k8s.ListClus
 }
 
 type clusterServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r clusterServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r clusterServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

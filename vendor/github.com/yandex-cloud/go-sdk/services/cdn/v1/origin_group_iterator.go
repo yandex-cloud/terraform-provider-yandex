@@ -14,11 +14,14 @@ type OriginGroupClientIterator interface {
 }
 
 type originGroupServiceListInternal struct {
-	*cdn.ListOriginGroupsResponse
+	ListOriginGroupsResponse *cdn.ListOriginGroupsResponse
 }
 
 func (r originGroupServiceListInternal) Items() []*cdn.OriginGroup {
 	return r.ListOriginGroupsResponse.OriginGroups
+}
+func (r originGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListOriginGroupsResponse.GetNextPageToken()
 }
 
 func (c originGroupClient) Iterator(ctx context.Context, req *cdn.ListOriginGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cdn.ListOriginGroupsRequest, *cdn.OriginGroup] {

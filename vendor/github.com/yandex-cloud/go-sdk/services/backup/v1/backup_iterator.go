@@ -16,7 +16,7 @@ type BackupClientIterator interface {
 }
 
 type backupServiceListArchivesInternal struct {
-	*backup.ListArchivesResponse
+	ListArchivesResponse *backup.ListArchivesResponse
 }
 
 func (r backupServiceListArchivesInternal) Items() []*backup.Archive {
@@ -35,10 +35,13 @@ func (c backupClient) ArchivesIterator(ctx context.Context, req *backup.ListArch
 }
 
 type backupServiceListInternal struct {
-	*backup.ListBackupsResponse
+	ListBackupsResponse *backup.ListBackupsResponse
 }
 
 func (r backupServiceListInternal) Items() []*backup.Backup { return r.ListBackupsResponse.Backups }
+func (r backupServiceListInternal) GetNextPageToken() string {
+	return r.ListBackupsResponse.GetNextPageToken()
+}
 
 func (c backupClient) Iterator(ctx context.Context, req *backup.ListBackupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*backup.ListBackupsRequest, *backup.Backup] {
 	return iterator.NewIterator[*backup.ListBackupsRequest, *backup.Backup](ctx, req,
@@ -52,7 +55,7 @@ func (c backupClient) Iterator(ctx context.Context, req *backup.ListBackupsReque
 }
 
 type backupServiceListFilesInternal struct {
-	*backup.ListFilesResponse
+	ListFilesResponse *backup.ListFilesResponse
 }
 
 func (r backupServiceListFilesInternal) Items() []*backup.BackupFile {

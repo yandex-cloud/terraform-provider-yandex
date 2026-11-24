@@ -14,10 +14,13 @@ type PartnerClientIterator interface {
 }
 
 type partnerServiceListInternal struct {
-	*cic.ListPartnersResponse
+	ListPartnersResponse *cic.ListPartnersResponse
 }
 
 func (r partnerServiceListInternal) Items() []*cic.Partner { return r.ListPartnersResponse.Partners }
+func (r partnerServiceListInternal) GetNextPageToken() string {
+	return r.ListPartnersResponse.GetNextPageToken()
+}
 
 func (c partnerClient) Iterator(ctx context.Context, req *cic.ListPartnersRequest, opts ...grpc.CallOption) *iterator.Iterator[*cic.ListPartnersRequest, *cic.Partner] {
 	return iterator.NewIterator[*cic.ListPartnersRequest, *cic.Partner](ctx, req,

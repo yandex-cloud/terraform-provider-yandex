@@ -18,11 +18,14 @@ type ConnectorClientIterator interface {
 }
 
 type connectorServiceListInternal struct {
-	*eventrouter.ListConnectorsResponse
+	ListConnectorsResponse *eventrouter.ListConnectorsResponse
 }
 
 func (r connectorServiceListInternal) Items() []*eventrouter.Connector {
 	return r.ListConnectorsResponse.Connectors
+}
+func (r connectorServiceListInternal) GetNextPageToken() string {
+	return r.ListConnectorsResponse.GetNextPageToken()
 }
 
 func (c connectorClient) Iterator(ctx context.Context, req *eventrouter.ListConnectorsRequest, opts ...grpc.CallOption) *iterator.Iterator[*eventrouter.ListConnectorsRequest, *eventrouter.Connector] {
@@ -37,11 +40,14 @@ func (c connectorClient) Iterator(ctx context.Context, req *eventrouter.ListConn
 }
 
 type connectorServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r connectorServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r connectorServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c connectorClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -56,11 +62,14 @@ func (c connectorClient) AccessBindingsIterator(ctx context.Context, req *access
 }
 
 type connectorServiceListOperationsInternal struct {
-	*eventrouter.ListConnectorOperationsResponse
+	ListConnectorOperationsResponse *eventrouter.ListConnectorOperationsResponse
 }
 
 func (r connectorServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListConnectorOperationsResponse.Operations
+}
+func (r connectorServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListConnectorOperationsResponse.GetNextPageToken()
 }
 
 func (c connectorClient) OperationsIterator(ctx context.Context, req *eventrouter.ListConnectorOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*eventrouter.ListConnectorOperationsRequest, *operation.Operation] {

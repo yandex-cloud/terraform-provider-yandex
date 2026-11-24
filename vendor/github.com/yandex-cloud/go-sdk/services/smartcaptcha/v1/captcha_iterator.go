@@ -14,7 +14,7 @@ type CaptchaClientIterator interface {
 }
 
 type captchaServiceListInternal struct {
-	*smartcaptcha.ListCaptchasResponse
+	ListCaptchasResponse *smartcaptcha.ListCaptchasResponse
 }
 
 func (r captchaServiceListInternal) Items() []*smartcaptcha.Captcha {

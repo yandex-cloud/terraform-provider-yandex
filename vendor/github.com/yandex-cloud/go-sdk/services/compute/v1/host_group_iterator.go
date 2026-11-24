@@ -20,11 +20,14 @@ type HostGroupClientIterator interface {
 }
 
 type hostGroupServiceListInternal struct {
-	*compute.ListHostGroupsResponse
+	ListHostGroupsResponse *compute.ListHostGroupsResponse
 }
 
 func (r hostGroupServiceListInternal) Items() []*compute.HostGroup {
 	return r.ListHostGroupsResponse.HostGroups
+}
+func (r hostGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListHostGroupsResponse.GetNextPageToken()
 }
 
 func (c hostGroupClient) Iterator(ctx context.Context, req *compute.ListHostGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListHostGroupsRequest, *compute.HostGroup] {
@@ -39,11 +42,14 @@ func (c hostGroupClient) Iterator(ctx context.Context, req *compute.ListHostGrou
 }
 
 type hostGroupServiceListOperationsInternal struct {
-	*compute.ListHostGroupOperationsResponse
+	ListHostGroupOperationsResponse *compute.ListHostGroupOperationsResponse
 }
 
 func (r hostGroupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListHostGroupOperationsResponse.Operations
+}
+func (r hostGroupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListHostGroupOperationsResponse.GetNextPageToken()
 }
 
 func (c hostGroupClient) OperationsIterator(ctx context.Context, req *compute.ListHostGroupOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListHostGroupOperationsRequest, *operation.Operation] {
@@ -58,11 +64,14 @@ func (c hostGroupClient) OperationsIterator(ctx context.Context, req *compute.Li
 }
 
 type hostGroupServiceListInstancesInternal struct {
-	*compute.ListHostGroupInstancesResponse
+	ListHostGroupInstancesResponse *compute.ListHostGroupInstancesResponse
 }
 
 func (r hostGroupServiceListInstancesInternal) Items() []*compute.Instance {
 	return r.ListHostGroupInstancesResponse.Instances
+}
+func (r hostGroupServiceListInstancesInternal) GetNextPageToken() string {
+	return r.ListHostGroupInstancesResponse.GetNextPageToken()
 }
 
 func (c hostGroupClient) InstancesIterator(ctx context.Context, req *compute.ListHostGroupInstancesRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListHostGroupInstancesRequest, *compute.Instance] {
@@ -77,11 +86,14 @@ func (c hostGroupClient) InstancesIterator(ctx context.Context, req *compute.Lis
 }
 
 type hostGroupServiceListHostsInternal struct {
-	*compute.ListHostGroupHostsResponse
+	ListHostGroupHostsResponse *compute.ListHostGroupHostsResponse
 }
 
 func (r hostGroupServiceListHostsInternal) Items() []*compute.Host {
 	return r.ListHostGroupHostsResponse.Hosts
+}
+func (r hostGroupServiceListHostsInternal) GetNextPageToken() string {
+	return r.ListHostGroupHostsResponse.GetNextPageToken()
 }
 
 func (c hostGroupClient) HostsIterator(ctx context.Context, req *compute.ListHostGroupHostsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListHostGroupHostsRequest, *compute.Host] {
@@ -96,11 +108,14 @@ func (c hostGroupClient) HostsIterator(ctx context.Context, req *compute.ListHos
 }
 
 type hostGroupServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r hostGroupServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r hostGroupServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c hostGroupClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

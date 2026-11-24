@@ -16,10 +16,13 @@ type BackupClientIterator interface {
 }
 
 type backupServiceListInternal struct {
-	*ydb.ListBackupsResponse
+	ListBackupsResponse *ydb.ListBackupsResponse
 }
 
 func (r backupServiceListInternal) Items() []*ydb.Backup { return r.ListBackupsResponse.Backups }
+func (r backupServiceListInternal) GetNextPageToken() string {
+	return r.ListBackupsResponse.GetNextPageToken()
+}
 
 func (c backupClient) Iterator(ctx context.Context, req *ydb.ListBackupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*ydb.ListBackupsRequest, *ydb.Backup] {
 	return iterator.NewIterator[*ydb.ListBackupsRequest, *ydb.Backup](ctx, req,
@@ -33,11 +36,14 @@ func (c backupClient) Iterator(ctx context.Context, req *ydb.ListBackupsRequest,
 }
 
 type backupServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r backupServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r backupServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c backupClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

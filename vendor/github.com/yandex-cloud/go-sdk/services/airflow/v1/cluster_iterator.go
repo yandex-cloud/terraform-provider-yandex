@@ -18,11 +18,14 @@ type ClusterClientIterator interface {
 }
 
 type clusterServiceListInternal struct {
-	*airflow.ListClustersResponse
+	ListClustersResponse *airflow.ListClustersResponse
 }
 
 func (r clusterServiceListInternal) Items() []*airflow.Cluster {
 	return r.ListClustersResponse.Clusters
+}
+func (r clusterServiceListInternal) GetNextPageToken() string {
+	return r.ListClustersResponse.GetNextPageToken()
 }
 
 func (c clusterClient) Iterator(ctx context.Context, req *airflow.ListClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*airflow.ListClustersRequest, *airflow.Cluster] {
@@ -37,11 +40,14 @@ func (c clusterClient) Iterator(ctx context.Context, req *airflow.ListClustersRe
 }
 
 type clusterServiceListOperationsInternal struct {
-	*airflow.ListClusterOperationsResponse
+	ListClusterOperationsResponse *airflow.ListClusterOperationsResponse
 }
 
 func (r clusterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListClusterOperationsResponse.Operations
+}
+func (r clusterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListClusterOperationsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) OperationsIterator(ctx context.Context, req *airflow.ListClusterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*airflow.ListClusterOperationsRequest, *operation.Operation] {
@@ -56,11 +62,14 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *airflow.List
 }
 
 type clusterServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r clusterServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r clusterServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

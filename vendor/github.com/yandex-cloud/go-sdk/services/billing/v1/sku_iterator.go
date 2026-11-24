@@ -14,10 +14,13 @@ type SkuClientIterator interface {
 }
 
 type skuServiceListInternal struct {
-	*billing.ListSkusResponse
+	ListSkusResponse *billing.ListSkusResponse
 }
 
 func (r skuServiceListInternal) Items() []*billing.Sku { return r.ListSkusResponse.Skus }
+func (r skuServiceListInternal) GetNextPageToken() string {
+	return r.ListSkusResponse.GetNextPageToken()
+}
 
 func (c skuClient) Iterator(ctx context.Context, req *billing.ListSkusRequest, opts ...grpc.CallOption) *iterator.Iterator[*billing.ListSkusRequest, *billing.Sku] {
 	return iterator.NewIterator[*billing.ListSkusRequest, *billing.Sku](ctx, req,

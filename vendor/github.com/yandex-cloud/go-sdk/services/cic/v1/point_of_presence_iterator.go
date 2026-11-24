@@ -14,11 +14,14 @@ type PointOfPresenceClientIterator interface {
 }
 
 type pointOfPresenceServiceListInternal struct {
-	*cic.ListPointOfPresencesResponse
+	ListPointOfPresencesResponse *cic.ListPointOfPresencesResponse
 }
 
 func (r pointOfPresenceServiceListInternal) Items() []*cic.PointOfPresence {
 	return r.ListPointOfPresencesResponse.PointOfPresences
+}
+func (r pointOfPresenceServiceListInternal) GetNextPageToken() string {
+	return r.ListPointOfPresencesResponse.GetNextPageToken()
 }
 
 func (c pointOfPresenceClient) Iterator(ctx context.Context, req *cic.ListPointOfPresencesRequest, opts ...grpc.CallOption) *iterator.Iterator[*cic.ListPointOfPresencesRequest, *cic.PointOfPresence] {

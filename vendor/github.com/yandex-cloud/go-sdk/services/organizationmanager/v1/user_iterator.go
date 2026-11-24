@@ -14,11 +14,14 @@ type UserClientIterator interface {
 }
 
 type userServiceListMembersInternal struct {
-	*organizationmanager.ListMembersResponse
+	ListMembersResponse *organizationmanager.ListMembersResponse
 }
 
 func (r userServiceListMembersInternal) Items() []*organizationmanager.ListMembersResponse_OrganizationUser {
 	return r.ListMembersResponse.Users
+}
+func (r userServiceListMembersInternal) GetNextPageToken() string {
+	return r.ListMembersResponse.GetNextPageToken()
 }
 
 func (c userClient) MembersIterator(ctx context.Context, req *organizationmanager.ListMembersRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListMembersRequest, *organizationmanager.ListMembersResponse_OrganizationUser] {

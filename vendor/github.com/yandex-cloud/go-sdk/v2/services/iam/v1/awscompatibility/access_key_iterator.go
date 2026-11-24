@@ -16,11 +16,14 @@ type AccessKeyClientIterator interface {
 }
 
 type accessKeyServiceListInternal struct {
-	*awscompatibility.ListAccessKeysResponse
+	ListAccessKeysResponse *awscompatibility.ListAccessKeysResponse
 }
 
 func (r accessKeyServiceListInternal) Items() []*awscompatibility.AccessKey {
 	return r.ListAccessKeysResponse.AccessKeys
+}
+func (r accessKeyServiceListInternal) GetNextPageToken() string {
+	return r.ListAccessKeysResponse.GetNextPageToken()
 }
 
 func (c accessKeyClient) Iterator(ctx context.Context, req *awscompatibility.ListAccessKeysRequest, opts ...grpc.CallOption) *iterator.Iterator[*awscompatibility.ListAccessKeysRequest, *awscompatibility.AccessKey] {
@@ -35,11 +38,14 @@ func (c accessKeyClient) Iterator(ctx context.Context, req *awscompatibility.Lis
 }
 
 type accessKeyServiceListOperationsInternal struct {
-	*awscompatibility.ListAccessKeyOperationsResponse
+	ListAccessKeyOperationsResponse *awscompatibility.ListAccessKeyOperationsResponse
 }
 
 func (r accessKeyServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListAccessKeyOperationsResponse.Operations
+}
+func (r accessKeyServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListAccessKeyOperationsResponse.GetNextPageToken()
 }
 
 func (c accessKeyClient) OperationsIterator(ctx context.Context, req *awscompatibility.ListAccessKeyOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*awscompatibility.ListAccessKeyOperationsRequest, *operation.Operation] {

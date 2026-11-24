@@ -15,11 +15,14 @@ type AccessPolicyTemplateClientIterator interface {
 }
 
 type accessPolicyTemplateServiceListInternal struct {
-	*iam.ListAccessPolicyTemplatesResponse
+	ListAccessPolicyTemplatesResponse *iam.ListAccessPolicyTemplatesResponse
 }
 
 func (r accessPolicyTemplateServiceListInternal) Items() []*access.AccessPolicy {
 	return r.ListAccessPolicyTemplatesResponse.AccessPolicyTemplates
+}
+func (r accessPolicyTemplateServiceListInternal) GetNextPageToken() string {
+	return r.ListAccessPolicyTemplatesResponse.GetNextPageToken()
 }
 
 func (c accessPolicyTemplateClient) Iterator(ctx context.Context, req *iam.ListAccessPolicyTemplatesRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListAccessPolicyTemplatesRequest, *access.AccessPolicy] {

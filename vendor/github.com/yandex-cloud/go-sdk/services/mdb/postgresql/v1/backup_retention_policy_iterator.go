@@ -15,11 +15,14 @@ type BackupRetentionPolicyClientIterator interface {
 }
 
 type backupRetentionPolicyServiceListInternal struct {
-	*postgresql.ListBackupRetentionPoliciesResponse
+	ListBackupRetentionPoliciesResponse *postgresql.ListBackupRetentionPoliciesResponse
 }
 
 func (r backupRetentionPolicyServiceListInternal) Items() []*mdb.BackupRetentionPolicy {
 	return r.ListBackupRetentionPoliciesResponse.Policies
+}
+func (r backupRetentionPolicyServiceListInternal) GetNextPageToken() string {
+	return r.ListBackupRetentionPoliciesResponse.GetNextPageToken()
 }
 
 func (c backupRetentionPolicyClient) Iterator(ctx context.Context, req *postgresql.ListBackupRetentionPoliciesRequest, opts ...grpc.CallOption) *iterator.Iterator[*postgresql.ListBackupRetentionPoliciesRequest, *mdb.BackupRetentionPolicy] {

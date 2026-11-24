@@ -21,11 +21,14 @@ type ClusterClientIterator interface {
 }
 
 type clusterServiceListInternal struct {
-	*opensearch.ListClustersResponse
+	ListClustersResponse *opensearch.ListClustersResponse
 }
 
 func (r clusterServiceListInternal) Items() []*opensearch.Cluster {
 	return r.ListClustersResponse.Clusters
+}
+func (r clusterServiceListInternal) GetNextPageToken() string {
+	return r.ListClustersResponse.GetNextPageToken()
 }
 
 func (c clusterClient) Iterator(ctx context.Context, req *opensearch.ListClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*opensearch.ListClustersRequest, *opensearch.Cluster] {
@@ -40,11 +43,14 @@ func (c clusterClient) Iterator(ctx context.Context, req *opensearch.ListCluster
 }
 
 type clusterServiceListBackupsInternal struct {
-	*opensearch.ListClusterBackupsResponse
+	ListClusterBackupsResponse *opensearch.ListClusterBackupsResponse
 }
 
 func (r clusterServiceListBackupsInternal) Items() []*opensearch.Backup {
 	return r.ListClusterBackupsResponse.Backups
+}
+func (r clusterServiceListBackupsInternal) GetNextPageToken() string {
+	return r.ListClusterBackupsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) BackupsIterator(ctx context.Context, req *opensearch.ListClusterBackupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*opensearch.ListClusterBackupsRequest, *opensearch.Backup] {
@@ -59,11 +65,14 @@ func (c clusterClient) BackupsIterator(ctx context.Context, req *opensearch.List
 }
 
 type clusterServiceListLogsInternal struct {
-	*opensearch.ListClusterLogsResponse
+	ListClusterLogsResponse *opensearch.ListClusterLogsResponse
 }
 
 func (r clusterServiceListLogsInternal) Items() []*opensearch.LogRecord {
 	return r.ListClusterLogsResponse.Logs
+}
+func (r clusterServiceListLogsInternal) GetNextPageToken() string {
+	return r.ListClusterLogsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) LogsIterator(ctx context.Context, req *opensearch.ListClusterLogsRequest, opts ...grpc.CallOption) *iterator.Iterator[*opensearch.ListClusterLogsRequest, *opensearch.LogRecord] {
@@ -78,11 +87,14 @@ func (c clusterClient) LogsIterator(ctx context.Context, req *opensearch.ListClu
 }
 
 type clusterServiceListOperationsInternal struct {
-	*opensearch.ListClusterOperationsResponse
+	ListClusterOperationsResponse *opensearch.ListClusterOperationsResponse
 }
 
 func (r clusterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListClusterOperationsResponse.Operations
+}
+func (r clusterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListClusterOperationsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) OperationsIterator(ctx context.Context, req *opensearch.ListClusterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*opensearch.ListClusterOperationsRequest, *operation.Operation] {
@@ -97,11 +109,14 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *opensearch.L
 }
 
 type clusterServiceListHostsInternal struct {
-	*opensearch.ListClusterHostsResponse
+	ListClusterHostsResponse *opensearch.ListClusterHostsResponse
 }
 
 func (r clusterServiceListHostsInternal) Items() []*opensearch.Host {
 	return r.ListClusterHostsResponse.Hosts
+}
+func (r clusterServiceListHostsInternal) GetNextPageToken() string {
+	return r.ListClusterHostsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) HostsIterator(ctx context.Context, req *opensearch.ListClusterHostsRequest, opts ...grpc.CallOption) *iterator.Iterator[*opensearch.ListClusterHostsRequest, *opensearch.Host] {
@@ -116,11 +131,14 @@ func (c clusterClient) HostsIterator(ctx context.Context, req *opensearch.ListCl
 }
 
 type clusterServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r clusterServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r clusterServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

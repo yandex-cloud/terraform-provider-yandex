@@ -14,10 +14,13 @@ type JobClientIterator interface {
 }
 
 type jobServiceListInternal struct {
-	*dataproc.ListJobsResponse
+	ListJobsResponse *dataproc.ListJobsResponse
 }
 
 func (r jobServiceListInternal) Items() []*dataproc.Job { return r.ListJobsResponse.Jobs }
+func (r jobServiceListInternal) GetNextPageToken() string {
+	return r.ListJobsResponse.GetNextPageToken()
+}
 
 func (c jobClient) Iterator(ctx context.Context, req *dataproc.ListJobsRequest, opts ...grpc.CallOption) *iterator.Iterator[*dataproc.ListJobsRequest, *dataproc.Job] {
 	return iterator.NewIterator[*dataproc.ListJobsRequest, *dataproc.Job](ctx, req,

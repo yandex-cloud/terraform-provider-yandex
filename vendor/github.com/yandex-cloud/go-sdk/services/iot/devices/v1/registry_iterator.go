@@ -20,11 +20,14 @@ type RegistryClientIterator interface {
 }
 
 type registryServiceListInternal struct {
-	*devices.ListRegistriesResponse
+	ListRegistriesResponse *devices.ListRegistriesResponse
 }
 
 func (r registryServiceListInternal) Items() []*devices.Registry {
 	return r.ListRegistriesResponse.Registries
+}
+func (r registryServiceListInternal) GetNextPageToken() string {
+	return r.ListRegistriesResponse.GetNextPageToken()
 }
 
 func (c registryClient) Iterator(ctx context.Context, req *devices.ListRegistriesRequest, opts ...grpc.CallOption) *iterator.Iterator[*devices.ListRegistriesRequest, *devices.Registry] {
@@ -39,7 +42,7 @@ func (c registryClient) Iterator(ctx context.Context, req *devices.ListRegistrie
 }
 
 type registryServiceListCertificatesInternal struct {
-	*devices.ListRegistryCertificatesResponse
+	ListRegistryCertificatesResponse *devices.ListRegistryCertificatesResponse
 }
 
 func (r registryServiceListCertificatesInternal) Items() []*devices.RegistryCertificate {
@@ -58,7 +61,7 @@ func (c registryClient) CertificatesIterator(ctx context.Context, req *devices.L
 }
 
 type registryServiceListPasswordsInternal struct {
-	*devices.ListRegistryPasswordsResponse
+	ListRegistryPasswordsResponse *devices.ListRegistryPasswordsResponse
 }
 
 func (r registryServiceListPasswordsInternal) Items() []*devices.RegistryPassword {
@@ -77,11 +80,14 @@ func (c registryClient) PasswordsIterator(ctx context.Context, req *devices.List
 }
 
 type registryServiceListDeviceTopicAliasesInternal struct {
-	*devices.ListDeviceTopicAliasesResponse
+	ListDeviceTopicAliasesResponse *devices.ListDeviceTopicAliasesResponse
 }
 
 func (r registryServiceListDeviceTopicAliasesInternal) Items() []*devices.DeviceAlias {
 	return r.ListDeviceTopicAliasesResponse.Aliases
+}
+func (r registryServiceListDeviceTopicAliasesInternal) GetNextPageToken() string {
+	return r.ListDeviceTopicAliasesResponse.GetNextPageToken()
 }
 
 func (c registryClient) DeviceTopicAliasesIterator(ctx context.Context, req *devices.ListDeviceTopicAliasesRequest, opts ...grpc.CallOption) *iterator.Iterator[*devices.ListDeviceTopicAliasesRequest, *devices.DeviceAlias] {
@@ -96,11 +102,14 @@ func (c registryClient) DeviceTopicAliasesIterator(ctx context.Context, req *dev
 }
 
 type registryServiceListOperationsInternal struct {
-	*devices.ListRegistryOperationsResponse
+	ListRegistryOperationsResponse *devices.ListRegistryOperationsResponse
 }
 
 func (r registryServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListRegistryOperationsResponse.Operations
+}
+func (r registryServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListRegistryOperationsResponse.GetNextPageToken()
 }
 
 func (c registryClient) OperationsIterator(ctx context.Context, req *devices.ListRegistryOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*devices.ListRegistryOperationsRequest, *operation.Operation] {
@@ -115,7 +124,7 @@ func (c registryClient) OperationsIterator(ctx context.Context, req *devices.Lis
 }
 
 type registryServiceListDataStreamExportsInternal struct {
-	*devices.ListDataStreamExportsResponse
+	ListDataStreamExportsResponse *devices.ListDataStreamExportsResponse
 }
 
 func (r registryServiceListDataStreamExportsInternal) Items() []*devices.DataStreamExport {

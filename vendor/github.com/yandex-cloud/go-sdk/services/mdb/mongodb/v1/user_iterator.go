@@ -14,10 +14,13 @@ type UserClientIterator interface {
 }
 
 type userServiceListInternal struct {
-	*mongodb.ListUsersResponse
+	ListUsersResponse *mongodb.ListUsersResponse
 }
 
 func (r userServiceListInternal) Items() []*mongodb.User { return r.ListUsersResponse.Users }
+func (r userServiceListInternal) GetNextPageToken() string {
+	return r.ListUsersResponse.GetNextPageToken()
+}
 
 func (c userClient) Iterator(ctx context.Context, req *mongodb.ListUsersRequest, opts ...grpc.CallOption) *iterator.Iterator[*mongodb.ListUsersRequest, *mongodb.User] {
 	return iterator.NewIterator[*mongodb.ListUsersRequest, *mongodb.User](ctx, req,

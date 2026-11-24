@@ -14,10 +14,13 @@ type UserClientIterator interface {
 }
 
 type userServiceListInternal struct {
-	*mysql.ListUsersResponse
+	ListUsersResponse *mysql.ListUsersResponse
 }
 
 func (r userServiceListInternal) Items() []*mysql.User { return r.ListUsersResponse.Users }
+func (r userServiceListInternal) GetNextPageToken() string {
+	return r.ListUsersResponse.GetNextPageToken()
+}
 
 func (c userClient) Iterator(ctx context.Context, req *mysql.ListUsersRequest, opts ...grpc.CallOption) *iterator.Iterator[*mysql.ListUsersRequest, *mysql.User] {
 	return iterator.NewIterator[*mysql.ListUsersRequest, *mysql.User](ctx, req,

@@ -19,10 +19,13 @@ type SecretClientIterator interface {
 }
 
 type secretServiceListInternal struct {
-	*lockbox.ListSecretsResponse
+	ListSecretsResponse *lockbox.ListSecretsResponse
 }
 
 func (r secretServiceListInternal) Items() []*lockbox.Secret { return r.ListSecretsResponse.Secrets }
+func (r secretServiceListInternal) GetNextPageToken() string {
+	return r.ListSecretsResponse.GetNextPageToken()
+}
 
 func (c secretClient) Iterator(ctx context.Context, req *lockbox.ListSecretsRequest, opts ...grpc.CallOption) *iterator.Iterator[*lockbox.ListSecretsRequest, *lockbox.Secret] {
 	return iterator.NewIterator[*lockbox.ListSecretsRequest, *lockbox.Secret](ctx, req,
@@ -36,11 +39,14 @@ func (c secretClient) Iterator(ctx context.Context, req *lockbox.ListSecretsRequ
 }
 
 type secretServiceListVersionsInternal struct {
-	*lockbox.ListVersionsResponse
+	ListVersionsResponse *lockbox.ListVersionsResponse
 }
 
 func (r secretServiceListVersionsInternal) Items() []*lockbox.Version {
 	return r.ListVersionsResponse.Versions
+}
+func (r secretServiceListVersionsInternal) GetNextPageToken() string {
+	return r.ListVersionsResponse.GetNextPageToken()
 }
 
 func (c secretClient) VersionsIterator(ctx context.Context, req *lockbox.ListVersionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*lockbox.ListVersionsRequest, *lockbox.Version] {
@@ -55,11 +61,14 @@ func (c secretClient) VersionsIterator(ctx context.Context, req *lockbox.ListVer
 }
 
 type secretServiceListOperationsInternal struct {
-	*lockbox.ListSecretOperationsResponse
+	ListSecretOperationsResponse *lockbox.ListSecretOperationsResponse
 }
 
 func (r secretServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListSecretOperationsResponse.Operations
+}
+func (r secretServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListSecretOperationsResponse.GetNextPageToken()
 }
 
 func (c secretClient) OperationsIterator(ctx context.Context, req *lockbox.ListSecretOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*lockbox.ListSecretOperationsRequest, *operation.Operation] {
@@ -74,11 +83,14 @@ func (c secretClient) OperationsIterator(ctx context.Context, req *lockbox.ListS
 }
 
 type secretServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r secretServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r secretServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c secretClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

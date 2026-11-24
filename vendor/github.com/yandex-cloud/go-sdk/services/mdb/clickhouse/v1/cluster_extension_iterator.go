@@ -14,11 +14,14 @@ type ClusterExtensionClientIterator interface {
 }
 
 type clusterExtensionServiceListInternal struct {
-	*clickhouse.ListClusterExtensionsResponse
+	ListClusterExtensionsResponse *clickhouse.ListClusterExtensionsResponse
 }
 
 func (r clusterExtensionServiceListInternal) Items() []*clickhouse.ClusterExtension {
 	return r.ListClusterExtensionsResponse.Extensions
+}
+func (r clusterExtensionServiceListInternal) GetNextPageToken() string {
+	return r.ListClusterExtensionsResponse.GetNextPageToken()
 }
 
 func (c clusterExtensionClient) Iterator(ctx context.Context, req *clickhouse.ListClusterExtensionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListClusterExtensionsRequest, *clickhouse.ClusterExtension] {

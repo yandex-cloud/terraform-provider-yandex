@@ -23,11 +23,14 @@ type FunctionClientIterator interface {
 }
 
 type functionServiceListInternal struct {
-	*functions.ListFunctionsResponse
+	ListFunctionsResponse *functions.ListFunctionsResponse
 }
 
 func (r functionServiceListInternal) Items() []*functions.Function {
 	return r.ListFunctionsResponse.Functions
+}
+func (r functionServiceListInternal) GetNextPageToken() string {
+	return r.ListFunctionsResponse.GetNextPageToken()
 }
 
 func (c functionClient) Iterator(ctx context.Context, req *functions.ListFunctionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*functions.ListFunctionsRequest, *functions.Function] {
@@ -42,11 +45,14 @@ func (c functionClient) Iterator(ctx context.Context, req *functions.ListFunctio
 }
 
 type functionServiceListVersionsInternal struct {
-	*functions.ListFunctionsVersionsResponse
+	ListFunctionsVersionsResponse *functions.ListFunctionsVersionsResponse
 }
 
 func (r functionServiceListVersionsInternal) Items() []*functions.Version {
 	return r.ListFunctionsVersionsResponse.Versions
+}
+func (r functionServiceListVersionsInternal) GetNextPageToken() string {
+	return r.ListFunctionsVersionsResponse.GetNextPageToken()
 }
 
 func (c functionClient) VersionsIterator(ctx context.Context, req *functions.ListFunctionsVersionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*functions.ListFunctionsVersionsRequest, *functions.Version] {
@@ -61,11 +67,14 @@ func (c functionClient) VersionsIterator(ctx context.Context, req *functions.Lis
 }
 
 type functionServiceListFunctionVersionsInternal struct {
-	*functions.ListFunctionsVersionsResponse
+	ListFunctionsVersionsResponse *functions.ListFunctionsVersionsResponse
 }
 
 func (r functionServiceListFunctionVersionsInternal) Items() []*functions.Version {
 	return r.ListFunctionsVersionsResponse.Versions
+}
+func (r functionServiceListFunctionVersionsInternal) GetNextPageToken() string {
+	return r.ListFunctionsVersionsResponse.GetNextPageToken()
 }
 
 func (c functionClient) FunctionVersionsIterator(ctx context.Context, req *functions.ListFunctionsVersionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*functions.ListFunctionsVersionsRequest, *functions.Version] {
@@ -80,11 +89,14 @@ func (c functionClient) FunctionVersionsIterator(ctx context.Context, req *funct
 }
 
 type functionServiceListTagHistoryInternal struct {
-	*functions.ListFunctionTagHistoryResponse
+	ListFunctionTagHistoryResponse *functions.ListFunctionTagHistoryResponse
 }
 
 func (r functionServiceListTagHistoryInternal) Items() []*functions.ListFunctionTagHistoryResponse_FunctionTagHistoryRecord {
 	return r.ListFunctionTagHistoryResponse.FunctionTagHistoryRecord
+}
+func (r functionServiceListTagHistoryInternal) GetNextPageToken() string {
+	return r.ListFunctionTagHistoryResponse.GetNextPageToken()
 }
 
 func (c functionClient) TagHistoryIterator(ctx context.Context, req *functions.ListFunctionTagHistoryRequest, opts ...grpc.CallOption) *iterator.Iterator[*functions.ListFunctionTagHistoryRequest, *functions.ListFunctionTagHistoryResponse_FunctionTagHistoryRecord] {
@@ -99,11 +111,14 @@ func (c functionClient) TagHistoryIterator(ctx context.Context, req *functions.L
 }
 
 type functionServiceListFunctionTagHistoryInternal struct {
-	*functions.ListFunctionTagHistoryResponse
+	ListFunctionTagHistoryResponse *functions.ListFunctionTagHistoryResponse
 }
 
 func (r functionServiceListFunctionTagHistoryInternal) Items() []*functions.ListFunctionTagHistoryResponse_FunctionTagHistoryRecord {
 	return r.ListFunctionTagHistoryResponse.FunctionTagHistoryRecord
+}
+func (r functionServiceListFunctionTagHistoryInternal) GetNextPageToken() string {
+	return r.ListFunctionTagHistoryResponse.GetNextPageToken()
 }
 
 func (c functionClient) FunctionTagHistoryIterator(ctx context.Context, req *functions.ListFunctionTagHistoryRequest, opts ...grpc.CallOption) *iterator.Iterator[*functions.ListFunctionTagHistoryRequest, *functions.ListFunctionTagHistoryResponse_FunctionTagHistoryRecord] {
@@ -118,11 +133,14 @@ func (c functionClient) FunctionTagHistoryIterator(ctx context.Context, req *fun
 }
 
 type functionServiceListOperationsInternal struct {
-	*functions.ListFunctionOperationsResponse
+	ListFunctionOperationsResponse *functions.ListFunctionOperationsResponse
 }
 
 func (r functionServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListFunctionOperationsResponse.Operations
+}
+func (r functionServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListFunctionOperationsResponse.GetNextPageToken()
 }
 
 func (c functionClient) OperationsIterator(ctx context.Context, req *functions.ListFunctionOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*functions.ListFunctionOperationsRequest, *operation.Operation] {
@@ -137,11 +155,14 @@ func (c functionClient) OperationsIterator(ctx context.Context, req *functions.L
 }
 
 type functionServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r functionServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r functionServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c functionClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -156,11 +177,14 @@ func (c functionClient) AccessBindingsIterator(ctx context.Context, req *access.
 }
 
 type functionServiceListScalingPoliciesInternal struct {
-	*functions.ListScalingPoliciesResponse
+	ListScalingPoliciesResponse *functions.ListScalingPoliciesResponse
 }
 
 func (r functionServiceListScalingPoliciesInternal) Items() []*functions.ScalingPolicy {
 	return r.ListScalingPoliciesResponse.ScalingPolicies
+}
+func (r functionServiceListScalingPoliciesInternal) GetNextPageToken() string {
+	return r.ListScalingPoliciesResponse.GetNextPageToken()
 }
 
 func (c functionClient) ScalingPoliciesIterator(ctx context.Context, req *functions.ListScalingPoliciesRequest, opts ...grpc.CallOption) *iterator.Iterator[*functions.ListScalingPoliciesRequest, *functions.ScalingPolicy] {

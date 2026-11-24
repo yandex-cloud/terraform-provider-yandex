@@ -16,11 +16,14 @@ type MfaEnforcementClientIterator interface {
 }
 
 type mfaEnforcementServiceListInternal struct {
-	*organizationmanager.ListMfaEnforcementsResponse
+	ListMfaEnforcementsResponse *organizationmanager.ListMfaEnforcementsResponse
 }
 
 func (r mfaEnforcementServiceListInternal) Items() []*organizationmanager.MfaEnforcement {
 	return r.ListMfaEnforcementsResponse.MfaEnforcements
+}
+func (r mfaEnforcementServiceListInternal) GetNextPageToken() string {
+	return r.ListMfaEnforcementsResponse.GetNextPageToken()
 }
 
 func (c mfaEnforcementClient) Iterator(ctx context.Context, req *organizationmanager.ListMfaEnforcementsRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListMfaEnforcementsRequest, *organizationmanager.MfaEnforcement] {
@@ -35,11 +38,14 @@ func (c mfaEnforcementClient) Iterator(ctx context.Context, req *organizationman
 }
 
 type mfaEnforcementServiceListAudienceInternal struct {
-	*organizationmanager.ListAudienceResponse
+	ListAudienceResponse *organizationmanager.ListAudienceResponse
 }
 
 func (r mfaEnforcementServiceListAudienceInternal) Items() []*organizationmanager.ListAudienceResponse_Subject {
 	return r.ListAudienceResponse.Subjects
+}
+func (r mfaEnforcementServiceListAudienceInternal) GetNextPageToken() string {
+	return r.ListAudienceResponse.GetNextPageToken()
 }
 
 func (c mfaEnforcementClient) AudienceIterator(ctx context.Context, req *organizationmanager.ListAudienceRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListAudienceRequest, *organizationmanager.ListAudienceResponse_Subject] {
@@ -54,11 +60,14 @@ func (c mfaEnforcementClient) AudienceIterator(ctx context.Context, req *organiz
 }
 
 type mfaEnforcementServiceListExcludedAudienceInternal struct {
-	*organizationmanager.ListExcludedAudienceResponse
+	ListExcludedAudienceResponse *organizationmanager.ListExcludedAudienceResponse
 }
 
 func (r mfaEnforcementServiceListExcludedAudienceInternal) Items() []*organizationmanager.ListExcludedAudienceResponse_Subject {
 	return r.ListExcludedAudienceResponse.Subjects
+}
+func (r mfaEnforcementServiceListExcludedAudienceInternal) GetNextPageToken() string {
+	return r.ListExcludedAudienceResponse.GetNextPageToken()
 }
 
 func (c mfaEnforcementClient) ExcludedAudienceIterator(ctx context.Context, req *organizationmanager.ListExcludedAudienceRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListExcludedAudienceRequest, *organizationmanager.ListExcludedAudienceResponse_Subject] {

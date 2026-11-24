@@ -22,11 +22,14 @@ type ClusterClientIterator interface {
 }
 
 type clusterServiceListInternal struct {
-	*greenplum.ListClustersResponse
+	ListClustersResponse *greenplum.ListClustersResponse
 }
 
 func (r clusterServiceListInternal) Items() []*greenplum.Cluster {
 	return r.ListClustersResponse.Clusters
+}
+func (r clusterServiceListInternal) GetNextPageToken() string {
+	return r.ListClustersResponse.GetNextPageToken()
 }
 
 func (c clusterClient) Iterator(ctx context.Context, req *greenplum.ListClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*greenplum.ListClustersRequest, *greenplum.Cluster] {
@@ -41,11 +44,14 @@ func (c clusterClient) Iterator(ctx context.Context, req *greenplum.ListClusters
 }
 
 type clusterServiceListLogsInternal struct {
-	*greenplum.ListClusterLogsResponse
+	ListClusterLogsResponse *greenplum.ListClusterLogsResponse
 }
 
 func (r clusterServiceListLogsInternal) Items() []*greenplum.LogRecord {
 	return r.ListClusterLogsResponse.Logs
+}
+func (r clusterServiceListLogsInternal) GetNextPageToken() string {
+	return r.ListClusterLogsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) LogsIterator(ctx context.Context, req *greenplum.ListClusterLogsRequest, opts ...grpc.CallOption) *iterator.Iterator[*greenplum.ListClusterLogsRequest, *greenplum.LogRecord] {
@@ -60,11 +66,14 @@ func (c clusterClient) LogsIterator(ctx context.Context, req *greenplum.ListClus
 }
 
 type clusterServiceListOperationsInternal struct {
-	*greenplum.ListClusterOperationsResponse
+	ListClusterOperationsResponse *greenplum.ListClusterOperationsResponse
 }
 
 func (r clusterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListClusterOperationsResponse.Operations
+}
+func (r clusterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListClusterOperationsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) OperationsIterator(ctx context.Context, req *greenplum.ListClusterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*greenplum.ListClusterOperationsRequest, *operation.Operation] {
@@ -79,11 +88,14 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *greenplum.Li
 }
 
 type clusterServiceListMasterHostsInternal struct {
-	*greenplum.ListClusterHostsResponse
+	ListClusterHostsResponse *greenplum.ListClusterHostsResponse
 }
 
 func (r clusterServiceListMasterHostsInternal) Items() []*greenplum.Host {
 	return r.ListClusterHostsResponse.Hosts
+}
+func (r clusterServiceListMasterHostsInternal) GetNextPageToken() string {
+	return r.ListClusterHostsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) MasterHostsIterator(ctx context.Context, req *greenplum.ListClusterHostsRequest, opts ...grpc.CallOption) *iterator.Iterator[*greenplum.ListClusterHostsRequest, *greenplum.Host] {
@@ -98,11 +110,14 @@ func (c clusterClient) MasterHostsIterator(ctx context.Context, req *greenplum.L
 }
 
 type clusterServiceListSegmentHostsInternal struct {
-	*greenplum.ListClusterHostsResponse
+	ListClusterHostsResponse *greenplum.ListClusterHostsResponse
 }
 
 func (r clusterServiceListSegmentHostsInternal) Items() []*greenplum.Host {
 	return r.ListClusterHostsResponse.Hosts
+}
+func (r clusterServiceListSegmentHostsInternal) GetNextPageToken() string {
+	return r.ListClusterHostsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) SegmentHostsIterator(ctx context.Context, req *greenplum.ListClusterHostsRequest, opts ...grpc.CallOption) *iterator.Iterator[*greenplum.ListClusterHostsRequest, *greenplum.Host] {
@@ -117,11 +132,14 @@ func (c clusterClient) SegmentHostsIterator(ctx context.Context, req *greenplum.
 }
 
 type clusterServiceListBackupsInternal struct {
-	*greenplum.ListClusterBackupsResponse
+	ListClusterBackupsResponse *greenplum.ListClusterBackupsResponse
 }
 
 func (r clusterServiceListBackupsInternal) Items() []*greenplum.Backup {
 	return r.ListClusterBackupsResponse.Backups
+}
+func (r clusterServiceListBackupsInternal) GetNextPageToken() string {
+	return r.ListClusterBackupsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) BackupsIterator(ctx context.Context, req *greenplum.ListClusterBackupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*greenplum.ListClusterBackupsRequest, *greenplum.Backup] {
@@ -136,11 +154,14 @@ func (c clusterClient) BackupsIterator(ctx context.Context, req *greenplum.ListC
 }
 
 type clusterServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r clusterServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r clusterServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

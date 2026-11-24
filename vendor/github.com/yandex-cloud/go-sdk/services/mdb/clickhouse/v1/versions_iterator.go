@@ -14,11 +14,14 @@ type VersionsClientIterator interface {
 }
 
 type versionsServiceListInternal struct {
-	*clickhouse.ListVersionsResponse
+	ListVersionsResponse *clickhouse.ListVersionsResponse
 }
 
 func (r versionsServiceListInternal) Items() []*clickhouse.Version {
 	return r.ListVersionsResponse.Version
+}
+func (r versionsServiceListInternal) GetNextPageToken() string {
+	return r.ListVersionsResponse.GetNextPageToken()
 }
 
 func (c versionsClient) Iterator(ctx context.Context, req *clickhouse.ListVersionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListVersionsRequest, *clickhouse.Version] {

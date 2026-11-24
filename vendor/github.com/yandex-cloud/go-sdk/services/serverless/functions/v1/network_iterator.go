@@ -15,11 +15,14 @@ type NetworkClientIterator interface {
 }
 
 type networkServiceListUsedInternal struct {
-	*functions.ListUsedNetworksResponse
+	ListUsedNetworksResponse *functions.ListUsedNetworksResponse
 }
 
 func (r networkServiceListUsedInternal) Items() []*functions.UsedNetwork {
 	return r.ListUsedNetworksResponse.Networks
+}
+func (r networkServiceListUsedInternal) GetNextPageToken() string {
+	return r.ListUsedNetworksResponse.GetNextPageToken()
 }
 
 func (c networkClient) UsedIterator(ctx context.Context, req *functions.ListUsedNetworksRequest, opts ...grpc.CallOption) *iterator.Iterator[*functions.ListUsedNetworksRequest, *functions.UsedNetwork] {
@@ -34,11 +37,14 @@ func (c networkClient) UsedIterator(ctx context.Context, req *functions.ListUsed
 }
 
 type networkServiceListConnectedResourcesInternal struct {
-	*functions.ListConnectedResourcesResponse
+	ListConnectedResourcesResponse *functions.ListConnectedResourcesResponse
 }
 
 func (r networkServiceListConnectedResourcesInternal) Items() []*functions.ListConnectedResourcesResponse_ConnectedResource {
 	return r.ListConnectedResourcesResponse.Resources
+}
+func (r networkServiceListConnectedResourcesInternal) GetNextPageToken() string {
+	return r.ListConnectedResourcesResponse.GetNextPageToken()
 }
 
 func (c networkClient) ConnectedResourcesIterator(ctx context.Context, req *functions.ListConnectedResourcesRequest, opts ...grpc.CallOption) *iterator.Iterator[*functions.ListConnectedResourcesRequest, *functions.ListConnectedResourcesResponse_ConnectedResource] {

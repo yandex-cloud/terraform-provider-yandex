@@ -17,10 +17,13 @@ type AddressClientIterator interface {
 }
 
 type addressServiceListInternal struct {
-	*vpc.ListAddressesResponse
+	ListAddressesResponse *vpc.ListAddressesResponse
 }
 
 func (r addressServiceListInternal) Items() []*vpc.Address { return r.ListAddressesResponse.Addresses }
+func (r addressServiceListInternal) GetNextPageToken() string {
+	return r.ListAddressesResponse.GetNextPageToken()
+}
 
 func (c addressClient) Iterator(ctx context.Context, req *vpc.ListAddressesRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListAddressesRequest, *vpc.Address] {
 	return iterator.NewIterator[*vpc.ListAddressesRequest, *vpc.Address](ctx, req,
@@ -34,11 +37,14 @@ func (c addressClient) Iterator(ctx context.Context, req *vpc.ListAddressesReque
 }
 
 type addressServiceListBySubnetInternal struct {
-	*vpc.ListAddressesBySubnetResponse
+	ListAddressesBySubnetResponse *vpc.ListAddressesBySubnetResponse
 }
 
 func (r addressServiceListBySubnetInternal) Items() []*vpc.Address {
 	return r.ListAddressesBySubnetResponse.Addresses
+}
+func (r addressServiceListBySubnetInternal) GetNextPageToken() string {
+	return r.ListAddressesBySubnetResponse.GetNextPageToken()
 }
 
 func (c addressClient) BySubnetIterator(ctx context.Context, req *vpc.ListAddressesBySubnetRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListAddressesBySubnetRequest, *vpc.Address] {
@@ -53,11 +59,14 @@ func (c addressClient) BySubnetIterator(ctx context.Context, req *vpc.ListAddres
 }
 
 type addressServiceListOperationsInternal struct {
-	*vpc.ListAddressOperationsResponse
+	ListAddressOperationsResponse *vpc.ListAddressOperationsResponse
 }
 
 func (r addressServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListAddressOperationsResponse.Operations
+}
+func (r addressServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListAddressOperationsResponse.GetNextPageToken()
 }
 
 func (c addressClient) OperationsIterator(ctx context.Context, req *vpc.ListAddressOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListAddressOperationsRequest, *operation.Operation] {

@@ -18,11 +18,14 @@ type TrunkConnectionClientIterator interface {
 }
 
 type trunkConnectionServiceListInternal struct {
-	*cic.ListTrunkConnectionsResponse
+	ListTrunkConnectionsResponse *cic.ListTrunkConnectionsResponse
 }
 
 func (r trunkConnectionServiceListInternal) Items() []*cic.TrunkConnection {
 	return r.ListTrunkConnectionsResponse.TrunkConnections
+}
+func (r trunkConnectionServiceListInternal) GetNextPageToken() string {
+	return r.ListTrunkConnectionsResponse.GetNextPageToken()
 }
 
 func (c trunkConnectionClient) Iterator(ctx context.Context, req *cic.ListTrunkConnectionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cic.ListTrunkConnectionsRequest, *cic.TrunkConnection] {
@@ -37,11 +40,14 @@ func (c trunkConnectionClient) Iterator(ctx context.Context, req *cic.ListTrunkC
 }
 
 type trunkConnectionServiceListPrivateConnectionsInternal struct {
-	*cic.ListTrunkConnectionPrivateConnectionsResponse
+	ListTrunkConnectionPrivateConnectionsResponse *cic.ListTrunkConnectionPrivateConnectionsResponse
 }
 
 func (r trunkConnectionServiceListPrivateConnectionsInternal) Items() []*cic.PrivateConnection {
 	return r.ListTrunkConnectionPrivateConnectionsResponse.PrivateConnections
+}
+func (r trunkConnectionServiceListPrivateConnectionsInternal) GetNextPageToken() string {
+	return r.ListTrunkConnectionPrivateConnectionsResponse.GetNextPageToken()
 }
 
 func (c trunkConnectionClient) PrivateConnectionsIterator(ctx context.Context, req *cic.ListTrunkConnectionPrivateConnectionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cic.ListTrunkConnectionPrivateConnectionsRequest, *cic.PrivateConnection] {
@@ -56,11 +62,14 @@ func (c trunkConnectionClient) PrivateConnectionsIterator(ctx context.Context, r
 }
 
 type trunkConnectionServiceListPublicConnectionsInternal struct {
-	*cic.ListTrunkConnectionPublicConnectionsResponse
+	ListTrunkConnectionPublicConnectionsResponse *cic.ListTrunkConnectionPublicConnectionsResponse
 }
 
 func (r trunkConnectionServiceListPublicConnectionsInternal) Items() []*cic.PublicConnection {
 	return r.ListTrunkConnectionPublicConnectionsResponse.PublicConnections
+}
+func (r trunkConnectionServiceListPublicConnectionsInternal) GetNextPageToken() string {
+	return r.ListTrunkConnectionPublicConnectionsResponse.GetNextPageToken()
 }
 
 func (c trunkConnectionClient) PublicConnectionsIterator(ctx context.Context, req *cic.ListTrunkConnectionPublicConnectionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cic.ListTrunkConnectionPublicConnectionsRequest, *cic.PublicConnection] {
@@ -75,11 +84,14 @@ func (c trunkConnectionClient) PublicConnectionsIterator(ctx context.Context, re
 }
 
 type trunkConnectionServiceListOperationsInternal struct {
-	*cic.ListTrunkConnectionOperationsResponse
+	ListTrunkConnectionOperationsResponse *cic.ListTrunkConnectionOperationsResponse
 }
 
 func (r trunkConnectionServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListTrunkConnectionOperationsResponse.Operations
+}
+func (r trunkConnectionServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListTrunkConnectionOperationsResponse.GetNextPageToken()
 }
 
 func (c trunkConnectionClient) OperationsIterator(ctx context.Context, req *cic.ListTrunkConnectionOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cic.ListTrunkConnectionOperationsRequest, *operation.Operation] {

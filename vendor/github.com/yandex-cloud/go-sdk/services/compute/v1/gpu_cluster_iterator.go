@@ -19,11 +19,14 @@ type GpuClusterClientIterator interface {
 }
 
 type gpuClusterServiceListInternal struct {
-	*compute.ListGpuClustersResponse
+	ListGpuClustersResponse *compute.ListGpuClustersResponse
 }
 
 func (r gpuClusterServiceListInternal) Items() []*compute.GpuCluster {
 	return r.ListGpuClustersResponse.GpuClusters
+}
+func (r gpuClusterServiceListInternal) GetNextPageToken() string {
+	return r.ListGpuClustersResponse.GetNextPageToken()
 }
 
 func (c gpuClusterClient) Iterator(ctx context.Context, req *compute.ListGpuClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListGpuClustersRequest, *compute.GpuCluster] {
@@ -38,11 +41,14 @@ func (c gpuClusterClient) Iterator(ctx context.Context, req *compute.ListGpuClus
 }
 
 type gpuClusterServiceListOperationsInternal struct {
-	*compute.ListGpuClusterOperationsResponse
+	ListGpuClusterOperationsResponse *compute.ListGpuClusterOperationsResponse
 }
 
 func (r gpuClusterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListGpuClusterOperationsResponse.Operations
+}
+func (r gpuClusterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListGpuClusterOperationsResponse.GetNextPageToken()
 }
 
 func (c gpuClusterClient) OperationsIterator(ctx context.Context, req *compute.ListGpuClusterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListGpuClusterOperationsRequest, *operation.Operation] {
@@ -57,11 +63,14 @@ func (c gpuClusterClient) OperationsIterator(ctx context.Context, req *compute.L
 }
 
 type gpuClusterServiceListInstancesInternal struct {
-	*compute.ListGpuClusterInstancesResponse
+	ListGpuClusterInstancesResponse *compute.ListGpuClusterInstancesResponse
 }
 
 func (r gpuClusterServiceListInstancesInternal) Items() []*compute.Instance {
 	return r.ListGpuClusterInstancesResponse.Instances
+}
+func (r gpuClusterServiceListInstancesInternal) GetNextPageToken() string {
+	return r.ListGpuClusterInstancesResponse.GetNextPageToken()
 }
 
 func (c gpuClusterClient) InstancesIterator(ctx context.Context, req *compute.ListGpuClusterInstancesRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListGpuClusterInstancesRequest, *compute.Instance] {
@@ -76,11 +85,14 @@ func (c gpuClusterClient) InstancesIterator(ctx context.Context, req *compute.Li
 }
 
 type gpuClusterServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r gpuClusterServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r gpuClusterServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c gpuClusterClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

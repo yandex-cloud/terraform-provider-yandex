@@ -18,11 +18,14 @@ type RegistryClientIterator interface {
 }
 
 type registryServiceListInternal struct {
-	*cloudregistry.ListRegistriesResponse
+	ListRegistriesResponse *cloudregistry.ListRegistriesResponse
 }
 
 func (r registryServiceListInternal) Items() []*cloudregistry.Registry {
 	return r.ListRegistriesResponse.Registries
+}
+func (r registryServiceListInternal) GetNextPageToken() string {
+	return r.ListRegistriesResponse.GetNextPageToken()
 }
 
 func (c registryClient) Iterator(ctx context.Context, req *cloudregistry.ListRegistriesRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudregistry.ListRegistriesRequest, *cloudregistry.Registry] {
@@ -37,11 +40,14 @@ func (c registryClient) Iterator(ctx context.Context, req *cloudregistry.ListReg
 }
 
 type registryServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r registryServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r registryServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c registryClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -56,7 +62,7 @@ func (c registryClient) AccessBindingsIterator(ctx context.Context, req *access.
 }
 
 type registryServiceListIpPermissionsInternal struct {
-	*cloudregistry.ListIpPermissionsResponse
+	ListIpPermissionsResponse *cloudregistry.ListIpPermissionsResponse
 }
 
 func (r registryServiceListIpPermissionsInternal) Items() []*cloudregistry.IpPermission {
@@ -75,11 +81,14 @@ func (c registryClient) IpPermissionsIterator(ctx context.Context, req *cloudreg
 }
 
 type registryServiceListArtifactsInternal struct {
-	*cloudregistry.ListArtifactsResponse
+	ListArtifactsResponse *cloudregistry.ListArtifactsResponse
 }
 
 func (r registryServiceListArtifactsInternal) Items() []*cloudregistry.Artifact {
 	return r.ListArtifactsResponse.Artifacts
+}
+func (r registryServiceListArtifactsInternal) GetNextPageToken() string {
+	return r.ListArtifactsResponse.GetNextPageToken()
 }
 
 func (c registryClient) ArtifactsIterator(ctx context.Context, req *cloudregistry.ListArtifactsRequest, opts ...grpc.CallOption) *iterator.Iterator[*cloudregistry.ListArtifactsRequest, *cloudregistry.Artifact] {

@@ -14,11 +14,14 @@ type OAuthClientSecretClientIterator interface {
 }
 
 type oAuthClientSecretServiceListInternal struct {
-	*iam.ListOAuthClientSecretsResponse
+	ListOAuthClientSecretsResponse *iam.ListOAuthClientSecretsResponse
 }
 
 func (r oAuthClientSecretServiceListInternal) Items() []*iam.OAuthClientSecret {
 	return r.ListOAuthClientSecretsResponse.OauthClientSecrets
+}
+func (r oAuthClientSecretServiceListInternal) GetNextPageToken() string {
+	return r.ListOAuthClientSecretsResponse.GetNextPageToken()
 }
 
 func (c oAuthClientSecretClient) Iterator(ctx context.Context, req *iam.ListOAuthClientSecretsRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListOAuthClientSecretsRequest, *iam.OAuthClientSecret] {

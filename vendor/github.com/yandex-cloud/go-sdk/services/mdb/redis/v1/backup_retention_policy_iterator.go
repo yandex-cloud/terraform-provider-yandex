@@ -16,11 +16,14 @@ type BackupRetentionPolicyClientIterator interface {
 }
 
 type backupRetentionPolicyServiceListInternal struct {
-	*redis.ListBackupRetentionPoliciesResponse
+	ListBackupRetentionPoliciesResponse *redis.ListBackupRetentionPoliciesResponse
 }
 
 func (r backupRetentionPolicyServiceListInternal) Items() []*mdb.BackupRetentionPolicy {
 	return r.ListBackupRetentionPoliciesResponse.Policies
+}
+func (r backupRetentionPolicyServiceListInternal) GetNextPageToken() string {
+	return r.ListBackupRetentionPoliciesResponse.GetNextPageToken()
 }
 
 func (c backupRetentionPolicyClient) Iterator(ctx context.Context, req *redis.ListBackupRetentionPoliciesRequest, opts ...grpc.CallOption) *iterator.Iterator[*redis.ListBackupRetentionPoliciesRequest, *mdb.BackupRetentionPolicy] {
@@ -35,11 +38,14 @@ func (c backupRetentionPolicyClient) Iterator(ctx context.Context, req *redis.Li
 }
 
 type backupRetentionPolicyServiceListByFolderInternal struct {
-	*redis.ListBackupRetentionPoliciesResponse
+	ListBackupRetentionPoliciesResponse *redis.ListBackupRetentionPoliciesResponse
 }
 
 func (r backupRetentionPolicyServiceListByFolderInternal) Items() []*mdb.BackupRetentionPolicy {
 	return r.ListBackupRetentionPoliciesResponse.Policies
+}
+func (r backupRetentionPolicyServiceListByFolderInternal) GetNextPageToken() string {
+	return r.ListBackupRetentionPoliciesResponse.GetNextPageToken()
 }
 
 func (c backupRetentionPolicyClient) ByFolderIterator(ctx context.Context, req *redis.ListBackupRetentionPoliciesByFolderRequest, opts ...grpc.CallOption) *iterator.Iterator[*redis.ListBackupRetentionPoliciesByFolderRequest, *mdb.BackupRetentionPolicy] {

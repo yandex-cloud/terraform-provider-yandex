@@ -14,11 +14,14 @@ type OsLoginClientIterator interface {
 }
 
 type osLoginServiceListProfilesInternal struct {
-	*organizationmanager.ListOsLoginProfilesResponse
+	ListOsLoginProfilesResponse *organizationmanager.ListOsLoginProfilesResponse
 }
 
 func (r osLoginServiceListProfilesInternal) Items() []*organizationmanager.OsLoginProfile {
 	return r.ListOsLoginProfilesResponse.Profiles
+}
+func (r osLoginServiceListProfilesInternal) GetNextPageToken() string {
+	return r.ListOsLoginProfilesResponse.GetNextPageToken()
 }
 
 func (c osLoginClient) ProfilesIterator(ctx context.Context, req *organizationmanager.ListOsLoginProfilesRequest, opts ...grpc.CallOption) *iterator.Iterator[*organizationmanager.ListOsLoginProfilesRequest, *organizationmanager.OsLoginProfile] {

@@ -167,6 +167,7 @@ type yandexComputeReservedInstancePoolModel struct {
 	ResourcesSpec          types.Object   `tfsdk:"resources_spec"`
 	Size                   types.Int64    `tfsdk:"size"`
 	SlotStats              types.Object   `tfsdk:"slot_stats"`
+	Status                 types.String   `tfsdk:"status"`
 	Zone                   types.String   `tfsdk:"zone"`
 	Timeouts               timeouts.Value `tfsdk:"timeouts"`
 }
@@ -230,6 +231,9 @@ func (m *yandexComputeReservedInstancePoolModel) GetSize() types.Int64 {
 }
 func (m *yandexComputeReservedInstancePoolModel) GetSlotStats() types.Object {
 	return m.SlotStats
+}
+func (m *yandexComputeReservedInstancePoolModel) GetStatus() types.String {
+	return m.Status
 }
 func (m *yandexComputeReservedInstancePoolModel) GetZone() types.String {
 	return m.Zone
@@ -295,6 +299,9 @@ func (m *yandexComputeReservedInstancePoolModel) SetSize(target types.Int64) {
 func (m *yandexComputeReservedInstancePoolModel) SetSlotStats(target types.Object) {
 	m.SlotStats = target
 }
+func (m *yandexComputeReservedInstancePoolModel) SetStatus(target types.String) {
+	m.Status = target
+}
 func (m *yandexComputeReservedInstancePoolModel) SetZone(target types.String) {
 	m.Zone = target
 }
@@ -321,6 +328,7 @@ func NewYandexComputeReservedInstancePoolModel() yandexComputeReservedInstancePo
 		ResourcesSpec:          types.ObjectNull(yandexComputeReservedInstancePoolResourcesSpecModelType.AttrTypes),
 		Size:                   types.Int64Null(),
 		SlotStats:              types.ObjectNull(yandexComputeReservedInstancePoolSlotStatsModelType.AttrTypes),
+		Status:                 types.StringNull(),
 		Zone:                   types.StringNull(),
 	}
 }
@@ -386,6 +394,9 @@ func yandexComputeReservedInstancePoolModelFillUnknown(target yandexComputeReser
 	if target.SlotStats.IsUnknown() || target.SlotStats.IsNull() {
 		target.SlotStats = types.ObjectNull(yandexComputeReservedInstancePoolSlotStatsModelType.AttrTypes)
 	}
+	if target.Status.IsUnknown() || target.Status.IsNull() {
+		target.Status = types.StringNull()
+	}
 	if target.Zone.IsUnknown() || target.Zone.IsNull() {
 		target.Zone = types.StringNull()
 	}
@@ -414,6 +425,7 @@ var yandexComputeReservedInstancePoolModelType = types.ObjectType{
 		"resources_spec":            yandexComputeReservedInstancePoolResourcesSpecModelType,
 		"size":                      types.Int64Type,
 		"slot_stats":                yandexComputeReservedInstancePoolSlotStatsModelType,
+		"status":                    types.StringType,
 		"zone":                      types.StringType,
 		"timeouts":                  timeouts.AttributesAll(context.Background()).GetType(),
 	},
@@ -448,6 +460,7 @@ func flattenYandexComputeReservedInstancePool(ctx context.Context,
 		ResourcesSpec:          flattenYandexComputeReservedInstancePoolResourcesSpec(ctx, yandexComputeReservedInstancePool.GetResourcesSpec(), diags),
 		Size:                   types.Int64Value(int64(yandexComputeReservedInstancePool.GetSize())),
 		SlotStats:              flattenYandexComputeReservedInstancePoolSlotStats(ctx, yandexComputeReservedInstancePool.GetSlotStats(), diags),
+		Status:                 types.StringValue(yandexComputeReservedInstancePool.GetStatus().String()),
 		Zone:                   types.StringValue(yandexComputeReservedInstancePool.GetZoneId()),
 		Timeouts:               to,
 	})
@@ -487,6 +500,7 @@ func expandYandexComputeReservedInstancePoolModel(ctx context.Context, yandexCom
 	value.SetResourcesSpec(expandYandexComputeReservedInstancePoolResourcesSpec(ctx, yandexComputeReservedInstancePoolState.ResourcesSpec, diags))
 	value.SetSize((yandexComputeReservedInstancePoolState.Size.ValueInt64()))
 	value.SetSlotStats(expandYandexComputeReservedInstancePoolSlotStats(ctx, yandexComputeReservedInstancePoolState.SlotStats, diags))
+	value.SetStatus(compute.ReservedInstancePool_Status(compute.ReservedInstancePool_Status_value[yandexComputeReservedInstancePoolState.Status.ValueString()]))
 	value.SetZoneId(yandexComputeReservedInstancePoolState.Zone.ValueString())
 	if diags.HasError() {
 		return nil

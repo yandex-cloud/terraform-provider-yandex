@@ -14,10 +14,13 @@ type RoleClientIterator interface {
 }
 
 type roleServiceListInternal struct {
-	*iam.ListRolesResponse
+	ListRolesResponse *iam.ListRolesResponse
 }
 
 func (r roleServiceListInternal) Items() []*iam.Role { return r.ListRolesResponse.Roles }
+func (r roleServiceListInternal) GetNextPageToken() string {
+	return r.ListRolesResponse.GetNextPageToken()
+}
 
 func (c roleClient) Iterator(ctx context.Context, req *iam.ListRolesRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListRolesRequest, *iam.Role] {
 	return iterator.NewIterator[*iam.ListRolesRequest, *iam.Role](ctx, req,

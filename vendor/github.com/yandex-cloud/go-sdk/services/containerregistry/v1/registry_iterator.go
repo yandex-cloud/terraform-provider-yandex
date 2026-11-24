@@ -17,11 +17,14 @@ type RegistryClientIterator interface {
 }
 
 type registryServiceListInternal struct {
-	*containerregistry.ListRegistriesResponse
+	ListRegistriesResponse *containerregistry.ListRegistriesResponse
 }
 
 func (r registryServiceListInternal) Items() []*containerregistry.Registry {
 	return r.ListRegistriesResponse.Registries
+}
+func (r registryServiceListInternal) GetNextPageToken() string {
+	return r.ListRegistriesResponse.GetNextPageToken()
 }
 
 func (c registryClient) Iterator(ctx context.Context, req *containerregistry.ListRegistriesRequest, opts ...grpc.CallOption) *iterator.Iterator[*containerregistry.ListRegistriesRequest, *containerregistry.Registry] {
@@ -36,11 +39,14 @@ func (c registryClient) Iterator(ctx context.Context, req *containerregistry.Lis
 }
 
 type registryServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r registryServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r registryServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c registryClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {
@@ -55,7 +61,7 @@ func (c registryClient) AccessBindingsIterator(ctx context.Context, req *access.
 }
 
 type registryServiceListIpPermissionInternal struct {
-	*containerregistry.ListIpPermissionsResponse
+	ListIpPermissionsResponse *containerregistry.ListIpPermissionsResponse
 }
 
 func (r registryServiceListIpPermissionInternal) Items() []*containerregistry.IpPermission {

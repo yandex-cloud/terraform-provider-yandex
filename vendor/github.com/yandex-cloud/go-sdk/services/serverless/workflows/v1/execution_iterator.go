@@ -14,11 +14,14 @@ type ExecutionClientIterator interface {
 }
 
 type executionServiceListInternal struct {
-	*workflows.ListExecutionsResponse
+	ListExecutionsResponse *workflows.ListExecutionsResponse
 }
 
 func (r executionServiceListInternal) Items() []*workflows.ExecutionPreview {
 	return r.ListExecutionsResponse.Executions
+}
+func (r executionServiceListInternal) GetNextPageToken() string {
+	return r.ListExecutionsResponse.GetNextPageToken()
 }
 
 func (c executionClient) Iterator(ctx context.Context, req *workflows.ListExecutionsRequest, opts ...grpc.CallOption) *iterator.Iterator[*workflows.ListExecutionsRequest, *workflows.ExecutionPreview] {

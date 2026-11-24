@@ -16,11 +16,14 @@ type ProjectClientIterator interface {
 }
 
 type projectServiceListInternal struct {
-	*datasphere.ListProjectsResponse
+	ListProjectsResponse *datasphere.ListProjectsResponse
 }
 
 func (r projectServiceListInternal) Items() []*datasphere.Project {
 	return r.ListProjectsResponse.Projects
+}
+func (r projectServiceListInternal) GetNextPageToken() string {
+	return r.ListProjectsResponse.GetNextPageToken()
 }
 
 func (c projectClient) Iterator(ctx context.Context, req *datasphere.ListProjectsRequest, opts ...grpc.CallOption) *iterator.Iterator[*datasphere.ListProjectsRequest, *datasphere.Project] {
@@ -35,11 +38,14 @@ func (c projectClient) Iterator(ctx context.Context, req *datasphere.ListProject
 }
 
 type projectServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r projectServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r projectServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c projectClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

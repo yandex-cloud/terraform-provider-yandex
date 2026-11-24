@@ -418,6 +418,16 @@ func YandexComputeReservedInstancePoolDatasourceSchema(ctx context.Context) sche
 				Computed: true,
 			},
 
+			"status": schema.StringAttribute{
+				MarkdownDescription: "Status of the pool.",
+				Description: "Status of the pool." +
+					// proto paths: +
+					// -> yandex.cloud.compute.v1.ReservedInstancePool.status
+					"package: yandex.cloud.compute.v1\n" +
+					"filename: yandex/cloud/compute/v1/reserved_instance_pool.proto\n",
+				Computed: true,
+			},
+
 			"zone": schema.StringAttribute{
 				MarkdownDescription: "ID of the availability zone where the pool resides.",
 				Description: "ID of the availability zone where the pool resides." +

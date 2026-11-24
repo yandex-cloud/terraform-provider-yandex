@@ -25,11 +25,14 @@ type ClusterClientIterator interface {
 }
 
 type clusterServiceListInternal struct {
-	*clickhouse.ListClustersResponse
+	ListClustersResponse *clickhouse.ListClustersResponse
 }
 
 func (r clusterServiceListInternal) Items() []*clickhouse.Cluster {
 	return r.ListClustersResponse.Clusters
+}
+func (r clusterServiceListInternal) GetNextPageToken() string {
+	return r.ListClustersResponse.GetNextPageToken()
 }
 
 func (c clusterClient) Iterator(ctx context.Context, req *clickhouse.ListClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListClustersRequest, *clickhouse.Cluster] {
@@ -44,11 +47,14 @@ func (c clusterClient) Iterator(ctx context.Context, req *clickhouse.ListCluster
 }
 
 type clusterServiceListLogsInternal struct {
-	*clickhouse.ListClusterLogsResponse
+	ListClusterLogsResponse *clickhouse.ListClusterLogsResponse
 }
 
 func (r clusterServiceListLogsInternal) Items() []*clickhouse.LogRecord {
 	return r.ListClusterLogsResponse.Logs
+}
+func (r clusterServiceListLogsInternal) GetNextPageToken() string {
+	return r.ListClusterLogsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) LogsIterator(ctx context.Context, req *clickhouse.ListClusterLogsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListClusterLogsRequest, *clickhouse.LogRecord] {
@@ -63,11 +69,14 @@ func (c clusterClient) LogsIterator(ctx context.Context, req *clickhouse.ListClu
 }
 
 type clusterServiceListOperationsInternal struct {
-	*clickhouse.ListClusterOperationsResponse
+	ListClusterOperationsResponse *clickhouse.ListClusterOperationsResponse
 }
 
 func (r clusterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListClusterOperationsResponse.Operations
+}
+func (r clusterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListClusterOperationsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) OperationsIterator(ctx context.Context, req *clickhouse.ListClusterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListClusterOperationsRequest, *operation.Operation] {
@@ -82,11 +91,14 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *clickhouse.L
 }
 
 type clusterServiceListBackupsInternal struct {
-	*clickhouse.ListClusterBackupsResponse
+	ListClusterBackupsResponse *clickhouse.ListClusterBackupsResponse
 }
 
 func (r clusterServiceListBackupsInternal) Items() []*clickhouse.Backup {
 	return r.ListClusterBackupsResponse.Backups
+}
+func (r clusterServiceListBackupsInternal) GetNextPageToken() string {
+	return r.ListClusterBackupsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) BackupsIterator(ctx context.Context, req *clickhouse.ListClusterBackupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListClusterBackupsRequest, *clickhouse.Backup] {
@@ -101,11 +113,14 @@ func (c clusterClient) BackupsIterator(ctx context.Context, req *clickhouse.List
 }
 
 type clusterServiceListHostsInternal struct {
-	*clickhouse.ListClusterHostsResponse
+	ListClusterHostsResponse *clickhouse.ListClusterHostsResponse
 }
 
 func (r clusterServiceListHostsInternal) Items() []*clickhouse.Host {
 	return r.ListClusterHostsResponse.Hosts
+}
+func (r clusterServiceListHostsInternal) GetNextPageToken() string {
+	return r.ListClusterHostsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) HostsIterator(ctx context.Context, req *clickhouse.ListClusterHostsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListClusterHostsRequest, *clickhouse.Host] {
@@ -120,11 +135,14 @@ func (c clusterClient) HostsIterator(ctx context.Context, req *clickhouse.ListCl
 }
 
 type clusterServiceListShardsInternal struct {
-	*clickhouse.ListClusterShardsResponse
+	ListClusterShardsResponse *clickhouse.ListClusterShardsResponse
 }
 
 func (r clusterServiceListShardsInternal) Items() []*clickhouse.Shard {
 	return r.ListClusterShardsResponse.Shards
+}
+func (r clusterServiceListShardsInternal) GetNextPageToken() string {
+	return r.ListClusterShardsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) ShardsIterator(ctx context.Context, req *clickhouse.ListClusterShardsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListClusterShardsRequest, *clickhouse.Shard] {
@@ -139,11 +157,14 @@ func (c clusterClient) ShardsIterator(ctx context.Context, req *clickhouse.ListC
 }
 
 type clusterServiceListShardGroupsInternal struct {
-	*clickhouse.ListClusterShardGroupsResponse
+	ListClusterShardGroupsResponse *clickhouse.ListClusterShardGroupsResponse
 }
 
 func (r clusterServiceListShardGroupsInternal) Items() []*clickhouse.ShardGroup {
 	return r.ListClusterShardGroupsResponse.ShardGroups
+}
+func (r clusterServiceListShardGroupsInternal) GetNextPageToken() string {
+	return r.ListClusterShardGroupsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) ShardGroupsIterator(ctx context.Context, req *clickhouse.ListClusterShardGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListClusterShardGroupsRequest, *clickhouse.ShardGroup] {
@@ -158,11 +179,14 @@ func (c clusterClient) ShardGroupsIterator(ctx context.Context, req *clickhouse.
 }
 
 type clusterServiceListExternalDictionariesInternal struct {
-	*clickhouse.ListClusterExternalDictionariesResponse
+	ListClusterExternalDictionariesResponse *clickhouse.ListClusterExternalDictionariesResponse
 }
 
 func (r clusterServiceListExternalDictionariesInternal) Items() []*config.ClickhouseConfig_ExternalDictionary {
 	return r.ListClusterExternalDictionariesResponse.ExternalDictionaries
+}
+func (r clusterServiceListExternalDictionariesInternal) GetNextPageToken() string {
+	return r.ListClusterExternalDictionariesResponse.GetNextPageToken()
 }
 
 func (c clusterClient) ExternalDictionariesIterator(ctx context.Context, req *clickhouse.ListClusterExternalDictionariesRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListClusterExternalDictionariesRequest, *config.ClickhouseConfig_ExternalDictionary] {
@@ -177,11 +201,14 @@ func (c clusterClient) ExternalDictionariesIterator(ctx context.Context, req *cl
 }
 
 type clusterServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r clusterServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r clusterServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

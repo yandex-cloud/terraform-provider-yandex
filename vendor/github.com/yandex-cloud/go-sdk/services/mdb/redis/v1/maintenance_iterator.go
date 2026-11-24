@@ -14,11 +14,14 @@ type MaintenanceClientIterator interface {
 }
 
 type maintenanceServiceListInternal struct {
-	*maintenance.ListMaintenancesResponse
+	ListMaintenancesResponse *maintenance.ListMaintenancesResponse
 }
 
 func (r maintenanceServiceListInternal) Items() []*maintenance.Maintenance {
 	return r.ListMaintenancesResponse.Maintenances
+}
+func (r maintenanceServiceListInternal) GetNextPageToken() string {
+	return r.ListMaintenancesResponse.GetNextPageToken()
 }
 
 func (c maintenanceClient) Iterator(ctx context.Context, req *maintenance.ListMaintenancesRequest, opts ...grpc.CallOption) *iterator.Iterator[*maintenance.ListMaintenancesRequest, *maintenance.Maintenance] {

@@ -82,6 +82,10 @@ func (m *ReservedInstancePool) SetInstanceStats(v *ReservedInstancePool_Instance
 	m.InstanceStats = v
 }
 
+func (m *ReservedInstancePool) SetStatus(v ReservedInstancePool_Status) {
+	m.Status = v
+}
+
 func (m *ReservedInstancePool_SlotStats) SetTotal(v int64) {
 	m.Total = v
 }

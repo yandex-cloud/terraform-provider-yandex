@@ -15,11 +15,14 @@ type PerformanceDiagnosticsClientIterator interface {
 }
 
 type performanceDiagnosticsServiceListRawSessionStatesInternal struct {
-	*postgresql.ListRawSessionStatesResponse
+	ListRawSessionStatesResponse *postgresql.ListRawSessionStatesResponse
 }
 
 func (r performanceDiagnosticsServiceListRawSessionStatesInternal) Items() []*postgresql.SessionState {
 	return r.ListRawSessionStatesResponse.SessionStates
+}
+func (r performanceDiagnosticsServiceListRawSessionStatesInternal) GetNextPageToken() string {
+	return r.ListRawSessionStatesResponse.GetNextPageToken()
 }
 
 func (c performanceDiagnosticsClient) RawSessionStatesIterator(ctx context.Context, req *postgresql.ListRawSessionStatesRequest, opts ...grpc.CallOption) *iterator.Iterator[*postgresql.ListRawSessionStatesRequest, *postgresql.SessionState] {
@@ -34,11 +37,14 @@ func (c performanceDiagnosticsClient) RawSessionStatesIterator(ctx context.Conte
 }
 
 type performanceDiagnosticsServiceListRawStatementsInternal struct {
-	*postgresql.ListRawStatementsResponse
+	ListRawStatementsResponse *postgresql.ListRawStatementsResponse
 }
 
 func (r performanceDiagnosticsServiceListRawStatementsInternal) Items() []*postgresql.QueryStatement {
 	return r.ListRawStatementsResponse.Statements
+}
+func (r performanceDiagnosticsServiceListRawStatementsInternal) GetNextPageToken() string {
+	return r.ListRawStatementsResponse.GetNextPageToken()
 }
 
 func (c performanceDiagnosticsClient) RawStatementsIterator(ctx context.Context, req *postgresql.ListRawStatementsRequest, opts ...grpc.CallOption) *iterator.Iterator[*postgresql.ListRawStatementsRequest, *postgresql.QueryStatement] {

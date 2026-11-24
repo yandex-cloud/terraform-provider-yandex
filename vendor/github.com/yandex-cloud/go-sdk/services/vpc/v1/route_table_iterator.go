@@ -16,11 +16,14 @@ type RouteTableClientIterator interface {
 }
 
 type routeTableServiceListInternal struct {
-	*vpc.ListRouteTablesResponse
+	ListRouteTablesResponse *vpc.ListRouteTablesResponse
 }
 
 func (r routeTableServiceListInternal) Items() []*vpc.RouteTable {
 	return r.ListRouteTablesResponse.RouteTables
+}
+func (r routeTableServiceListInternal) GetNextPageToken() string {
+	return r.ListRouteTablesResponse.GetNextPageToken()
 }
 
 func (c routeTableClient) Iterator(ctx context.Context, req *vpc.ListRouteTablesRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListRouteTablesRequest, *vpc.RouteTable] {
@@ -35,11 +38,14 @@ func (c routeTableClient) Iterator(ctx context.Context, req *vpc.ListRouteTables
 }
 
 type routeTableServiceListOperationsInternal struct {
-	*vpc.ListRouteTableOperationsResponse
+	ListRouteTableOperationsResponse *vpc.ListRouteTableOperationsResponse
 }
 
 func (r routeTableServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListRouteTableOperationsResponse.Operations
+}
+func (r routeTableServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListRouteTableOperationsResponse.GetNextPageToken()
 }
 
 func (c routeTableClient) OperationsIterator(ctx context.Context, req *vpc.ListRouteTableOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*vpc.ListRouteTableOperationsRequest, *operation.Operation] {

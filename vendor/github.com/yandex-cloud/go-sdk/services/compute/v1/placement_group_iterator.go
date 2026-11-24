@@ -19,11 +19,14 @@ type PlacementGroupClientIterator interface {
 }
 
 type placementGroupServiceListInternal struct {
-	*compute.ListPlacementGroupsResponse
+	ListPlacementGroupsResponse *compute.ListPlacementGroupsResponse
 }
 
 func (r placementGroupServiceListInternal) Items() []*compute.PlacementGroup {
 	return r.ListPlacementGroupsResponse.PlacementGroups
+}
+func (r placementGroupServiceListInternal) GetNextPageToken() string {
+	return r.ListPlacementGroupsResponse.GetNextPageToken()
 }
 
 func (c placementGroupClient) Iterator(ctx context.Context, req *compute.ListPlacementGroupsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListPlacementGroupsRequest, *compute.PlacementGroup] {
@@ -38,11 +41,14 @@ func (c placementGroupClient) Iterator(ctx context.Context, req *compute.ListPla
 }
 
 type placementGroupServiceListInstancesInternal struct {
-	*compute.ListPlacementGroupInstancesResponse
+	ListPlacementGroupInstancesResponse *compute.ListPlacementGroupInstancesResponse
 }
 
 func (r placementGroupServiceListInstancesInternal) Items() []*compute.Instance {
 	return r.ListPlacementGroupInstancesResponse.Instances
+}
+func (r placementGroupServiceListInstancesInternal) GetNextPageToken() string {
+	return r.ListPlacementGroupInstancesResponse.GetNextPageToken()
 }
 
 func (c placementGroupClient) InstancesIterator(ctx context.Context, req *compute.ListPlacementGroupInstancesRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListPlacementGroupInstancesRequest, *compute.Instance] {
@@ -57,11 +63,14 @@ func (c placementGroupClient) InstancesIterator(ctx context.Context, req *comput
 }
 
 type placementGroupServiceListOperationsInternal struct {
-	*compute.ListPlacementGroupOperationsResponse
+	ListPlacementGroupOperationsResponse *compute.ListPlacementGroupOperationsResponse
 }
 
 func (r placementGroupServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListPlacementGroupOperationsResponse.Operations
+}
+func (r placementGroupServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListPlacementGroupOperationsResponse.GetNextPageToken()
 }
 
 func (c placementGroupClient) OperationsIterator(ctx context.Context, req *compute.ListPlacementGroupOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*compute.ListPlacementGroupOperationsRequest, *operation.Operation] {
@@ -76,11 +85,14 @@ func (c placementGroupClient) OperationsIterator(ctx context.Context, req *compu
 }
 
 type placementGroupServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r placementGroupServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r placementGroupServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c placementGroupClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

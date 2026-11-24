@@ -20,10 +20,13 @@ type ClusterClientIterator interface {
 }
 
 type clusterServiceListInternal struct {
-	*kafka.ListClustersResponse
+	ListClustersResponse *kafka.ListClustersResponse
 }
 
 func (r clusterServiceListInternal) Items() []*kafka.Cluster { return r.ListClustersResponse.Clusters }
+func (r clusterServiceListInternal) GetNextPageToken() string {
+	return r.ListClustersResponse.GetNextPageToken()
+}
 
 func (c clusterClient) Iterator(ctx context.Context, req *kafka.ListClustersRequest, opts ...grpc.CallOption) *iterator.Iterator[*kafka.ListClustersRequest, *kafka.Cluster] {
 	return iterator.NewIterator[*kafka.ListClustersRequest, *kafka.Cluster](ctx, req,
@@ -37,11 +40,14 @@ func (c clusterClient) Iterator(ctx context.Context, req *kafka.ListClustersRequ
 }
 
 type clusterServiceListLogsInternal struct {
-	*kafka.ListClusterLogsResponse
+	ListClusterLogsResponse *kafka.ListClusterLogsResponse
 }
 
 func (r clusterServiceListLogsInternal) Items() []*kafka.LogRecord {
 	return r.ListClusterLogsResponse.Logs
+}
+func (r clusterServiceListLogsInternal) GetNextPageToken() string {
+	return r.ListClusterLogsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) LogsIterator(ctx context.Context, req *kafka.ListClusterLogsRequest, opts ...grpc.CallOption) *iterator.Iterator[*kafka.ListClusterLogsRequest, *kafka.LogRecord] {
@@ -56,11 +62,14 @@ func (c clusterClient) LogsIterator(ctx context.Context, req *kafka.ListClusterL
 }
 
 type clusterServiceListOperationsInternal struct {
-	*kafka.ListClusterOperationsResponse
+	ListClusterOperationsResponse *kafka.ListClusterOperationsResponse
 }
 
 func (r clusterServiceListOperationsInternal) Items() []*operation.Operation {
 	return r.ListClusterOperationsResponse.Operations
+}
+func (r clusterServiceListOperationsInternal) GetNextPageToken() string {
+	return r.ListClusterOperationsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) OperationsIterator(ctx context.Context, req *kafka.ListClusterOperationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*kafka.ListClusterOperationsRequest, *operation.Operation] {
@@ -75,11 +84,14 @@ func (c clusterClient) OperationsIterator(ctx context.Context, req *kafka.ListCl
 }
 
 type clusterServiceListHostsInternal struct {
-	*kafka.ListClusterHostsResponse
+	ListClusterHostsResponse *kafka.ListClusterHostsResponse
 }
 
 func (r clusterServiceListHostsInternal) Items() []*kafka.Host {
 	return r.ListClusterHostsResponse.Hosts
+}
+func (r clusterServiceListHostsInternal) GetNextPageToken() string {
+	return r.ListClusterHostsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) HostsIterator(ctx context.Context, req *kafka.ListClusterHostsRequest, opts ...grpc.CallOption) *iterator.Iterator[*kafka.ListClusterHostsRequest, *kafka.Host] {
@@ -94,11 +106,14 @@ func (c clusterClient) HostsIterator(ctx context.Context, req *kafka.ListCluster
 }
 
 type clusterServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r clusterServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r clusterServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c clusterClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

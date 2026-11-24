@@ -14,11 +14,14 @@ type ServiceControlClientIterator interface {
 }
 
 type serviceControlServiceListInternal struct {
-	*iam.ListServicesResponse
+	ListServicesResponse *iam.ListServicesResponse
 }
 
 func (r serviceControlServiceListInternal) Items() []*iam.Service {
 	return r.ListServicesResponse.Services
+}
+func (r serviceControlServiceListInternal) GetNextPageToken() string {
+	return r.ListServicesResponse.GetNextPageToken()
 }
 
 func (c serviceControlClient) Iterator(ctx context.Context, req *iam.ListServicesRequest, opts ...grpc.CallOption) *iterator.Iterator[*iam.ListServicesRequest, *iam.Service] {

@@ -14,10 +14,13 @@ type BudgetClientIterator interface {
 }
 
 type budgetServiceListInternal struct {
-	*billing.ListBudgetsResponse
+	ListBudgetsResponse *billing.ListBudgetsResponse
 }
 
 func (r budgetServiceListInternal) Items() []*billing.Budget { return r.ListBudgetsResponse.Budgets }
+func (r budgetServiceListInternal) GetNextPageToken() string {
+	return r.ListBudgetsResponse.GetNextPageToken()
+}
 
 func (c budgetClient) Iterator(ctx context.Context, req *billing.ListBudgetsRequest, opts ...grpc.CallOption) *iterator.Iterator[*billing.ListBudgetsRequest, *billing.Budget] {
 	return iterator.NewIterator[*billing.ListBudgetsRequest, *billing.Budget](ctx, req,

@@ -14,10 +14,13 @@ type UserClientIterator interface {
 }
 
 type userServiceListInternal struct {
-	*opensearch.ListUsersResponse
+	ListUsersResponse *opensearch.ListUsersResponse
 }
 
 func (r userServiceListInternal) Items() []*opensearch.User { return r.ListUsersResponse.Users }
+func (r userServiceListInternal) GetNextPageToken() string {
+	return r.ListUsersResponse.GetNextPageToken()
+}
 
 func (c userClient) Iterator(ctx context.Context, req *opensearch.ListUsersRequest, opts ...grpc.CallOption) *iterator.Iterator[*opensearch.ListUsersRequest, *opensearch.User] {
 	return iterator.NewIterator[*opensearch.ListUsersRequest, *opensearch.User](ctx, req,

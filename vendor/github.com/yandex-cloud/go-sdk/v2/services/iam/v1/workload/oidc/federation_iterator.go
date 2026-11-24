@@ -16,11 +16,14 @@ type FederationClientIterator interface {
 }
 
 type federationServiceListInternal struct {
-	*oidc.ListFederationsResponse
+	ListFederationsResponse *oidc.ListFederationsResponse
 }
 
 func (r federationServiceListInternal) Items() []*oidc.Federation {
 	return r.ListFederationsResponse.Federations
+}
+func (r federationServiceListInternal) GetNextPageToken() string {
+	return r.ListFederationsResponse.GetNextPageToken()
 }
 
 func (c federationClient) Iterator(ctx context.Context, req *oidc.ListFederationsRequest, opts ...grpc.CallOption) *iterator.Iterator[*oidc.ListFederationsRequest, *oidc.Federation] {
@@ -35,11 +38,14 @@ func (c federationClient) Iterator(ctx context.Context, req *oidc.ListFederation
 }
 
 type federationServiceListAccessBindingsInternal struct {
-	*access.ListAccessBindingsResponse
+	ListAccessBindingsResponse *access.ListAccessBindingsResponse
 }
 
 func (r federationServiceListAccessBindingsInternal) Items() []*access.AccessBinding {
 	return r.ListAccessBindingsResponse.AccessBindings
+}
+func (r federationServiceListAccessBindingsInternal) GetNextPageToken() string {
+	return r.ListAccessBindingsResponse.GetNextPageToken()
 }
 
 func (c federationClient) AccessBindingsIterator(ctx context.Context, req *access.ListAccessBindingsRequest, opts ...grpc.CallOption) *iterator.Iterator[*access.ListAccessBindingsRequest, *access.AccessBinding] {

@@ -14,7 +14,7 @@ type SynchronizationClientIterator interface {
 }
 
 type synchronizationServiceListSupportedAttributesInternal struct {
-	*idp.ListSupportedAttributesResponse
+	ListSupportedAttributesResponse *idp.ListSupportedAttributesResponse
 }
 
 func (r synchronizationServiceListSupportedAttributesInternal) Items() []*idp.UserSupportedAttribute {

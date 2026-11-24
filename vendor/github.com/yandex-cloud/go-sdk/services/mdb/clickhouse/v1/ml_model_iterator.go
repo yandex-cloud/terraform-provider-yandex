@@ -14,11 +14,14 @@ type MlModelClientIterator interface {
 }
 
 type mlModelServiceListInternal struct {
-	*clickhouse.ListMlModelsResponse
+	ListMlModelsResponse *clickhouse.ListMlModelsResponse
 }
 
 func (r mlModelServiceListInternal) Items() []*clickhouse.MlModel {
 	return r.ListMlModelsResponse.MlModels
+}
+func (r mlModelServiceListInternal) GetNextPageToken() string {
+	return r.ListMlModelsResponse.GetNextPageToken()
 }
 
 func (c mlModelClient) Iterator(ctx context.Context, req *clickhouse.ListMlModelsRequest, opts ...grpc.CallOption) *iterator.Iterator[*clickhouse.ListMlModelsRequest, *clickhouse.MlModel] {
