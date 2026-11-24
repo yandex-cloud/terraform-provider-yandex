@@ -5,6 +5,7 @@ package yandex_organization_manager_organization_iam_policy_binding
 import (
 	"context"
 	"fmt"
+	"maps"
 	"strings"
 	"time"
 
@@ -132,7 +133,10 @@ func (u *IAMPolicyBindingUpdater) Create(ctx context.Context, req resource.Creat
 	}
 
 	binding := policybinding.GetResourceIamPolicyBindingFromState(ctx, req.Plan, &resp.Diagnostics)
-	err := u.iamPolicyBindingModify(ctx, u, []*access.AccessPolicyBinding{binding})
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	err := u.iamPolicyBindingModify(ctx, binding, false)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create Resource Policy Binding",
@@ -174,7 +178,10 @@ func (u *IAMPolicyBindingUpdater) Update(ctx context.Context, req resource.Updat
 	}
 
 	binding := policybinding.GetResourceIamPolicyBindingFromState(ctx, req.Plan, &resp.Diagnostics)
-	err := u.iamPolicyBindingModify(ctx, u, []*access.AccessPolicyBinding{binding})
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	err := u.iamPolicyBindingModify(ctx, binding, false)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Update Resource Policy Binding",
@@ -199,8 +206,12 @@ func (u *IAMPolicyBindingUpdater) Delete(ctx context.Context, req resource.Delet
 	defer cancel()
 
 	u.Initialize(ctx, req.State, &resp.Diagnostics)
-	binding := policybinding.GetResourceIamPolicyBindingFromState(ctx, req.State, &resp.Diagnostics)
-	if binding.AccessPolicyTemplateId == "" {
+	var templateID types.String
+	resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("access_policy_template_id"), &templateID)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if templateID.ValueString() == "" {
 		tflog.Debug(ctx,
 			fmt.Sprintf(
 				"Resource yandex_organization_manager_organization_iam_policy_binding '%s' is missing or deleted, marking policy binding as deleted",
@@ -210,7 +221,7 @@ func (u *IAMPolicyBindingUpdater) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	err := u.iamPolicyBindingModify(ctx, u, []*access.AccessPolicyBinding{})
+	err := u.iamPolicyBindingModify(ctx, &access.AccessPolicyBinding{AccessPolicyTemplateId: templateID.ValueString()}, true)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Delete Resource Policy Binding",
@@ -222,7 +233,7 @@ func (u *IAMPolicyBindingUpdater) Delete(ctx context.Context, req resource.Delet
 
 	tflog.Debug(ctx, "Clearing state for deleted binding", map[string]interface{}{
 		"organization_id":           u.organizationId,
-		"access_policy_template_id": binding.AccessPolicyTemplateId,
+		"access_policy_template_id": templateID.ValueString(),
 	})
 	resp.State.RemoveResource(ctx)
 }
@@ -427,43 +438,36 @@ func (u *IAMPolicyBindingUpdater) refreshBindingState(ctx context.Context, req p
 	diag.Append(resp.SetAttribute(ctx, path.Root("id"), u.organizationId+"/"+templateID.ValueString())...)
 }
 
-func (u *IAMPolicyBindingUpdater) iamPolicyBindingModify(ctx context.Context, updater policybinding.ResourceIamPolicyBindingUpdater, desired []*access.AccessPolicyBinding) error {
-	mutexKV.Lock(fmt.Sprintf("yandex_organization_manager_organization_iam_policy_binding-%s", u.organizationId))
-	defer mutexKV.Unlock(fmt.Sprintf("yandex_organization_manager_organization_iam_policy_binding-%s", u.organizationId))
-	tflog.Debug(ctx, fmt.Sprintf("Retrieving policy bindings for yandex_organization_manager_organization_iam_policy_binding '%s'", u.organizationId))
+func (u *IAMPolicyBindingUpdater) iamPolicyBindingModify(ctx context.Context, binding *access.AccessPolicyBinding, remove bool) error {
+	lockKey := fmt.Sprintf("yandex_organization_manager_organization_iam_policy_binding-%s", u.organizationId)
+	mutexKV.Lock(lockKey)
+	defer mutexKV.Unlock(lockKey)
 
-	current, err := updater.GetResourcePolicyBindings(ctx)
+	current, err := u.GetResourcePolicyBindings(ctx)
 	if err != nil {
 		return err
 	}
-	tflog.Debug(ctx, fmt.Sprintf("Retrieved policy bindings for yandex_organization_manager_organization_iam_policy_binding '%s': %+v\n", u.organizationId, current))
-
-	toAdd, toRemove, toUpdate := policybinding.CalculatePolicyBindingChanges(current, desired)
-	// Remove old bindings
-	for _, templateID := range toRemove {
-		tflog.Debug(ctx, fmt.Sprintf("Unbinding policy %s from yandex_organization_manager_organization_iam_policy_binding '%s'", templateID, u.organizationId))
-		if err := updater.UnbindAccessPolicy(ctx, templateID); err != nil {
-			return fmt.Errorf("Error unbinding policy %s from yandex_organization_manager_organization_iam_policy_binding '%s': %w", templateID, u.organizationId, err)
+	var existing *access.AccessPolicyBinding
+	for _, candidate := range current {
+		if candidate.GetAccessPolicyTemplateId() != binding.AccessPolicyTemplateId {
+			continue
 		}
-	}
-
-	// Add new bindings
-	for _, binding := range toAdd {
-		tflog.Debug(ctx, fmt.Sprintf("Binding policy %s to yandex_organization_manager_organization_iam_policy_binding '%s'", binding.AccessPolicyTemplateId, u.organizationId))
-		if err := updater.BindAccessPolicy(ctx, binding); err != nil {
-			return fmt.Errorf("Error binding policy %s to yandex_organization_manager_organization_iam_policy_binding '%s': %w", binding.AccessPolicyTemplateId, u.organizationId, err)
+		if existing != nil {
+			return fmt.Errorf("multiple policy bindings for template %q on organization %q; Terraform requires a unique binding", binding.AccessPolicyTemplateId, u.organizationId)
 		}
+		existing = candidate
 	}
-
-	// Update existing bindings with changed parameters
-	for _, binding := range toUpdate {
-		tflog.Debug(ctx, fmt.Sprintf("Updating policy binding parameters for %s on yandex_organization_manager_organization_iam_policy_binding '%s'", binding.AccessPolicyTemplateId, u.organizationId))
-		if err := updater.UpdateAccessPolicyBindingParameters(ctx, binding); err != nil {
-			return fmt.Errorf("Error updating policy binding parameters for %s on yandex_organization_manager_organization_iam_policy_binding '%s': %w", binding.AccessPolicyTemplateId, u.organizationId, err)
+	if remove {
+		if existing == nil {
+			return nil
 		}
+		return u.UnbindAccessPolicy(ctx, binding.AccessPolicyTemplateId)
 	}
-
-	tflog.Debug(ctx, fmt.Sprintf("Updated policy bindings for yandex_organization_manager_organization_iam_policy_binding '%s'", u.organizationId))
-
-	return nil
+	if existing == nil {
+		return u.BindAccessPolicy(ctx, binding)
+	}
+	if maps.Equal(existing.Parameters, binding.Parameters) {
+		return nil
+	}
+	return u.UpdateAccessPolicyBindingParameters(ctx, binding)
 }
