@@ -348,6 +348,7 @@ type redisConfigTest struct {
 	Resources           *hostResource
 	Labels              map[string]string
 	EmptyLabels         bool
+	SecondSubnetEnabled bool
 	SecurityGroupIds    []string
 	Hosts               map[string]host
 	Access              *access
@@ -366,11 +367,13 @@ resource "yandex_vpc_subnet" "foo" {
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
 
+{{if .SecondSubnetEnabled}}
 resource "yandex_vpc_subnet" "bar" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.foo.id}"
   v4_cidr_blocks = ["10.4.0.0/24"]
 }
+{{end}}
 
 resource "yandex_vpc_security_group" "sg-x" {
   network_id     = "${yandex_vpc_network.foo.id}"

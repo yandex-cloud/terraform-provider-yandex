@@ -46,6 +46,7 @@ func TestAccMDBRedisClusterV2_host_changes(t *testing.T) {
 		OpDeleteHosts,
 	}
 	conf := testAccBaseConfig(redisName, redisDesc)
+	conf.SecondSubnetEnabled = true
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
@@ -114,7 +115,7 @@ func TestAccMDBRedisClusterV2_host_changes(t *testing.T) {
 						"hst_0": {Zone: &defaultZone, SubnetId: &defaultSubnet},
 						"hst_1": {Zone: &defaultZone, SubnetId: &defaultSubnet},
 						"hst_2": {Zone: &defaultZone, SubnetId: &defaultSubnet},
-						"hst_3": {Zone: newPtr("ru-central1-b")},
+						"hst_3": {Zone: newPtr("ru-central1-a")},
 					},
 				}),
 				ExpectError: regexp.MustCompile(".*Attributes shard_name, zone, subnet_id can't be changed.*"),
@@ -152,7 +153,7 @@ func TestAccMDBRedisClusterV2_host_changes(t *testing.T) {
 					Hosts: map[string]host{
 						"hst_q1": {Zone: &defaultZone, SubnetId: &defaultSubnet, ReplicaPriority: newPtr(101), AssignPublicIp: newPtr(true)}, // this host will be updated
 						"hst_q2": {Zone: &defaultZone, SubnetId: &defaultSubnet},                                                             // this host only change label
-						"hst_q5": {Zone: newPtr("ru-central1-b"), SubnetId: &secondSubnet},                                                   // this host wil be recreated
+						"hst_q5": {Zone: newPtr("ru-central1-a"), SubnetId: &secondSubnet},                                                   // this host wil be recreated
 					},
 				}),
 				Check: resource.ComposeTestCheckFunc(
@@ -173,7 +174,7 @@ func TestAccMDBRedisClusterV2_host_changes(t *testing.T) {
 					resource.TestCheckResourceAttrSet(redisResource, "hosts.hst_q5.fqdn"),
 					resource.TestCheckResourceAttr(redisResource, "hosts.hst_q5.assign_public_ip", "false"),
 					resource.TestCheckResourceAttr(redisResource, "hosts.hst_q5.replica_priority", "100"),
-					resource.TestCheckResourceAttr(redisResource, "hosts.hst_q5.zone", "ru-central1-b"),
+					resource.TestCheckResourceAttr(redisResource, "hosts.hst_q5.zone", "ru-central1-a"),
 					testAccCheckMDBRedisOperations(redisResource, ops),
 				),
 			},

@@ -24,7 +24,7 @@ const (
 	resource "yandex_vpc_network" "foo" {}
 	
 	resource "yandex_vpc_subnet" "foo" {
-	  zone           = "ru-central1-a"
+	  zone           = "ru-central1-d"
 	  network_id     = yandex_vpc_network.foo.id
 	  v4_cidr_blocks = ["10.1.0.0/24"]
 	}
@@ -162,13 +162,13 @@ resource "yandex_mdb_redis_cluster_v2" "foo" {
 	}
 
 	resources = {
-    	resource_preset_id = "hm1.nano"
+    	resource_preset_id = "hm3-c2-m8"
     	disk_size          = 16
   	}
 
 	hosts = {
 		"aaa" = {
-			zone      = "ru-central1-a"
+			zone      = "ru-central1-d"
 			subnet_id  = yandex_vpc_subnet.foo.id
 		}
 	}
