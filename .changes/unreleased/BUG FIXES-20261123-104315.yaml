@@ -1,0 +1,3 @@
+kind: BUG FIXES
+body: 'iam: document access policy binding parameters and list cloud, folder, and organization bindings under their respective services'
+time: 2026-11-23T10:43:15.826008+03:00
