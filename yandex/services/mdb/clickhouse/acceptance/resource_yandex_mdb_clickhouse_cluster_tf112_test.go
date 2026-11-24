@@ -94,8 +94,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-a.id
+    zone      = "ru-central1-d"
+    subnet_id = yandex_vpc_subnet.mdb-ch-test-subnet-d.id
   }
 }
 `, name, chVersion, passwordFields)

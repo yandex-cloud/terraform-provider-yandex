@@ -1938,14 +1938,16 @@ func (suite testSuite) testAccCheckMDBClickHouseClusterHasMlModels(r string, tar
 	}
 }
 
-const clickHouseVPCDependencies = `
-resource "yandex_vpc_network" "mdb-ch-test-net" {}
-
+const clickHouseMultiZoneVPCDependencies = clickHouseVPCDependencies + `
 resource "yandex_vpc_subnet" "mdb-ch-test-subnet-a" {
   zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   v4_cidr_blocks = ["10.1.0.0/24"]
 }
+`
+
+const clickHouseVPCDependencies = `
+resource "yandex_vpc_network" "mdb-ch-test-net" {}
 
 resource "yandex_vpc_subnet" "mdb-ch-test-subnet-d" {
   zone           = "ru-central1-d"
@@ -2199,8 +2201,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
@@ -2492,8 +2494,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}", "${yandex_vpc_security_group.mdb-ch-test-sg-y.id}"]
@@ -2783,8 +2785,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
@@ -2832,7 +2834,7 @@ func testAccMDBClickHouseClusterResourceCoordinators(name, desc, bucket string, 
 `, coordinatorType)
 	}
 
-	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+	return fmt.Sprintf(clickHouseMultiZoneVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "foo" {
   name                     = "%s"
   description              = "%s"
@@ -2888,7 +2890,7 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 }
 
 func testAccMDBClickHouseClusterConfigSharded(name string, clusterDiskSize int, firstShardDiskSize, secondShardDiskSize int, bucket string, randInt int) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+	return fmt.Sprintf(clickHouseMultiZoneVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
   name           = "%s"
   description    = "ClickHouse Sharded Cluster Terraform Test"
@@ -2979,7 +2981,7 @@ resource "yandex_mdb_clickhouse_cluster" "bar" {
 }
 
 func testAccMDBClickHouseClusterConfigShardedUpdated(name string, clusterDiskSize int, bucket string, randInt int) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
+	return fmt.Sprintf(clickHouseMultiZoneVPCDependencies+clickhouseObjectStorageDependencies(bucket, randInt)+`
 resource "yandex_mdb_clickhouse_cluster" "bar" {
   name           = "%s"
   description    = "ClickHouse Sharded Cluster Terraform Test"
@@ -3089,8 +3091,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
@@ -3126,8 +3128,8 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
   
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   database {
@@ -3282,8 +3284,8 @@ resource "yandex_mdb_clickhouse_cluster" "cloud" {
   
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   database {
@@ -3442,8 +3444,8 @@ resource "yandex_mdb_clickhouse_cluster" "keeper" {
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
@@ -3494,8 +3496,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
   
   timeouts {
@@ -3539,8 +3541,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 }
 `, name, desc, version, buildClickhouseConfig(config))
@@ -3597,8 +3599,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo"{
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   disk_encryption_key_id = "${yandex_kms_symmetric_key.disk_encrypt.id}"
@@ -4115,8 +4117,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]
@@ -4235,8 +4237,8 @@ resource "yandex_mdb_clickhouse_cluster" "foo" {
 
   host {
     type      = "CLICKHOUSE"
-    zone      = "ru-central1-a"
-    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+    zone      = "ru-central1-d"
+    subnet_id = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
   }
 
   security_group_ids = ["${yandex_vpc_security_group.mdb-ch-test-sg-x.id}"]

@@ -1879,7 +1879,11 @@ func TestAccMDBClickHouseCluster_restore(t *testing.T) {
 // Test HCL configs
 
 func testAccMDBClickHouseCluster_basic(name string, bucket string, randInt int, changeableConf, extraHosts string) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+clickhouseObjectStorageDependencies(bucket, randInt)+"\n"+`
+	vpcDependencies := clickHouseVPCDependencies
+	if extraHosts != "" {
+		vpcDependencies = clickHouseMultiZoneVPCDependencies
+	}
+	return fmt.Sprintf(vpcDependencies+"\n"+clickhouseObjectStorageDependencies(bucket, randInt)+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           	  = "%s"
   description    	  = "ClickHouse basic tests"
@@ -1898,8 +1902,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   hosts = {
     "ha" = {
 	  type       = "CLICKHOUSE"
-	  zone       = "ru-central1-a"
-	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  zone       = "ru-central1-d"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
 	  shard_name = "shard1"
     }%s
   }
@@ -1924,7 +1928,7 @@ func testAccMDBClickHouseCluster_resources(
 	clickHouseResources, zookeeperResources, shardResources *clickhouse.Resources,
 	clickHouseAutoscalingSettings, zookeeperAutoscalingSettings, shardAutoscalingSettings *clickhouse.DiskSizeAutoscaling,
 ) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+	return fmt.Sprintf(clickHouseMultiZoneVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           = "%s"
   description    = "Cluster resources ans version"
@@ -2033,8 +2037,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   hosts = {
     "ha" = {
 	  type       = "CLICKHOUSE"
-	  zone       = "ru-central1-a"
-	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  zone       = "ru-central1-d"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
 	  shard_name = "shard1"
     }
   }
@@ -2104,7 +2108,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 }
 
 func testAccMDBClickHouseCluster_sharded(name, shards string) string {
-	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+	return fmt.Sprintf(clickHouseMultiZoneVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "bar" {
   name           = "%s"
   description    = "ClickHouse Sharded Cluster Terraform Test"
@@ -2136,8 +2140,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "remote_servers_target" {
   hosts = {
     "eh1" = {
 	  type       = "CLICKHOUSE"
-	  zone       = "ru-central1-a"
-	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  zone       = "ru-central1-d"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
 	  shard_name = "shard1"
     }
   }
@@ -2159,8 +2163,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "remote_servers" {
   hosts = {
     "h1" = {
 	  type       = "CLICKHOUSE"
-	  zone       = "ru-central1-a"
-	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  zone       = "ru-central1-d"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
 	  shard_name = "shard1"
     }
   }
@@ -2210,8 +2214,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "keeper" {
   hosts = {
     "ha" = {
 	  type       = "CLICKHOUSE"
-	  zone       = "ru-central1-a"
-	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  zone       = "ru-central1-d"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
 	  shard_name = "shard1"
     }
   }
@@ -2236,7 +2240,7 @@ func testAccMDBClickHouseClusterMigrateToKeeper(name, coordinatorType string, al
 		allowDegradationConfig = "allow_degradation_to_read_only = true"
 	}
 
-	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
+	return fmt.Sprintf(clickHouseMultiZoneVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "migrate_to_keeper" {
   name        = "%s"
   environment = "PRESTABLE"
@@ -2331,8 +2335,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "cloud" {
   hosts = {
     "ha" = {
 	  type       = "CLICKHOUSE"
-	  zone       = "ru-central1-a"
-	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  zone       = "ru-central1-d"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
 	  shard_name = "shard1"
     }
   }
@@ -2376,8 +2380,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   hosts = {
     "ha" = {
 	  type       = "CLICKHOUSE"
-	  zone       = "ru-central1-a"
-	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  zone       = "ru-central1-d"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
 	  shard_name = "shard1"
     }
   }
@@ -2421,8 +2425,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "restore_test" {
   hosts = {
     "ha" = {
       type       = "CLICKHOUSE"
-      zone       = "ru-central1-a"
-      subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+      zone       = "ru-central1-d"
+      subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
       shard_name = "shard1"
     }
   }
@@ -2889,14 +2893,16 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 
 // Build HCL functions
 
-const clickHouseVPCDependencies = `
-resource "yandex_vpc_network" "mdb-ch-test-net" {}
-
+const clickHouseMultiZoneVPCDependencies = clickHouseVPCDependencies + `
 resource "yandex_vpc_subnet" "mdb-ch-test-subnet-a" {
   zone           = "ru-central1-a"
   network_id     = "${yandex_vpc_network.mdb-ch-test-net.id}"
   v4_cidr_blocks = ["10.1.0.0/24"]
 }
+`
+
+const clickHouseVPCDependencies = `
+resource "yandex_vpc_network" "mdb-ch-test-net" {}
 
 resource "yandex_vpc_subnet" "mdb-ch-test-subnet-d" {
   zone           = "ru-central1-d"

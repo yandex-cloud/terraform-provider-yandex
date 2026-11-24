@@ -210,8 +210,8 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   hosts = {
     "ha" = {
 	  type       = "CLICKHOUSE"
-	  zone       = "ru-central1-a"
-	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-a.id}"
+	  zone       = "ru-central1-d"
+	  subnet_id  = "${yandex_vpc_subnet.mdb-ch-test-subnet-d.id}"
 	  shard_name = "shard1"
     }
   }
