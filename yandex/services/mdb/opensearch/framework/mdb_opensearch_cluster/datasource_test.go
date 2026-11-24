@@ -173,10 +173,10 @@ data "yandex_mdb_opensearch_cluster" "bar" {
 
 func testAccDataSourceMDBOpenSearchClusterConfig(name, desc string, randInt int, useDataID bool) string {
 	if useDataID {
-		return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt) +
+		return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt, false) +
 			fmt.Sprintf(mdbOpenSearchClusterByIDConfig, name)
 	}
 
-	return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt) +
+	return testAccMDBOpenSearchClusterConfig(name, desc, "PRESTABLE", false, randInt, false) +
 		fmt.Sprintf(mdbOpenSearchClusterByNameConfig, name)
 }

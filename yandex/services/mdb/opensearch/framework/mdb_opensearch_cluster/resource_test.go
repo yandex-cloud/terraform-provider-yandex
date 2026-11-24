@@ -131,7 +131,7 @@ func TestAccMDBOpenSearchCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttr(openSearchResource, "hosts.#", "1"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 1),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
@@ -154,7 +154,7 @@ func TestAccMDBOpenSearchCluster_single(t *testing.T) {
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 1),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
@@ -234,7 +234,7 @@ func TestAccMDBOpenSearchCluster_simple(t *testing.T) {
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.3.fqdn"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.4.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 1),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					resource.TestCheckResourceAttr(openSearchResource, "maintenance_window.type", "WEEKLY"),
@@ -274,7 +274,7 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 1),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
@@ -304,7 +304,7 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 1),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
@@ -339,7 +339,7 @@ func TestAccMDBOpenSearchCluster_saml(t *testing.T) {
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 1),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 11*1024*1024*1024),
@@ -379,8 +379,8 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 		Steps: []resource.TestStep{
 			// Create OpenSearch Cluster
 			{
-				//Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", false, randInt),
-				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", true, randInt),
+				//Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", false, randInt, true),
+				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", true, randInt, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
 					resource.TestCheckResourceAttr(openSearchResource, "name", openSearchName),
@@ -393,7 +393,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.0.fqdn"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.1.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key", "test_value"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.micro", "network-ssd", 10*1024*1024*1024),
@@ -406,7 +406,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			// uncheck 'deletion_protection'
 			{
-				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", false, randInt),
+				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", false, randInt, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
@@ -420,7 +420,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			// check 'deletion_protection'
 			{
-				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", true, randInt),
+				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", true, randInt, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "true"),
@@ -434,12 +434,12 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 			mdbOpenSearchClusterImportStep(openSearchResource),
 			// test 'deletion_protection
 			{
-				Config:      testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRODUCTION", true, randInt),
+				Config:      testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRODUCTION", true, randInt, true),
 				ExpectError: regexp.MustCompile(`.*The\soperation\swas\srejected\sbecause\scluster\shas\s'deletion_protection'\s=\sON.*`),
 			},
 			// uncheck 'deletion_protection'
 			{
-				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", false, randInt),
+				Config: testAccMDBOpenSearchClusterConfig(openSearchName, openSearchDesc, "PRESTABLE", false, randInt, true),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
 					resource.TestCheckResourceAttr(openSearchResource, "deletion_protection", "false"),
@@ -456,7 +456,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 				Config: testAccMDBOpenSearchClusterConfigNetworksRemove(openSearchName, openSearchDesc2, randInt),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBOpenSearchClusterExists(openSearchResource, &r, 2),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 1),
 				),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
@@ -480,7 +480,7 @@ func TestAccMDBOpenSearchCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.3.fqdn"),
 					resource.TestCheckResourceAttrSet(openSearchResource, "hosts.4.fqdn"),
 					test.AccCheckCreatedAtAttr(openSearchResource),
-					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 3),
+					testAccCheckMDBOpenSearchSubnetsAndZonesCount(&r, 2),
 					testAccCheckMDBOpenSearchClusterContainsLabel(&r, "test_key2", "test_value2"),
 					testAccCheckMDBOpenSearchClusterDataNodeHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
 					testAccCheckMDBOpenSearchClusterDashboardsHasResources(&r, "s2.small", "network-ssd", 11*1024*1024*1024),
@@ -720,8 +720,6 @@ func testSingleAccMDBOpenSearchClusterConfig(name, desc, environment string, ran
 
 locals {
   zones = [
-    "ru-central1-a",
-    "ru-central1-b",
     "ru-central1-d",
   ]
 }
@@ -759,8 +757,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
   }
 
   depends_on = [
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -783,8 +779,6 @@ func testSingleAccMDBOpenSearchClusterConfigDiskGb(name, desc, environment strin
 
 locals {
   zones = [
-    "ru-central1-a",
-    "ru-central1-b",
     "ru-central1-d",
   ]
 }
@@ -822,8 +816,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
   }
 
   depends_on = [
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -846,8 +838,6 @@ func testAccMDBOpenSearchClusterEncrypted(name, desc string, randInt int) string
 
 locals {
   zones = [
-    "ru-central1-a",
-    "ru-central1-b",
     "ru-central1-d",
   ]
 }
@@ -885,8 +875,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
   }
 
   depends_on = [
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -911,8 +899,6 @@ func testSamlAccMDBOpenSearchClusterConfig(name, desc, environment string, randI
 
 locals {
   zones = [
-    "ru-central1-a",
-    "ru-central1-b",
     "ru-central1-d",
   ]
 }
@@ -940,8 +926,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         hosts_count      = 1
         zone_ids         = local.zones
         subnet_ids = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles = ["DATA","MANAGER"]
@@ -960,8 +944,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         hosts_count          = 1
         zone_ids             = local.zones
         subnet_ids           = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         resources {
@@ -984,8 +966,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
   }
 
   depends_on = [
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -1008,8 +988,6 @@ func testSamlDashboardFlavorAccMDBOpenSearchClusterConfig(name, desc, environmen
 
 locals {
   zones = [
-    "ru-central1-a",
-    "ru-central1-b",
     "ru-central1-d",
   ]
 }
@@ -1037,8 +1015,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         hosts_count      = 1
         zone_ids         = local.zones
         subnet_ids = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles = ["DATA","MANAGER"]
@@ -1057,8 +1033,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         hosts_count          = 1
         zone_ids             = local.zones
         subnet_ids           = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         resources {
@@ -1081,8 +1055,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
   }
 
   depends_on = [
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -1105,8 +1077,6 @@ func testSimpleAccMDBOpenSearchClusterConfig(name, desc, environment string, ran
 
 locals {
   zones = [
-    "ru-central1-a",
-    "ru-central1-b",
     "ru-central1-d",
   ]
 }
@@ -1134,8 +1104,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         hosts_count      = 1
         zone_ids         = local.zones
         subnet_ids = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles = ["data"]
@@ -1156,8 +1124,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         hosts_count      = 3
         zone_ids         = local.zones
         subnet_ids = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles = ["manager"]
@@ -1173,8 +1139,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         hosts_count      = 1
         zone_ids         = local.zones
         subnet_ids = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles = ["data"]
@@ -1193,8 +1157,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
   }
 
   depends_on = [
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -1212,15 +1174,20 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 `, name, desc, environment)
 }
 
-func testAccMDBOpenSearchClusterConfig(name, desc, environment string, deletionProtection bool, randInt int) string {
-	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+func testAccMDBOpenSearchClusterConfig(name, desc, environment string, deletionProtection bool, randInt int, multiZone bool) string {
+	vpcDependencies := openSearchVPCDependencies
+	zones := `"ru-central1-d"`
+	subnets := `yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id`
+	if multiZone {
+		vpcDependencies = openSearchMultiZoneVPCDependencies
+		zones = `"ru-central1-a", "ru-central1-d"`
+		subnets = `yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id, yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id`
+	}
+	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+vpcDependencies+`
 
 locals {
-  zones = [
-    "ru-central1-a",
-    "ru-central1-b",
-    "ru-central1-d",
-  ]
+  zones = [%[5]s]
+  subnets = [%[6]s]
 }
 
 resource "yandex_mdb_opensearch_cluster" "%[1]s" {
@@ -1245,11 +1212,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         assign_public_ip     = false
         hosts_count          = 1
         zone_ids             = local.zones
-        subnet_ids           = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
-        ]
+        subnet_ids           = local.subnets
         roles                = ["DATA", "MANAGER"]
         resources {
           resource_preset_id = "s2.micro"
@@ -1266,11 +1229,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         assign_public_ip     = false
         hosts_count          = 1
         zone_ids             = local.zones
-        subnet_ids           = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
-        ]
+        subnet_ids           = local.subnets
         resources {
           resource_preset_id   = "s2.micro"
           disk_size            = 10737418240
@@ -1279,12 +1238,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
       }
     }
   }
-
-  depends_on = [
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
-  ]
 
   maintenance_window {
     type = "WEEKLY"
@@ -1297,16 +1250,15 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
     update = "2h"
   }
 }
-`, name, desc, environment, deletionProtection)
+`, name, desc, environment, deletionProtection, zones, subnets)
 }
 
 func testAccMDBOpenSearchClusterConfigNetworksRemove(name, desc string, randInt int) string {
-	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchMultiZoneVPCDependencies+`
 
 locals {
   zones = [
-    "ru-central1-a",
-    "ru-central1-b",
+    "ru-central1-d",
   ]
 }
 
@@ -1333,8 +1285,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         hosts_count          = 1
         zone_ids             = local.zones
         subnet_ids           = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA", "MANAGER"]
         resources {
@@ -1353,8 +1304,7 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         hosts_count          = 1
         zone_ids             = local.zones
         subnet_ids           = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         resources {
           resource_preset_id   = "s2.micro"
@@ -1366,8 +1316,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
   }
 
   depends_on = [
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -1386,16 +1334,15 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 }
 
 func testAccMDBOpenSearchClusterConfigNetworksRestore(name, desc, environment string, randInt int) string { //nolint:unused
-	return testAccMDBOpenSearchClusterConfig(name, desc, environment, false, randInt)
+	return testAccMDBOpenSearchClusterConfig(name, desc, environment, false, randInt, true)
 }
 
 func testAccMDBOpenSearchClusterConfigUpdated(name, desc string, randInt int) string {
-	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchVPCDependencies+`
+	return openSearchIAMDependencies(randInt) + fmt.Sprintf("\n"+openSearchMultiZoneVPCDependencies+`
 
 locals {
   zones = [
     "ru-central1-a",
-    "ru-central1-b",
     "ru-central1-d",
   ]
 }
@@ -1423,7 +1370,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA", "MANAGER"]
@@ -1444,7 +1390,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         resources {
@@ -1458,7 +1403,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   depends_on = [
     yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -1475,19 +1419,18 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 }
 
 func testAccMDBOpenSearchClusterConfigWithManagerGroup(name, desc string, randInt int) string {
-	return fmt.Sprintf("\n"+openSearchVPCDependencies+`
+	return fmt.Sprintf("\n"+openSearchMultiZoneVPCDependencies+`
 
 locals {
   zones = [
     "ru-central1-a",
-    "ru-central1-b",
     "ru-central1-d",
   ]
   zone_a = [
     "ru-central1-a",
   ]
-  zone_b = [
-    "ru-central1-b",
+  zone_d = [
+    "ru-central1-d",
   ]
 }
 
@@ -1526,9 +1469,9 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         name = "data2"
         assign_public_ip     = false
         hosts_count          = 1
-        zone_ids             = local.zone_b
+        zone_ids             = local.zone_d
         subnet_ids           = [
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
+          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA"]
         resources {
@@ -1544,7 +1487,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA", "MANAGER"]
@@ -1561,7 +1503,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["MANAGER"]
@@ -1582,7 +1523,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         resources {
@@ -1596,7 +1536,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   depends_on = [
     yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -1613,12 +1552,11 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 }
 
 func testAccMDBOpenSearchClusterConfigRemoveGroup(name, desc string, randInt int) string {
-	return fmt.Sprintf("\n"+openSearchVPCDependencies+`
+	return fmt.Sprintf("\n"+openSearchMultiZoneVPCDependencies+`
 
 locals {
   zones = [
     "ru-central1-a",
-    "ru-central1-b",
     "ru-central1-d",
   ]
 }
@@ -1646,7 +1584,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA"]
@@ -1663,7 +1600,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["DATA"]
@@ -1680,7 +1616,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         roles                = ["MANAGER"]
@@ -1701,7 +1636,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
         zone_ids             = local.zones
         subnet_ids           = [
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-a.id}",
-          "${yandex_vpc_subnet.mdb-opensearch-test-subnet-b.id}",
           "${yandex_vpc_subnet.mdb-opensearch-test-subnet-d.id}",
         ]
         resources {
@@ -1715,7 +1649,6 @@ resource "yandex_mdb_opensearch_cluster" "%[1]s" {
 
   depends_on = [
     yandex_vpc_subnet.mdb-opensearch-test-subnet-a,
-    yandex_vpc_subnet.mdb-opensearch-test-subnet-b,
     yandex_vpc_subnet.mdb-opensearch-test-subnet-d,
   ]
 
@@ -1799,21 +1732,17 @@ resource "yandex_vpc_security_group" "mdb-opensearch-test-sg-y" {
   }
 }
 
-resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-a" {
-  zone           = "ru-central1-a"
-  network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-b" {
-  zone           = "ru-central1-b"
-  network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
 resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-d" {
   zone           = "ru-central1-d"
   network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
   v4_cidr_blocks = ["10.3.0.0/24"]
+}
+`
+
+const openSearchMultiZoneVPCDependencies = openSearchVPCDependencies + `
+resource "yandex_vpc_subnet" "mdb-opensearch-test-subnet-a" {
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.mdb-opensearch-test-net.id}"
+  v4_cidr_blocks = ["10.1.0.0/24"]
 }
 `
