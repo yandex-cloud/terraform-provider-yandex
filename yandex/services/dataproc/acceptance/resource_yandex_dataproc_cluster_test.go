@@ -32,7 +32,7 @@ import (
 
 const dataprocResourceType = "yandex_dataproc_cluster"
 
-var testDataprocZone = "ru-central1-b"
+var testDataprocZone = "ru-central1-a"
 
 func init() {
 	zone, ok := os.LookupEnv("YC_ZONE")

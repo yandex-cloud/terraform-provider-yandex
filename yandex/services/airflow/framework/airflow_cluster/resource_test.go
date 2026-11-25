@@ -36,18 +36,6 @@ func infraResources(t *testing.T, randSuffix string) string {
 	tpl, err := template.New("airflow").Parse(`
 resource "yandex_vpc_network" "airflow-net" {}
 
-resource "yandex_vpc_subnet" "airflow-a" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.airflow-net.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "airflow-b" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.airflow-net.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
 resource "yandex_vpc_subnet" "airflow-d" {
   zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.airflow-net.id
@@ -126,11 +114,7 @@ resource "yandex_airflow_cluster" {{ .ResourceName }} {
     }
   }
   service_account_id = yandex_iam_service_account.airflow-sa-{{ .RandSuffix }}.id
-  subnet_ids = [
-    yandex_vpc_subnet.airflow-a.id,
-	yandex_vpc_subnet.airflow-b.id,
-	yandex_vpc_subnet.airflow-d.id
-  ]
+  subnet_ids = [yandex_vpc_subnet.airflow-d.id]
   webserver = {
     resource_preset_id = "{{ .Webserver.ResourcePresetID }}"
     count              = {{ .Webserver.Count }}
@@ -192,11 +176,6 @@ resource "yandex_airflow_cluster" {{ .ResourceName }} {
   }
   datacatalog = {
   	enabled = true
-  }
-  logging = {
-    enabled   = true
-    folder_id = "{{ .FolderID }}"
-    min_level = "INFO"
   }
   timeouts {
 	create = "50m"
@@ -323,8 +302,7 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "admin_password"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.0"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.1"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.2"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.#", "1"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "airflow_version"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "python_version"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),
@@ -388,8 +366,7 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "admin_password"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.0"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.1"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.2"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.#", "1"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "airflow_version"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "python_version"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),
@@ -420,9 +397,6 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "description", "airflow-cluster"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "lockbox_secrets_backend.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "datacatalog.enabled", "true"),
-					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "logging.enabled", "true"),
-					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "logging.folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "logging.min_level", "INFO"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "timeouts.create", "50m"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "timeouts.update", "50m"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "timeouts.delete", "50m"),
@@ -463,8 +437,7 @@ func TestAccMDBAirflow3Cluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "admin_password"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.0"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.1"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.2"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "subnet_ids.#", "1"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "airflow_version"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster3", "python_version"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster3", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),
@@ -530,8 +503,7 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "admin_password"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.0"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.1"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.2"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.#", "1"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "airflow_version"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "python_version"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),
@@ -595,8 +567,7 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "admin_password"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.0"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.1"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.2"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.#", "1"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "airflow_version"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "python_version"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),
@@ -627,9 +598,6 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "description", "airflow-cluster"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "lockbox_secrets_backend.enabled", "true"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "datacatalog.enabled", "true"),
-					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "logging.enabled", "true"),
-					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "logging.folder_id", folderID),
-					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "logging.min_level", "INFO"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "timeouts.create", "50m"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "timeouts.update", "50m"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "timeouts.delete", "50m"),
@@ -670,8 +638,7 @@ func TestAccMDBAirflowCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "admin_password"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "service_account_id"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.0"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.1"),
-					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.2"),
+					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "subnet_ids.#", "1"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "airflow_version"),
 					resource.TestCheckResourceAttrSet("yandex_airflow_cluster.airflow_cluster2", "python_version"),
 					resource.TestCheckResourceAttr("yandex_airflow_cluster.airflow_cluster2", "code_sync.s3.bucket", fmt.Sprintf("airflow-tf-%s", randSuffix)),

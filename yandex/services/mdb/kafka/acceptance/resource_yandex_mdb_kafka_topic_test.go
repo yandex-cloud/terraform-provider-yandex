@@ -349,12 +349,12 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	description = "Kafka Topic Terraform Test"
 	environment = "PRODUCTION"
 	network_id  = yandex_vpc_network.mdb-kafka-test-net.id
-	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
+	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-d.id]
 
 	config {
 	  version          = "%s"
 	  brokers_count    = 1
-	  zones            = ["ru-central1-a"]
+	  zones            = ["ru-central1-d"]
 	  kafka {
 		resources {
 		  resource_preset_id = "s2.micro"

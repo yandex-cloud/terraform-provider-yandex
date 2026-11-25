@@ -69,7 +69,7 @@ func TestAccDataSourceMDBKafkaClusterAndTopicAndUser(t *testing.T) {
 					resource.TestCheckResourceAttr(clusterDatasource, "config.0.version", currentDefaultKafkaVersion),
 					resource.TestCheckResourceAttr(clusterDatasource, "zookeeper.#", "0"),
 					resource.TestCheckResourceAttr(clusterDatasource, "subnet_ids.#", "1"),
-					resource.TestCheckResourceAttrPair(clusterDatasource, "subnet_ids.0", "yandex_vpc_subnet.mdb-kafka-test-subnet-a", "id"),
+					resource.TestCheckResourceAttrPair(clusterDatasource, "subnet_ids.0", "yandex_vpc_subnet.mdb-kafka-test-subnet-d", "id"),
 					resource.TestCheckResourceAttr(clusterDatasource, "topic.#", "2"),
 					resource.TestCheckResourceAttr(clusterDatasource, "user.#", "2"),
 					resource.TestCheckResourceAttr(clusterDatasource, "deletion_protection", "false"),

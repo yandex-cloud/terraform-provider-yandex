@@ -44,22 +44,18 @@ const (
 	kfVPCDependencies = `
 resource "yandex_vpc_network" "mdb-kafka-test-net" {}
 
-resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-a" {
-  zone           = "ru-central1-a"
-  network_id     = yandex_vpc_network.mdb-kafka-test-net.id
-  v4_cidr_blocks = ["10.1.0.0/24"]
-}
-
-resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-b" {
-  zone           = "ru-central1-b"
-  network_id     = yandex_vpc_network.mdb-kafka-test-net.id
-  v4_cidr_blocks = ["10.2.0.0/24"]
-}
-
 resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-d" {
   zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.mdb-kafka-test-net.id
   v4_cidr_blocks = ["10.3.0.0/24"]
+}
+`
+
+	kfMultiZoneVPCDependencies = kfVPCDependencies + `
+resource "yandex_vpc_subnet" "mdb-kafka-test-subnet-a" {
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.mdb-kafka-test-net.id
+  v4_cidr_blocks = ["10.1.0.0/24"]
 }
 `
 
@@ -1499,7 +1495,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					testAccCheckMDBKafkaConfigKafkaHasResources(&r, "s2.micro", "network-hdd", 17179869184),
 					suite.testAccCheckMDBKafkaClusterHasTopics(kfResourceFoo, []string{"raw_events", "final"}),
 					suite.testAccCheckMDBKafkaClusterHasUsers(kfResourceFoo, map[string][]string{"alice": {"raw_events"}, "bob": {"raw_events", "final"}}),
-					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"}),
+					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-d"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
 					testAccCheckMDBKafkaClusterCompressionType(&r, kafka.CompressionType_COMPRESSION_TYPE_ZSTD),
 					testAccCheckMDBKafkaClusterLogRetentionBytes(&r, 1073741824),
@@ -1521,7 +1517,7 @@ func TestAccMDBKafkaCluster_HA(t *testing.T) {
 					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.rest_api.0.enabled", "true"),
 					resource.TestCheckResourceAttr(kfResourceFoo, "config.0.kafka_ui.0.enabled", "true"),
 					testAccCheckMDBKafkaClusterContainsLabel(&r, "new_key", "new_value"),
-					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-b", "ru-central1-d"}),
+					testAccCheckMDBKafkaConfigZones(&r, []string{"ru-central1-a", "ru-central1-d"}),
 					testAccCheckMDBKafkaConfigBrokersCount(&r, 1),
 					suite.testAccCheckMDBKafkaClusterHasTopics(kfResourceFoo, []string{"raw_events", "new_topic"}),
 					suite.testAccCheckMDBKafkaClusterHasUsers(kfResourceFoo, map[string][]string{"alice": {"raw_events"}, "charlie": {"raw_events", "new_topic"}}),
@@ -1602,13 +1598,13 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	labels = {
 	  test_key = "test_value"
 	}
-	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
+	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-d.id]
 	deletion_protection = false
 
 	config {
 	  version          = "%s"
 	  brokers_count    = 1
-	  zones            = ["ru-central1-a"]
+	  zones            = ["ru-central1-d"]
 	  assign_public_ip = false
 	  schema_registry  = false
       access {
@@ -1702,12 +1698,12 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		test_key = "test_value"
 		new_key = "new_value"
 	}
-	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
+	subnet_ids = [yandex_vpc_subnet.mdb-kafka-test-subnet-d.id]
 
 	config {
 		version = "%s"
 		brokers_count = 1
-		zones = ["ru-central1-a"]
+		zones = ["ru-central1-d"]
 		assign_public_ip = false
 		schema_registry  = true
         access {
@@ -2036,7 +2032,7 @@ func (suite testSuite) testAccCheckMDBKafkaClusterHasUsers(r string, perms map[s
 }
 
 func testAccMDBKafkaClusterConfigMainHA(name, desc string) string {
-	return fmt.Sprintf(kfVPCDependencies+`
+	return fmt.Sprintf(kfMultiZoneVPCDependencies+`
 resource "yandex_mdb_kafka_cluster" "foo" {
 	name        = "%s"
 	description = "%s"
@@ -2048,14 +2044,13 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	# Import returns subnet IDs in sorted order.
 	subnet_ids = sort([
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-a.id,
-	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-d.id
 	])
 
 	config {
 	  version          = "%s"
 	  brokers_count    = 1
-	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
+	  zones            = ["ru-central1-a", "ru-central1-d"]
 	  assign_public_ip = false
 	  schema_registry  = false
       rest_api {
@@ -2074,6 +2069,13 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 1073741824
 		  sasl_enabled_mechanisms    = ["SASL_MECHANISM_SCRAM_SHA_256"]
+		}
+	  }
+	  kraft {
+		resources {
+		  resource_preset_id = "s2.micro"
+		  disk_type_id       = "network-ssd"
+		  disk_size          = 20
 		}
 	  }
 	}
@@ -2121,7 +2123,7 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 }
 
 func testAccMDBKafkaClusterConfigUpdatedHA(name, desc string) string {
-	return fmt.Sprintf(kfVPCDependencies+`
+	return fmt.Sprintf(kfMultiZoneVPCDependencies+`
 resource "yandex_mdb_kafka_cluster" "foo" {
 	name        = "%s"
 	description = "%s"
@@ -2134,14 +2136,13 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 	# Import returns subnet IDs in sorted order.
 	subnet_ids = sort([
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-a.id,
-	  yandex_vpc_subnet.mdb-kafka-test-subnet-b.id,
 	  yandex_vpc_subnet.mdb-kafka-test-subnet-d.id
 	])
 
 	config {
 	  version          = "%s"
 	  brokers_count    = 1
-	  zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
+	  zones            = ["ru-central1-a", "ru-central1-d"]
 	  assign_public_ip = false
       schema_registry  = false
 	  kafka {
@@ -2154,6 +2155,13 @@ resource "yandex_mdb_kafka_cluster" "foo" {
 		  compression_type    		 = "COMPRESSION_TYPE_ZSTD"
 		  log_retention_bytes 		 = 2147483648
 		  log_segment_bytes   		 = 268435456
+		}
+	  }
+	  kraft {
+		resources {
+		  resource_preset_id = "s2.micro"
+		  disk_type_id       = "network-ssd"
+		  disk_size          = 20
 		}
 	  }
 	}
@@ -2239,12 +2247,12 @@ resource "yandex_mdb_kafka_cluster" "foo" {
   description = "%s"
   environment = "PRESTABLE"
   network_id  = yandex_vpc_network.mdb-kafka-test-net.id
-  subnet_ids  = [yandex_vpc_subnet.mdb-kafka-test-subnet-a.id]
+  subnet_ids  = [yandex_vpc_subnet.mdb-kafka-test-subnet-d.id]
 
   config {
     version          = "%s"
     brokers_count    = 1
-    zones            = ["ru-central1-a"]
+    zones            = ["ru-central1-d"]
     assign_public_ip = false
     kafka {
       resources {

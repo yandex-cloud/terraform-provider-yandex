@@ -38,8 +38,8 @@ func infraResources(t *testing.T, randSuffix string) string {
 	tpl, err := template.New("spark").Parse(`
 resource "yandex_vpc_network" "spark-net" {}
 
-resource "yandex_vpc_subnet" "spark-a" {
-  zone           = "ru-central1-a"
+resource "yandex_vpc_subnet" "spark-d" {
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.spark-net.id
   v4_cidr_blocks = ["10.1.0.0/24"]
 }
@@ -164,7 +164,7 @@ resource "yandex_spark_cluster" "spark_cluster" {
   }
 
   network = {
-    subnet_ids = [yandex_vpc_subnet.spark-a.id]
+    subnet_ids = [yandex_vpc_subnet.spark-d.id]
     {{ if .SecurityGroup }}
     security_group_ids = [yandex_vpc_security_group.spark-sg1.id]
     {{ end }}
