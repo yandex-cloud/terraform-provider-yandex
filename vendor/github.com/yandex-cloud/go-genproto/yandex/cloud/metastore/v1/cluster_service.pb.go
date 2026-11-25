@@ -1329,8 +1329,10 @@ type UpdateNetworkConfigSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// User security groups.
 	SecurityGroupIds []string `protobuf:"bytes,1,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// IDs of VPC subnets to attach the cluster to.
+	SubnetIds     []string `protobuf:"bytes,2,rep,name=subnet_ids,json=subnetIds,proto3" json:"subnet_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateNetworkConfigSpec) Reset() {
@@ -1366,6 +1368,13 @@ func (*UpdateNetworkConfigSpec) Descriptor() ([]byte, []int) {
 func (x *UpdateNetworkConfigSpec) GetSecurityGroupIds() []string {
 	if x != nil {
 		return x.SecurityGroupIds
+	}
+	return nil
+}
+
+func (x *UpdateNetworkConfigSpec) GetSubnetIds() []string {
+	if x != nil {
+		return x.SubnetIds
 	}
 	return nil
 }
@@ -1485,9 +1494,11 @@ const file_yandex_cloud_metastore_v1_cluster_service_proto_rawDesc = "" +
 	"\twarehouse\x18\x03 \x01(\v2*.yandex.cloud.metastore.v1.WarehouseConfigB\x04\xe8\xc71\x01R\twarehouseJ\x04\b\x01\x10\x02\"\xa7\x01\n" +
 	"\x17UpdateClusterConfigSpec\x12B\n" +
 	"\tresources\x18\x01 \x01(\v2$.yandex.cloud.metastore.v1.ResourcesR\tresources\x12H\n" +
-	"\twarehouse\x18\x02 \x01(\v2*.yandex.cloud.metastore.v1.WarehouseConfigR\twarehouse\"G\n" +
+	"\twarehouse\x18\x02 \x01(\v2*.yandex.cloud.metastore.v1.WarehouseConfigR\twarehouse\"f\n" +
 	"\x17UpdateNetworkConfigSpec\x12,\n" +
-	"\x12security_group_ids\x18\x01 \x03(\tR\x10securityGroupIds2\xe5\x13\n" +
+	"\x12security_group_ids\x18\x01 \x03(\tR\x10securityGroupIds\x12\x1d\n" +
+	"\n" +
+	"subnet_ids\x18\x02 \x03(\tR\tsubnetIds2\xe5\x13\n" +
 	"\x0eClusterService\x12\x8c\x01\n" +
 	"\x03Get\x12,.yandex.cloud.metastore.v1.GetClusterRequest\x1a\".yandex.cloud.metastore.v1.Cluster\"3\x82\xd3\xe4\x93\x02-\x12+/managed-metastore/v1/clusters/{cluster_id}\x12\x8f\x01\n" +
 	"\x04List\x12..yandex.cloud.metastore.v1.ListClustersRequest\x1a/.yandex.cloud.metastore.v1.ListClustersResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/managed-metastore/v1/clusters\x12\xab\x01\n" +

@@ -45,7 +45,7 @@ func NewResource() resource.Resource {
 
 func (u *IAMPolicyBindingUpdater) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Allows creation and management of a single binding within IAM policy for an existing `organization`.",
+		MarkdownDescription: "Applies an access policy template to the specified organization.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				MarkdownDescription: "The ID of this resource.",
@@ -53,26 +53,26 @@ func (u *IAMPolicyBindingUpdater) Schema(_ context.Context, _ resource.SchemaReq
 				Computed:            true,
 			},
 			"access_policy_template_id": schema.StringAttribute{
-				MarkdownDescription: "The role that should be assigned. Only one yandex_organization_manager_organization_iam_policy_binding can be used per role.",
+				MarkdownDescription: "ID of the access policy template to apply.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"parameters": schema.MapAttribute{
-				MarkdownDescription: "An array of identities that will be granted the privilege in the `role`. Each entry can have one of the following values:\n * **userAccount:{user_id}**: A unique user ID that represents a specific Yandex account.\n * **serviceAccount:{service_account_id}**: A unique service account ID.\n * **federatedUser:{federated_user_id}**: A unique federated user ID.\n * **federatedUser:{federated_user_id}:**: A unique SAML federation user account ID.\n * **group:{group_id}**: A unique group ID.\n * **system:group:federation:{federation_id}:users**: All users in federation.\n * **system:group:organization:{organization_id}:users**: All users in organization.\n * **system:allAuthenticatedUsers**: All authenticated users.\n * **system:allUsers**: All users, including unauthenticated ones.\n\n~> for more information about system groups, see [Cloud Documentation](https://yandex.cloud/docs/iam/concepts/access-control/system-group).\n\n",
+				MarkdownDescription: "Parameter values for this binding, keyed by the parameter names defined by the access policy template.",
 				Optional:            true,
 				ElementType:         types.StringType,
 			},
 			"organization_id": schema.StringAttribute{
-				MarkdownDescription: "The ID of the compute `organization` to attach the policy to.",
+				MarkdownDescription: "ID of the organization to which the access policy template applies.",
 				Required:            true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
 			},
 			"sleep_after": schema.Int64Attribute{
-				MarkdownDescription: "For test purposes, to compensate IAM operations delay",
+				MarkdownDescription: "For testing. Number of seconds to wait after creating or updating the binding before reading its state.",
 				Optional:            true,
 			},
 		},

@@ -239,3 +239,7 @@ func (m *UpdateClusterConfigSpec) SetWarehouse(v *WarehouseConfig) {
 func (m *UpdateNetworkConfigSpec) SetSecurityGroupIds(v []string) {
 	m.SecurityGroupIds = v
 }
+
+func (m *UpdateNetworkConfigSpec) SetSubnetIds(v []string) {
+	m.SubnetIds = v
+}

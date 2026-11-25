@@ -198,6 +198,10 @@ func (m *UpdateNetworkConfigSpec) SetPrivateAccess(v *PrivateAccessConfig) {
 	m.PrivateAccess = v
 }
 
+func (m *UpdateNetworkConfigSpec) SetSubnetIds(v []string) {
+	m.SubnetIds = v
+}
+
 func (m *UpdateClusterRequest) SetClusterId(v string) {
 	m.ClusterId = v
 }

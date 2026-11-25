@@ -1,5 +1,14 @@
 # Release notes
 
+## 0.253.0 (November 25, 2026)
+
+##### BUG FIXES:
+* iam: document access policy binding parameters and list cloud, folder, and organization bindings under their respective services
+* iam_policy_binding: preserve other policy template bindings when creating, updating, or deleting a cloud, folder, or organization binding
+* release: share the build target list with publication checks and exclude unsupported 32-bit Windows ARM builds
+
+
+
 ## 0.252.0 (November 24, 2026)
 
 ##### FEATURES:

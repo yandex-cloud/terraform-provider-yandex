@@ -248,6 +248,10 @@ func (m *ClusterConfig) SetManagedRepack(v *ManagedRepack) {
 	m.ManagedRepack = v
 }
 
+func (m *ClusterConfig) SetClientTlsMode(v ClientTLSMode) {
+	m.ClientTlsMode = v
+}
+
 func (m *ConnectionPoolerConfig) SetPoolingMode(v ConnectionPoolerConfig_PoolingMode) {
 	m.PoolingMode = v
 }

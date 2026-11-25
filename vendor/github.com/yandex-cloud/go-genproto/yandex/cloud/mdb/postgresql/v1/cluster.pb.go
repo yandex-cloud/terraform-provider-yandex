@@ -873,6 +873,8 @@ type ClusterConfig struct {
 	ConnectionManager *v1.ClusterConnectionManager `protobuf:"bytes,32,opt,name=connection_manager,json=connectionManager,proto3" json:"connection_manager,omitempty"`
 	// Configuration of managed pg_repack.
 	ManagedRepack *ManagedRepack `protobuf:"bytes,34,opt,name=managed_repack,json=managedRepack,proto3" json:"managed_repack,omitempty"`
+	// TLS mode for client connections to Odyssey.
+	ClientTlsMode ClientTLSMode `protobuf:"varint,38,opt,name=client_tls_mode,json=clientTlsMode,proto3,enum=yandex.cloud.mdb.postgresql.v1.ClientTLSMode" json:"client_tls_mode,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1133,6 +1135,13 @@ func (x *ClusterConfig) GetManagedRepack() *ManagedRepack {
 		return x.ManagedRepack
 	}
 	return nil
+}
+
+func (x *ClusterConfig) GetClientTlsMode() ClientTLSMode {
+	if x != nil {
+		return x.ClientTlsMode
+	}
+	return ClientTLSMode_CLIENT_TLS_MODE_UNSPECIFIED
 }
 
 type isClusterConfig_PostgresqlConfig interface {
@@ -2193,7 +2202,7 @@ var File_yandex_cloud_mdb_postgresql_v1_cluster_proto protoreflect.FileDescripto
 
 const file_yandex_cloud_mdb_postgresql_v1_cluster_proto_rawDesc = "" +
 	"\n" +
-	",yandex/cloud/mdb/postgresql/v1/cluster.proto\x12\x1eyandex.cloud.mdb.postgresql.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host11.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host12.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host13.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host13_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host14.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host14_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host15.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host15_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host16.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host16_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host17.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host17_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host18.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host18_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host19.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host19_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql11.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql12.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql13.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql13_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql14.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql14_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql15.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql15_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql16.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql16_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql17.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql17_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql18.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql18_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql19.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql19_1c.proto\x1a0yandex/cloud/mdb/postgresql/v1/maintenance.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xdf\v\n" +
+	",yandex/cloud/mdb/postgresql/v1/cluster.proto\x12\x1eyandex.cloud.mdb.postgresql.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1bgoogle/type/timeofday.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host11.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host12.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host13.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host13_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host14.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host14_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host15.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host15_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host16.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host16_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host17.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host17_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host18.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host18_1c.proto\x1a2yandex/cloud/mdb/postgresql/v1/config/host19.proto\x1a5yandex/cloud/mdb/postgresql/v1/config/host19_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql11.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql12.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql13.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql13_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql14.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql14_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql15.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql15_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql16.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql16_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql17.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql17_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql18.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql18_1c.proto\x1a8yandex/cloud/mdb/postgresql/v1/config/postgresql19.proto\x1a;yandex/cloud/mdb/postgresql/v1/config/postgresql19_1c.proto\x1a4yandex/cloud/mdb/postgresql/v1/client_tls_mode.proto\x1a0yandex/cloud/mdb/postgresql/v1/maintenance.proto\x1a+yandex/cloud/mdb/v1/connectionmanager.proto\x1a%yandex/cloud/mdb/v1/maintenance.proto\x1a\x1dyandex/cloud/validation.proto\"\xdf\v\n" +
 	"\aCluster\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
 	"\tfolder_id\x18\x02 \x01(\tR\bfolderId\x129\n" +
@@ -2246,7 +2255,7 @@ const file_yandex_cloud_mdb_postgresql_v1_cluster_proto_rawDesc = "" +
 	"Monitoring\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x12\n" +
-	"\x04link\x18\x03 \x01(\tR\x04link\"\xa4\x16\n" +
+	"\x04link\x18\x03 \x01(\tR\x04link\"\x81\x17\n" +
 	"\rClusterConfig\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12q\n" +
 	"\x14postgresql_config_11\x18\b \x01(\v2<.yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet11H\x00R\x13postgresqlConfig_11\x12q\n" +
@@ -2274,9 +2283,10 @@ const file_yandex_cloud_mdb_postgresql_v1_cluster_proto_rawDesc = "" +
 	"\x15disk_size_autoscaling\x18\x17 \x01(\v23.yandex.cloud.mdb.postgresql.v1.DiskSizeAutoscalingR\x13diskSizeAutoscaling\x12!\n" +
 	"\ffull_version\x18\x1f \x01(\tR\vfullVersion\x12\\\n" +
 	"\x12connection_manager\x18  \x01(\v2-.yandex.cloud.mdb.v1.ClusterConnectionManagerR\x11connectionManager\x12T\n" +
-	"\x0emanaged_repack\x18\" \x01(\v2-.yandex.cloud.mdb.postgresql.v1.ManagedRepackR\rmanagedRepackB\x13\n" +
+	"\x0emanaged_repack\x18\" \x01(\v2-.yandex.cloud.mdb.postgresql.v1.ManagedRepackR\rmanagedRepack\x12U\n" +
+	"\x0fclient_tls_mode\x18& \x01(\x0e2-.yandex.cloud.mdb.postgresql.v1.ClientTLSModeR\rclientTlsModeB\x13\n" +
 	"\x11postgresql_configJ\x04\b\x02\x10\x03J\x04\b\x03\x10\x04J\x04\b\x06\x10\aJ\x04\b\n" +
-	"\x10\vJ\x04\b\r\x10\x0eJ\x04\b\x0e\x10\x0fJ\x04\b\x14\x10\x15J\x04\b\x1a\x10\x1bJ\x04\b!\x10\"\"\x98\x02\n" +
+	"\x10\vJ\x04\b\r\x10\x0eJ\x04\b\x0e\x10\x0fJ\x04\b\x14\x10\x15J\x04\b\x1a\x10\x1bJ\x04\b!\x10\"J\x04\b%\x10&\"\x98\x02\n" +
 	"\x16ConnectionPoolerConfig\x12e\n" +
 	"\fpooling_mode\x18\x01 \x01(\x0e2B.yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig.PoolingModeR\vpoolingMode\x12=\n" +
 	"\fpool_discard\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\vpoolDiscard\"X\n" +
@@ -2440,23 +2450,24 @@ var file_yandex_cloud_mdb_postgresql_v1_cluster_proto_goTypes = []any{
 	(*timeofday.TimeOfDay)(nil),              // 43: google.type.TimeOfDay
 	(*wrapperspb.Int64Value)(nil),            // 44: google.protobuf.Int64Value
 	(*v1.ClusterConnectionManager)(nil),      // 45: yandex.cloud.mdb.v1.ClusterConnectionManager
-	(*wrapperspb.BoolValue)(nil),             // 46: google.protobuf.BoolValue
-	(*config.PostgresqlHostConfig11)(nil),    // 47: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig11
-	(*config.PostgresqlHostConfig12)(nil),    // 48: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig12
-	(*config.PostgresqlHostConfig13)(nil),    // 49: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13
-	(*config.PostgresqlHostConfig13_1C)(nil), // 50: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13_1C
-	(*config.PostgresqlHostConfig14)(nil),    // 51: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14
-	(*config.PostgresqlHostConfig14_1C)(nil), // 52: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14_1C
-	(*config.PostgresqlHostConfig15)(nil),    // 53: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15
-	(*config.PostgresqlHostConfig15_1C)(nil), // 54: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15_1C
-	(*config.PostgresqlHostConfig16)(nil),    // 55: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16
-	(*config.PostgresqlHostConfig16_1C)(nil), // 56: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16_1C
-	(*config.PostgresqlHostConfig17)(nil),    // 57: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17
-	(*config.PostgresqlHostConfig17_1C)(nil), // 58: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17_1C
-	(*config.PostgresqlHostConfig18)(nil),    // 59: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18
-	(*config.PostgresqlHostConfig18_1C)(nil), // 60: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18_1C
-	(*config.PostgresqlHostConfig19)(nil),    // 61: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19
-	(*config.PostgresqlHostConfig19_1C)(nil), // 62: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19_1C
+	(ClientTLSMode)(0),                       // 46: yandex.cloud.mdb.postgresql.v1.ClientTLSMode
+	(*wrapperspb.BoolValue)(nil),             // 47: google.protobuf.BoolValue
+	(*config.PostgresqlHostConfig11)(nil),    // 48: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig11
+	(*config.PostgresqlHostConfig12)(nil),    // 49: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig12
+	(*config.PostgresqlHostConfig13)(nil),    // 50: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13
+	(*config.PostgresqlHostConfig13_1C)(nil), // 51: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13_1C
+	(*config.PostgresqlHostConfig14)(nil),    // 52: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14
+	(*config.PostgresqlHostConfig14_1C)(nil), // 53: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14_1C
+	(*config.PostgresqlHostConfig15)(nil),    // 54: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15
+	(*config.PostgresqlHostConfig15_1C)(nil), // 55: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15_1C
+	(*config.PostgresqlHostConfig16)(nil),    // 56: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16
+	(*config.PostgresqlHostConfig16_1C)(nil), // 57: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16_1C
+	(*config.PostgresqlHostConfig17)(nil),    // 58: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17
+	(*config.PostgresqlHostConfig17_1C)(nil), // 59: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17_1C
+	(*config.PostgresqlHostConfig18)(nil),    // 60: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18
+	(*config.PostgresqlHostConfig18_1C)(nil), // 61: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18_1C
+	(*config.PostgresqlHostConfig19)(nil),    // 62: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19
+	(*config.PostgresqlHostConfig19_1C)(nil), // 63: yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19_1C
 }
 var file_yandex_cloud_mdb_postgresql_v1_cluster_proto_depIdxs = []int32{
 	22, // 0: yandex.cloud.mdb.postgresql.v1.Cluster.created_at:type_name -> google.protobuf.Timestamp
@@ -2495,40 +2506,41 @@ var file_yandex_cloud_mdb_postgresql_v1_cluster_proto_depIdxs = []int32{
 	20, // 33: yandex.cloud.mdb.postgresql.v1.ClusterConfig.disk_size_autoscaling:type_name -> yandex.cloud.mdb.postgresql.v1.DiskSizeAutoscaling
 	45, // 34: yandex.cloud.mdb.postgresql.v1.ClusterConfig.connection_manager:type_name -> yandex.cloud.mdb.v1.ClusterConnectionManager
 	19, // 35: yandex.cloud.mdb.postgresql.v1.ClusterConfig.managed_repack:type_name -> yandex.cloud.mdb.postgresql.v1.ManagedRepack
-	3,  // 36: yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig.pooling_mode:type_name -> yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig.PoolingMode
-	46, // 37: yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig.pool_discard:type_name -> google.protobuf.BoolValue
-	16, // 38: yandex.cloud.mdb.postgresql.v1.Host.resources:type_name -> yandex.cloud.mdb.postgresql.v1.Resources
-	4,  // 39: yandex.cloud.mdb.postgresql.v1.Host.role:type_name -> yandex.cloud.mdb.postgresql.v1.Host.Role
-	6,  // 40: yandex.cloud.mdb.postgresql.v1.Host.health:type_name -> yandex.cloud.mdb.postgresql.v1.Host.Health
-	15, // 41: yandex.cloud.mdb.postgresql.v1.Host.services:type_name -> yandex.cloud.mdb.postgresql.v1.Service
-	44, // 42: yandex.cloud.mdb.postgresql.v1.Host.priority:type_name -> google.protobuf.Int64Value
-	14, // 43: yandex.cloud.mdb.postgresql.v1.Host.config:type_name -> yandex.cloud.mdb.postgresql.v1.HostConfig
-	5,  // 44: yandex.cloud.mdb.postgresql.v1.Host.replica_type:type_name -> yandex.cloud.mdb.postgresql.v1.Host.ReplicaType
-	44, // 45: yandex.cloud.mdb.postgresql.v1.Host.backup_priority:type_name -> google.protobuf.Int64Value
-	47, // 46: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_11:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig11
-	48, // 47: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_12:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig12
-	49, // 48: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_13:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13
-	50, // 49: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_13_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13_1C
-	51, // 50: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_14:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14
-	52, // 51: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_14_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14_1C
-	53, // 52: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_15:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15
-	54, // 53: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_15_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15_1C
-	55, // 54: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_16:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16
-	56, // 55: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_16_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16_1C
-	57, // 56: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_17:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17
-	58, // 57: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_17_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17_1C
-	59, // 58: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_18:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18
-	60, // 59: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_18_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18_1C
-	61, // 60: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_19:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19
-	62, // 61: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_19_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19_1C
-	7,  // 62: yandex.cloud.mdb.postgresql.v1.Service.type:type_name -> yandex.cloud.mdb.postgresql.v1.Service.Type
-	8,  // 63: yandex.cloud.mdb.postgresql.v1.Service.health:type_name -> yandex.cloud.mdb.postgresql.v1.Service.Health
-	46, // 64: yandex.cloud.mdb.postgresql.v1.ManagedRepack.enabled:type_name -> google.protobuf.BoolValue
-	65, // [65:65] is the sub-list for method output_type
-	65, // [65:65] is the sub-list for method input_type
-	65, // [65:65] is the sub-list for extension type_name
-	65, // [65:65] is the sub-list for extension extendee
-	0,  // [0:65] is the sub-list for field type_name
+	46, // 36: yandex.cloud.mdb.postgresql.v1.ClusterConfig.client_tls_mode:type_name -> yandex.cloud.mdb.postgresql.v1.ClientTLSMode
+	3,  // 37: yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig.pooling_mode:type_name -> yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig.PoolingMode
+	47, // 38: yandex.cloud.mdb.postgresql.v1.ConnectionPoolerConfig.pool_discard:type_name -> google.protobuf.BoolValue
+	16, // 39: yandex.cloud.mdb.postgresql.v1.Host.resources:type_name -> yandex.cloud.mdb.postgresql.v1.Resources
+	4,  // 40: yandex.cloud.mdb.postgresql.v1.Host.role:type_name -> yandex.cloud.mdb.postgresql.v1.Host.Role
+	6,  // 41: yandex.cloud.mdb.postgresql.v1.Host.health:type_name -> yandex.cloud.mdb.postgresql.v1.Host.Health
+	15, // 42: yandex.cloud.mdb.postgresql.v1.Host.services:type_name -> yandex.cloud.mdb.postgresql.v1.Service
+	44, // 43: yandex.cloud.mdb.postgresql.v1.Host.priority:type_name -> google.protobuf.Int64Value
+	14, // 44: yandex.cloud.mdb.postgresql.v1.Host.config:type_name -> yandex.cloud.mdb.postgresql.v1.HostConfig
+	5,  // 45: yandex.cloud.mdb.postgresql.v1.Host.replica_type:type_name -> yandex.cloud.mdb.postgresql.v1.Host.ReplicaType
+	44, // 46: yandex.cloud.mdb.postgresql.v1.Host.backup_priority:type_name -> google.protobuf.Int64Value
+	48, // 47: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_11:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig11
+	49, // 48: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_12:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig12
+	50, // 49: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_13:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13
+	51, // 50: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_13_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig13_1C
+	52, // 51: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_14:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14
+	53, // 52: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_14_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig14_1C
+	54, // 53: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_15:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15
+	55, // 54: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_15_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig15_1C
+	56, // 55: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_16:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16
+	57, // 56: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_16_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig16_1C
+	58, // 57: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_17:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17
+	59, // 58: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_17_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig17_1C
+	60, // 59: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_18:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18
+	61, // 60: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_18_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig18_1C
+	62, // 61: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_19:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19
+	63, // 62: yandex.cloud.mdb.postgresql.v1.HostConfig.postgresql_config_19_1c:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlHostConfig19_1C
+	7,  // 63: yandex.cloud.mdb.postgresql.v1.Service.type:type_name -> yandex.cloud.mdb.postgresql.v1.Service.Type
+	8,  // 64: yandex.cloud.mdb.postgresql.v1.Service.health:type_name -> yandex.cloud.mdb.postgresql.v1.Service.Health
+	47, // 65: yandex.cloud.mdb.postgresql.v1.ManagedRepack.enabled:type_name -> google.protobuf.BoolValue
+	66, // [66:66] is the sub-list for method output_type
+	66, // [66:66] is the sub-list for method input_type
+	66, // [66:66] is the sub-list for extension type_name
+	66, // [66:66] is the sub-list for extension extendee
+	0,  // [0:66] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_postgresql_v1_cluster_proto_init() }
@@ -2536,6 +2548,7 @@ func file_yandex_cloud_mdb_postgresql_v1_cluster_proto_init() {
 	if File_yandex_cloud_mdb_postgresql_v1_cluster_proto != nil {
 		return
 	}
+	file_yandex_cloud_mdb_postgresql_v1_client_tls_mode_proto_init()
 	file_yandex_cloud_mdb_postgresql_v1_maintenance_proto_init()
 	file_yandex_cloud_mdb_postgresql_v1_cluster_proto_msgTypes[2].OneofWrappers = []any{
 		(*ClusterConfig_PostgresqlConfig_11)(nil),

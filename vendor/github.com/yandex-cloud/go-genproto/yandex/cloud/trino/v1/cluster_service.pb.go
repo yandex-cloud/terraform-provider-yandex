@@ -228,7 +228,7 @@ type CreateClusterRequest struct {
 	DeletionProtection bool `protobuf:"varint,7,opt,name=deletion_protection,json=deletionProtection,proto3" json:"deletion_protection,omitempty"`
 	// Service account used to access Cloud resources.
 	ServiceAccountId string `protobuf:"bytes,8,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
-	// Cloud logging configuration.
+	// Logging configuration.
 	Logging *LoggingConfig `protobuf:"bytes,9,opt,name=logging,proto3" json:"logging,omitempty"`
 	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
@@ -745,6 +745,8 @@ type UpdateNetworkConfigSpec struct {
 	SecurityGroupIds []string `protobuf:"bytes,1,rep,name=security_group_ids,json=securityGroupIds,proto3" json:"security_group_ids,omitempty"`
 	// Private access configuration for secure connectivity to the cluster.
 	PrivateAccess *PrivateAccessConfig `protobuf:"bytes,2,opt,name=private_access,json=privateAccess,proto3" json:"private_access,omitempty"`
+	// IDs of VPC network subnets where instances of the cluster will be attached.
+	SubnetIds     []string `protobuf:"bytes,3,rep,name=subnet_ids,json=subnetIds,proto3" json:"subnet_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -793,6 +795,13 @@ func (x *UpdateNetworkConfigSpec) GetPrivateAccess() *PrivateAccessConfig {
 	return nil
 }
 
+func (x *UpdateNetworkConfigSpec) GetSubnetIds() []string {
+	if x != nil {
+		return x.SubnetIds
+	}
+	return nil
+}
+
 type UpdateClusterRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the Trino cluster.
@@ -814,7 +823,7 @@ type UpdateClusterRequest struct {
 	NetworkSpec *UpdateNetworkConfigSpec `protobuf:"bytes,8,opt,name=network_spec,json=networkSpec,proto3" json:"network_spec,omitempty"`
 	// Service account used to access Cloud resources.
 	ServiceAccountId string `protobuf:"bytes,9,opt,name=service_account_id,json=serviceAccountId,proto3" json:"service_account_id,omitempty"`
-	// Cloud logging configuration.
+	// Logging configuration.
 	Logging *LoggingConfig `protobuf:"bytes,10,opt,name=logging,proto3" json:"logging,omitempty"`
 	// Deprecated. Use maintenance_windows instead.
 	// Window of maintenance operations.
@@ -1549,10 +1558,12 @@ const file_yandex_cloud_trino_v1_cluster_service_proto_rawDesc = "" +
 	"\x19AdditionalPropertiesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tJ\x04\b\n" +
-	"\x10\v\"\x9a\x01\n" +
+	"\x10\v\"\xc2\x01\n" +
 	"\x17UpdateNetworkConfigSpec\x12,\n" +
 	"\x12security_group_ids\x18\x01 \x03(\tR\x10securityGroupIds\x12Q\n" +
-	"\x0eprivate_access\x18\x02 \x01(\v2*.yandex.cloud.trino.v1.PrivateAccessConfigR\rprivateAccess\"\x9e\a\n" +
+	"\x0eprivate_access\x18\x02 \x01(\v2*.yandex.cloud.trino.v1.PrivateAccessConfigR\rprivateAccess\x12&\n" +
+	"\n" +
+	"subnet_ids\x18\x03 \x03(\tB\a\x82\xc81\x03<=1R\tsubnetIds\"\x9e\a\n" +
 	"\x14UpdateClusterRequest\x12+\n" +
 	"\n" +
 	"cluster_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\tclusterId\x12;\n" +

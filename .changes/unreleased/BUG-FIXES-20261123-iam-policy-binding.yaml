@@ -1,3 +1,0 @@
-kind: BUG FIXES
-body: 'iam_policy_binding: preserve other policy template bindings when creating, updating, or deleting a cloud, folder, or organization binding'
-time: 2026-11-23T15:55:24+03:00

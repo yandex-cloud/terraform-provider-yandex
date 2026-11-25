@@ -731,6 +731,10 @@ func (m *ConfigSpec) SetManagedRepack(v *ManagedRepack) {
 	m.ManagedRepack = v
 }
 
+func (m *ConfigSpec) SetClientTlsMode(v ClientTLSMode) {
+	m.ClientTlsMode = v
+}
+
 type ConfigHostSpec_PostgresqlConfig = isConfigHostSpec_PostgresqlConfig
 
 func (m *ConfigHostSpec) SetPostgresqlConfig(v ConfigHostSpec_PostgresqlConfig) {
