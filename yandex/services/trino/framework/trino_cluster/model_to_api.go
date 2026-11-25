@@ -44,13 +44,14 @@ func BuildCreateClusterRequest(ctx context.Context, clusterModel *ClusterModel, 
 		Description: common.Description,
 		Labels:      common.Labels,
 		Trino: &trino.TrinoConfigSpec{
-			CoordinatorConfig:  common.Coordinator,
-			WorkerConfig:       common.Worker,
-			RetryPolicy:        common.RetryPolicy,
-			Version:            common.Version,
-			Tls:                common.Tls,
-			ResourceManagement: common.ResourceManagement,
-			EventListeners:     common.EventListeners,
+			CoordinatorConfig:    common.Coordinator,
+			WorkerConfig:         common.Worker,
+			RetryPolicy:          common.RetryPolicy,
+			Version:              common.Version,
+			Tls:                  common.Tls,
+			ResourceManagement:   common.ResourceManagement,
+			AdditionalProperties: common.AdditionalProperties,
+			EventListeners:       common.EventListeners,
 		},
 		Network: &trino.NetworkConfig{
 			SubnetIds:        subnetIds,
@@ -76,11 +77,12 @@ type CommonForCreateAndUpdate struct {
 	ServiceAccountId   string
 	Logging            *trino.LoggingConfig
 
-	Coordinator *trino.CoordinatorConfig
-	Worker      *trino.WorkerConfig
-	Tls         *trino.TLSConfig
-	RetryPolicy *trino.RetryPolicyConfig
-	Version     string
+	Coordinator          *trino.CoordinatorConfig
+	Worker               *trino.WorkerConfig
+	Tls                  *trino.TLSConfig
+	RetryPolicy          *trino.RetryPolicyConfig
+	Version              string
+	AdditionalProperties map[string]string
 
 	MaintenanceWindow  *trino.MaintenanceWindow
 	ResourceManagement *trino.ResourceManagementConfig
@@ -401,23 +403,33 @@ func buildCommonForCreateAndUpdate(ctx context.Context, plan, state *ClusterMode
 		updateMaskPaths = append(updateMaskPaths, "trino.resource_management.query")
 	}
 
+	additionalProperties := make(map[string]string, len(plan.AdditionalProperties.Elements()))
+	diags.Append(plan.AdditionalProperties.ElementsAs(ctx, &additionalProperties, false)...)
+	if diags.HasError() {
+		return nil, nil, diags
+	}
+	if state != nil && !mapsAreEqual(plan.AdditionalProperties, state.AdditionalProperties) {
+		updateMaskPaths = append(updateMaskPaths, "trino.additional_properties")
+	}
+
 	params := &CommonForCreateAndUpdate{
-		Name:               plan.Name.ValueString(),
-		Description:        plan.Description.ValueString(),
-		Labels:             labels,
-		SecurityGroupIds:   securityGroupIds,
-		PrivateAccess:      privateAccess,
-		DeletionProtection: plan.DeletionProtection.ValueBool(),
-		ServiceAccountId:   plan.ServiceAccountId.ValueString(),
-		Logging:            loggingConfig,
-		Coordinator:        coordinatorConfig,
-		Worker:             workerConfig,
-		MaintenanceWindow:  maintenanceWindow,
-		Tls:                tlsConfig,
-		RetryPolicy:        retrPolicyConfig,
-		Version:            version,
-		ResourceManagement: resourceManagementConfig,
-		EventListeners:     eventListeners,
+		AdditionalProperties: additionalProperties,
+		Name:                 plan.Name.ValueString(),
+		Description:          plan.Description.ValueString(),
+		Labels:               labels,
+		SecurityGroupIds:     securityGroupIds,
+		PrivateAccess:        privateAccess,
+		DeletionProtection:   plan.DeletionProtection.ValueBool(),
+		ServiceAccountId:     plan.ServiceAccountId.ValueString(),
+		Logging:              loggingConfig,
+		Coordinator:          coordinatorConfig,
+		Worker:               workerConfig,
+		MaintenanceWindow:    maintenanceWindow,
+		Tls:                  tlsConfig,
+		RetryPolicy:          retrPolicyConfig,
+		Version:              version,
+		ResourceManagement:   resourceManagementConfig,
+		EventListeners:       eventListeners,
 	}
 
 	return params, updateMaskPaths, diags
@@ -452,12 +464,13 @@ func BuildUpdateClusterRequest(ctx context.Context, state *ClusterModel, plan *C
 		Description: common.Description,
 		Labels:      common.Labels,
 		Trino: &trino.UpdateTrinoConfigSpec{
-			CoordinatorConfig:  common.coordinatorConfigForUpdate(),
-			WorkerConfig:       common.workerConfigForUpdate(),
-			RetryPolicy:        common.RetryPolicy,
-			Version:            common.Version,
-			Tls:                common.Tls,
-			ResourceManagement: common.ResourceManagement,
+			CoordinatorConfig:    common.coordinatorConfigForUpdate(),
+			WorkerConfig:         common.workerConfigForUpdate(),
+			RetryPolicy:          common.RetryPolicy,
+			Version:              common.Version,
+			Tls:                  common.Tls,
+			ResourceManagement:   common.ResourceManagement,
+			AdditionalProperties: common.AdditionalProperties,
 			EventListeners: &trino.UpdateEventListenersSpec{
 				DataCatalog: common.EventListeners.GetDataCatalog(),
 			},

@@ -27,15 +27,16 @@ func eventListenersTestModel(t *testing.T, listeners EventListenersValue) Cluste
 	fixedScale, diags := (FixedScaleValue{Count: types.Int64Value(1), state: attr.ValueStateKnown}).ToObjectValue(context.Background())
 	require.False(t, diags.HasError(), "%v", diags)
 	return ClusterModel{
-		Id:               types.StringValue("cluster-id"),
-		Name:             types.StringValue("cluster"),
-		FolderId:         types.StringValue("folder-id"),
-		ServiceAccountId: types.StringValue("service-account-id"),
-		Labels:           types.MapNull(types.StringType),
-		SubnetIds:        types.SetValueMust(types.StringType, []attr.Value{types.StringValue("subnet-id")}),
-		SecurityGroupIds: types.SetNull(types.StringType),
-		QueryProperties:  types.MapNull(types.StringType),
-		Coordinator:      CoordinatorValue{ResourcePresetId: types.StringValue("c4-m16"), state: attr.ValueStateKnown},
+		Id:                   types.StringValue("cluster-id"),
+		Name:                 types.StringValue("cluster"),
+		FolderId:             types.StringValue("folder-id"),
+		ServiceAccountId:     types.StringValue("service-account-id"),
+		Labels:               types.MapNull(types.StringType),
+		SubnetIds:            types.SetValueMust(types.StringType, []attr.Value{types.StringValue("subnet-id")}),
+		SecurityGroupIds:     types.SetNull(types.StringType),
+		QueryProperties:      types.MapNull(types.StringType),
+		AdditionalProperties: types.MapNull(types.StringType),
+		Coordinator:          CoordinatorValue{ResourcePresetId: types.StringValue("c4-m16"), state: attr.ValueStateKnown},
 		Worker: WorkerValue{
 			ResourcePresetId: types.StringValue("c4-m16"),
 			FixedScale:       fixedScale,

@@ -24,6 +24,12 @@ import (
 func ClusterResourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"additional_properties": schema.MapAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Description:         "Additional Trino configuration properties as key-value pairs.",
+				MarkdownDescription: "Additional Trino configuration properties as key-value pairs.",
+			},
 			"coordinator": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"resource_preset_id": schema.StringAttribute{
@@ -398,28 +404,29 @@ func ClusterResourceSchema(ctx context.Context) schema.Schema {
 }
 
 type ClusterModel struct {
-	Coordinator        CoordinatorValue       `tfsdk:"coordinator"`
-	CreatedAt          types.String           `tfsdk:"created_at"`
-	DeletionProtection types.Bool             `tfsdk:"deletion_protection"`
-	Description        types.String           `tfsdk:"description"`
-	EventListeners     EventListenersValue    `tfsdk:"event_listeners"`
-	FolderId           types.String           `tfsdk:"folder_id"`
-	Id                 types.String           `tfsdk:"id"`
-	Labels             types.Map              `tfsdk:"labels"`
-	Logging            LoggingValue           `tfsdk:"logging"`
-	MaintenanceWindow  MaintenanceWindowValue `tfsdk:"maintenance_window"`
-	Name               types.String           `tfsdk:"name"`
-	PrivateAccess      types.Bool             `tfsdk:"private_access"`
-	QueryProperties    types.Map              `tfsdk:"query_properties"`
-	ResourceGroupsJson types.String           `tfsdk:"resource_groups_json"`
-	RetryPolicy        RetryPolicyValue       `tfsdk:"retry_policy"`
-	SecurityGroupIds   types.Set              `tfsdk:"security_group_ids"`
-	ServiceAccountId   types.String           `tfsdk:"service_account_id"`
-	SubnetIds          types.Set              `tfsdk:"subnet_ids"`
-	Tls                TlsValue               `tfsdk:"tls"`
-	Version            types.String           `tfsdk:"version"`
-	Worker             WorkerValue            `tfsdk:"worker"`
-	Timeouts           timeouts.Value         `tfsdk:"timeouts"`
+	AdditionalProperties types.Map              `tfsdk:"additional_properties"`
+	Coordinator          CoordinatorValue       `tfsdk:"coordinator"`
+	CreatedAt            types.String           `tfsdk:"created_at"`
+	DeletionProtection   types.Bool             `tfsdk:"deletion_protection"`
+	Description          types.String           `tfsdk:"description"`
+	EventListeners       EventListenersValue    `tfsdk:"event_listeners"`
+	FolderId             types.String           `tfsdk:"folder_id"`
+	Id                   types.String           `tfsdk:"id"`
+	Labels               types.Map              `tfsdk:"labels"`
+	Logging              LoggingValue           `tfsdk:"logging"`
+	MaintenanceWindow    MaintenanceWindowValue `tfsdk:"maintenance_window"`
+	Name                 types.String           `tfsdk:"name"`
+	PrivateAccess        types.Bool             `tfsdk:"private_access"`
+	QueryProperties      types.Map              `tfsdk:"query_properties"`
+	ResourceGroupsJson   types.String           `tfsdk:"resource_groups_json"`
+	RetryPolicy          RetryPolicyValue       `tfsdk:"retry_policy"`
+	SecurityGroupIds     types.Set              `tfsdk:"security_group_ids"`
+	ServiceAccountId     types.String           `tfsdk:"service_account_id"`
+	SubnetIds            types.Set              `tfsdk:"subnet_ids"`
+	Tls                  TlsValue               `tfsdk:"tls"`
+	Version              types.String           `tfsdk:"version"`
+	Worker               WorkerValue            `tfsdk:"worker"`
+	Timeouts             timeouts.Value         `tfsdk:"timeouts"`
 }
 
 var _ basetypes.ObjectTypable = CoordinatorType{}

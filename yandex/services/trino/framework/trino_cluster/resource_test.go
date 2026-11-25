@@ -107,21 +107,22 @@ resource "yandex_storage_bucket" "trino-exchange-{{ .RandSuffix }}" {
 }
 
 type trinoClusterConfigParams struct {
-	RandSuffix         string
-	FolderID           string
-	Coordinator        trinoComponentParams
-	Worker             trinoWorkerParams
-	Labels             map[string]string
-	MaintenanceWindow  *MaintenanceWindow
-	DeletionProtection bool
-	AdditionalParams   bool
-	RetryPolicy        *RetryPolicyParams
-	Version            string
-	PrivateAccess      bool
-	TrustedCerts       []string
-	ResourceGroups     string
-	QueryProperties    map[string]string
-	EventListeners     *EventListenersParams
+	RandSuffix           string
+	FolderID             string
+	Coordinator          trinoComponentParams
+	Worker               trinoWorkerParams
+	Labels               map[string]string
+	MaintenanceWindow    *MaintenanceWindow
+	DeletionProtection   bool
+	AdditionalParams     bool
+	RetryPolicy          *RetryPolicyParams
+	Version              string
+	PrivateAccess        bool
+	TrustedCerts         []string
+	ResourceGroups       string
+	QueryProperties      map[string]string
+	AdditionalProperties map[string]string
+	EventListeners       *EventListenersParams
 }
 
 type EventListenersParams struct {
@@ -273,6 +274,14 @@ EOT
   EOT
   {{ end }}
 
+  {{ if .AdditionalProperties }}
+  additional_properties = {
+    {{ range $key, $val := .AdditionalProperties}}
+    "{{ $key }}" = "{{ $val }}"
+    {{ end }}
+  }
+  {{ end }}
+
   {{ if .QueryProperties }}
   query_properties = {
     {{ range $key, $val := .QueryProperties}}
@@ -390,12 +399,15 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 							Count: 1,
 						},
 					},
-					Version:        "468",
+					Version:        "483",
 					TrustedCerts:   []string{caCert1},
 					ResourceGroups: resourceGroups1,
 					QueryProperties: map[string]string{
 						"query.max-memory-per-node": "7GB",
 						"query.max-cpu-time":        "11h",
+					},
+					AdditionalProperties: map[string]string{
+						"exchange.client-threads": "10",
 					},
 					PrivateAccess: false,
 				}),
@@ -413,11 +425,13 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "worker.fixed_scale.count", "1"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "maintenance_window.type", "ANYTIME"),
-					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "468"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "483"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.0", caCert1),
 					testCheckResourceGroupsEqual("yandex_trino_cluster.trino_cluster", "resource_groups_json", expectedResourceGroups1),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-memory-per-node", "7GB"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-cpu-time", "11h"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "additional_properties.%", "1"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "additional_properties.exchange.client-threads", "10"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "private_access", "false"),
 				),
 			},
@@ -464,6 +478,9 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 						"query.max-memory-per-node": "7MB",
 						"query.max-run-time":        "23h",
 					},
+					AdditionalProperties: map[string]string{
+						"exchange.client-threads": "20",
+					},
 				}),
 				ConfigStateChecks: []statecheck.StateCheck{
 					eventListenersStateCheck("yandex_trino_cluster.trino_cluster", true),
@@ -499,6 +516,8 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					testCheckResourceGroupsEqual("yandex_trino_cluster.trino_cluster", "resource_groups_json", resourceGroups2),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-memory-per-node", "7MB"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties.query.max-run-time", "23h"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "additional_properties.%", "1"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "additional_properties.exchange.client-threads", "20"),
 				),
 			},
 			trinoClusterImportStep("yandex_trino_cluster.trino_cluster"),
@@ -518,10 +537,11 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					MaintenanceWindow: &MaintenanceWindow{
 						Type: "ANYTIME",
 					},
-					Version: "468",
+					Version: "483",
 				}),
 				ConfigStateChecks: []statecheck.StateCheck{
 					eventListenersStateCheck("yandex_trino_cluster.trino_cluster", false),
+					statecheck.ExpectKnownValue("yandex_trino_cluster.trino_cluster", tfjsonpath.New("additional_properties"), knownvalue.Null()),
 				},
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckTrinoExists("yandex_trino_cluster.trino_cluster", &cluster),
@@ -534,7 +554,7 @@ func TestAccMDBTrinoCluster_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "worker.fixed_scale.count", "1"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "deletion_protection", "false"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "maintenance_window.type", "ANYTIME"),
-					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "468"),
+					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "version", "483"),
 					resource.TestCheckResourceAttr("yandex_trino_cluster.trino_cluster", "tls.trusted_certificates.#", "0"),
 					resource.TestCheckNoResourceAttr("yandex_trino_cluster.trino_cluster", "resource_groups_json"),
 					resource.TestCheckNoResourceAttr("yandex_trino_cluster.trino_cluster", "query_properties"),

@@ -10,6 +10,16 @@
         "description": "Managed Trino cluster.",
         "attributes": [
           {
+            "name": "additional_properties",
+            "map": {
+              "computed_optional_required": "optional",
+              "description": "Additional Trino configuration properties as key-value pairs.",
+              "element_type": {
+                "string": {}
+              }
+            }
+          },
+          {
             "name": "id",
             "string": {
               "computed_optional_required": "computed",

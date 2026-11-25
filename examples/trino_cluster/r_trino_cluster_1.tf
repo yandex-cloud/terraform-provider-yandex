@@ -15,6 +15,10 @@ resource "yandex_trino_cluster" "trino" {
   }
 
 
+  additional_properties = {
+    "sql.default-schema" = "default"
+  }
+
   event_listeners = {
     data_catalog = {}
   }

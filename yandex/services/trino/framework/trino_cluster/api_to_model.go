@@ -36,6 +36,14 @@ func ClusterToState(ctx context.Context, cluster *trino.Cluster, state *ClusterM
 
 	state.Version = types.StringValue(cluster.GetTrino().GetVersion())
 
+	additionalProperties, diags := types.MapValueFrom(ctx, types.StringType, cluster.GetTrino().GetAdditionalProperties())
+	if diags.HasError() {
+		return diags
+	}
+	if state.AdditionalProperties.IsUnknown() || !mapsAreEqual(state.AdditionalProperties, additionalProperties) {
+		state.AdditionalProperties = additionalProperties
+	}
+
 	labels, diags := types.MapValueFrom(ctx, types.StringType, cluster.Labels)
 	if diags.HasError() {
 		return diags

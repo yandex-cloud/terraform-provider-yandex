@@ -12,6 +12,11 @@ import (
 func ClusterDataSourceSchema(ctx context.Context) schema.Schema {
 	return schema.Schema{
 		Attributes: map[string]schema.Attribute{
+			"additional_properties": schema.MapAttribute{
+				ElementType:         types.StringType,
+				Computed:            true,
+				MarkdownDescription: "Additional Trino configuration properties as key-value pairs.",
+			},
 			"coordinator": schema.SingleNestedAttribute{
 				Attributes: map[string]schema.Attribute{
 					"resource_preset_id": schema.StringAttribute{
