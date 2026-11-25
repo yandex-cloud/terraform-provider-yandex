@@ -15,6 +15,7 @@ A Partner resource.
 data "yandex_cic_partner" "example" {
   partner_id = "partner-id"
 }
+
 ```
 
 ## Arguments & Attributes Reference
