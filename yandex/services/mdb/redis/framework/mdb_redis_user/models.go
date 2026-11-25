@@ -48,6 +48,8 @@ type Permissions struct {
 	Databases       types.String `tfsdk:"databases"`
 }
 
+const canonicalSanitizePayload = "sanitize-payload"
+
 var permissionType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"commands":         types.StringType,
@@ -80,24 +82,42 @@ func dataSourceUserToState(ctx context.Context, user *redis.User, state *dataSou
 	state.ACLOptions = types.StringValue(user.AclOptions)
 	state.Passwords = types.SetNull(types.StringType)
 
-	permissions, diagnostics := permissionsToObject(ctx, user.Permissions)
+	permissions, diagnostics := permissionsToObject(
+		ctx,
+		user.Permissions,
+		types.StringValue(canonicalSanitizePayload),
+	)
 	state.Permissions = permissions
 	return diagnostics
 }
 
 func permissionsToState(ctx context.Context, perms *redis.Permissions, state *User) diag.Diagnostics {
-	permissions, diagnostics := permissionsToObject(ctx, perms)
+	sanitizePayload := types.StringValue(canonicalSanitizePayload)
+	var diagnostics diag.Diagnostics
+	if utils.IsPresent(state.Permissions) {
+		var current Permissions
+		diagnostics.Append(state.Permissions.As(ctx, &current, basetypes.ObjectAsOptions{})...)
+		if diagnostics.HasError() {
+			return diagnostics
+		}
+		if utils.IsPresent(current.SanitizePayload) {
+			sanitizePayload = current.SanitizePayload
+		}
+	}
+
+	permissions, objectDiagnostics := permissionsToObject(ctx, perms, sanitizePayload)
+	diagnostics.Append(objectDiagnostics...)
 	state.Permissions = permissions
 	return diagnostics
 }
 
-func permissionsToObject(ctx context.Context, permissions *redis.Permissions) (types.Object, diag.Diagnostics) {
+func permissionsToObject(ctx context.Context, permissions *redis.Permissions, sanitizePayload types.String) (types.Object, diag.Diagnostics) {
 	model := Permissions{
 		Commands:        types.StringValue(permissions.Commands.GetValue()),
 		Categories:      types.StringValue(permissions.Categories.GetValue()),
 		Patterns:        types.StringValue(permissions.Patterns.GetValue()),
 		PubSubChannels:  types.StringValue(permissions.PubSubChannels.GetValue()),
-		SanitizePayload: types.StringValue(permissions.SanitizePayload.GetValue()),
+		SanitizePayload: sanitizePayload,
 		Databases:       types.StringValue(permissions.Databases.GetValue()),
 	}
 	return types.ObjectValueFrom(ctx, permissionType.AttrTypes, model)

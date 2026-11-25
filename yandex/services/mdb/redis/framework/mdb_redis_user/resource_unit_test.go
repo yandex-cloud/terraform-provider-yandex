@@ -50,3 +50,22 @@ func TestGetUpdatePathsPasswordChanges(t *testing.T) {
 		t.Fatalf("update paths = %v, want %v", paths, want)
 	}
 }
+
+func TestGetUpdatePathsIgnoresSanitizePayload(t *testing.T) {
+	statePermissions := testPermissions("sanitize-payload")
+	planPermissions := statePermissions
+	planPermissions.SanitizePayload = types.StringValue("skip-sanitize-payload")
+
+	state := User{
+		Permissions: testPermissionsObject(t, statePermissions),
+		Enabled:     types.BoolValue(true),
+		Passwords:   types.SetNull(types.StringType),
+	}
+	plan := state
+	plan.Permissions = testPermissionsObject(t, planPermissions)
+
+	paths := getUpdatePaths(context.Background(), nil, plan, state)
+	if len(paths) != 0 {
+		t.Fatalf("update paths = %v, want none", paths)
+	}
+}

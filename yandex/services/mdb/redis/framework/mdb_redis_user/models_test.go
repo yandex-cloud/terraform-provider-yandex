@@ -7,8 +7,31 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
+
+func testPermissionsObject(t *testing.T, permissions Permissions) types.Object {
+	t.Helper()
+
+	value, diagnostics := types.ObjectValueFrom(context.Background(), permissionType.AttrTypes, permissions)
+	if diagnostics.HasError() {
+		t.Fatalf("permissions object diagnostics: %#v", diagnostics)
+	}
+	return value
+}
+
+func testPermissions(sanitizePayload string) Permissions {
+	return Permissions{
+		Commands:        types.StringValue("+ping"),
+		Categories:      types.StringValue("+@all"),
+		Patterns:        types.StringValue("~*"),
+		PubSubChannels:  types.StringValue("&*"),
+		SanitizePayload: types.StringValue(sanitizePayload),
+		Databases:       types.StringValue("alldbs"),
+	}
+}
 
 func TestDataSourceUserModelMatchesSchema(t *testing.T) {
 	var response datasource.SchemaResponse
@@ -36,11 +59,13 @@ func TestDataSourceUserModelMatchesSchema(t *testing.T) {
 func TestDataSourceUserToState(t *testing.T) {
 	state := dataSourceUser{}
 	user := &redis.User{
-		Name:        "alice",
-		ClusterId:   "cluster-id",
-		Enabled:     true,
-		AclOptions:  "+@all",
-		Permissions: &redis.Permissions{},
+		Name:       "alice",
+		ClusterId:  "cluster-id",
+		Enabled:    true,
+		AclOptions: "+@all",
+		Permissions: &redis.Permissions{
+			SanitizePayload: wrapperspb.String("skip-sanitize-payload"),
+		},
 	}
 
 	diagnostics := dataSourceUserToState(context.Background(), user, &state)
@@ -52,6 +77,77 @@ func TestDataSourceUserToState(t *testing.T) {
 	}
 	if !state.Passwords.Equal(types.SetNull(types.StringType)) {
 		t.Fatalf("passwords = %#v, want null", state.Passwords)
+	}
+
+	var permissions Permissions
+	diagnostics = state.Permissions.As(context.Background(), &permissions, basetypes.ObjectAsOptions{})
+	if diagnostics.HasError() {
+		t.Fatalf("permissions diagnostics: %#v", diagnostics)
+	}
+	if got := permissions.SanitizePayload.ValueString(); got != "sanitize-payload" {
+		t.Fatalf("sanitize_payload = %q, want canonical value", got)
+	}
+}
+
+func TestUserToStatePreservesSanitizePayload(t *testing.T) {
+	state := User{
+		Permissions: testPermissionsObject(t, testPermissions("skip-sanitize-payload")),
+	}
+	user := &redis.User{
+		Permissions: &redis.Permissions{
+			Commands:        wrapperspb.String("+get"),
+			SanitizePayload: wrapperspb.String("sanitize-payload"),
+		},
+	}
+
+	diagnostics := userToState(context.Background(), user, &state)
+	if diagnostics.HasError() {
+		t.Fatalf("userToState() diagnostics: %#v", diagnostics)
+	}
+
+	var permissions Permissions
+	diagnostics = state.Permissions.As(context.Background(), &permissions, basetypes.ObjectAsOptions{})
+	if diagnostics.HasError() {
+		t.Fatalf("permissions diagnostics: %#v", diagnostics)
+	}
+	if got := permissions.SanitizePayload.ValueString(); got != "skip-sanitize-payload" {
+		t.Fatalf("sanitize_payload = %q, want preserved state value", got)
+	}
+	if got := permissions.Commands.ValueString(); got != "+get" {
+		t.Fatalf("commands = %q, want API value", got)
+	}
+}
+
+func TestUserToStateUsesCanonicalSanitizePayloadWithoutState(t *testing.T) {
+	tests := map[string]types.Object{
+		"zero":    {},
+		"null":    types.ObjectNull(permissionType.AttrTypes),
+		"unknown": types.ObjectUnknown(permissionType.AttrTypes),
+	}
+
+	for name, current := range tests {
+		t.Run(name, func(t *testing.T) {
+			state := User{Permissions: current}
+			user := &redis.User{
+				Permissions: &redis.Permissions{
+					SanitizePayload: wrapperspb.String("skip-sanitize-payload"),
+				},
+			}
+
+			diagnostics := userToState(context.Background(), user, &state)
+			if diagnostics.HasError() {
+				t.Fatalf("userToState() diagnostics: %#v", diagnostics)
+			}
+
+			var permissions Permissions
+			diagnostics = state.Permissions.As(context.Background(), &permissions, basetypes.ObjectAsOptions{})
+			if diagnostics.HasError() {
+				t.Fatalf("permissions diagnostics: %#v", diagnostics)
+			}
+			if got := permissions.SanitizePayload.ValueString(); got != "sanitize-payload" {
+				t.Fatalf("sanitize_payload = %q, want canonical value", got)
+			}
+		})
 	}
 }
 

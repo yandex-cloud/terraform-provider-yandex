@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	redis "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/redis/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 )
 
@@ -20,20 +19,5 @@ func userRead(ctx context.Context, sdk *ycsdk.SDK, diagnostics *diag.Diagnostics
 	state.ACLOptions = types.StringValue(user.AclOptions)
 	state.Enabled = types.BoolValue(user.Enabled)
 	state.PasswordWo = types.StringNull()
-	permissions, diags := flattenPermissions(ctx, user.Permissions)
-	state.Permissions = permissions
-	diagnostics.Append(diags...)
-}
-
-func flattenPermissions(ctx context.Context, permissions *redis.Permissions) (types.Object, diag.Diagnostics) {
-	res := Permissions{
-		Commands:        types.StringValue(permissions.Commands.GetValue()),
-		Categories:      types.StringValue(permissions.Categories.GetValue()),
-		Patterns:        types.StringValue(permissions.Patterns.GetValue()),
-		PubSubChannels:  types.StringValue(permissions.PubSubChannels.GetValue()),
-		SanitizePayload: types.StringValue(permissions.SanitizePayload.GetValue()),
-		Databases:       types.StringValue(permissions.Databases.GetValue()),
-	}
-
-	return types.ObjectValueFrom(ctx, permissionType.AttributeTypes(), res)
+	diagnostics.Append(permissionsToState(ctx, user.Permissions, state)...)
 }
