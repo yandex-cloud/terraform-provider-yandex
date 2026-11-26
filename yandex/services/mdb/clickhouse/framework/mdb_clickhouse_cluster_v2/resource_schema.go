@@ -28,6 +28,7 @@ import (
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/mdbcommon"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/planmodifiers"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/framework/mdb_clickhouse_cluster_v2/customplanmodifiers"
+	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/framework/mdb_clickhouse_cluster_v2/validators"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/internal/chcommon/usersettings"
 )
 
@@ -2121,7 +2122,7 @@ func RabbitMQSchema() schema.SingleNestedAttribute {
 
 func ExternalDictionarySchema() schema.MapNestedAttribute {
 	return schema.MapNestedAttribute{
-		Description: "External dictionaries configuration. The map key is the dictionary name.",
+		Description: "External dictionaries configuration. The map key is the dictionary name. Configure exactly one source per dictionary. To migrate from PostgreSQL v1, explicitly replace postgresql_source with postgresql_source_v2 and convert hosts into replicas. Dictionary updates are applied by recreating the affected dictionary; existing v1 dictionaries are not migrated automatically. See the [PostgreSQL dictionary example](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/examples/mdb_clickhouse_cluster_v2/dictionaries/postgresql) and [YTsaurus dictionary example](https://github.com/yandex-cloud/terraform-provider-yandex/tree/master/examples/mdb_clickhouse_cluster_v2/dictionaries/ytsaurus).",
 		Optional:    true,
 		NestedObject: schema.NestedAttributeObject{
 			Attributes: map[string]schema.Attribute{
@@ -2330,6 +2331,7 @@ func ExternalDictionarySchema() schema.MapNestedAttribute {
 				"source": schema.SingleNestedAttribute{
 					Description: "Source of the external dictionary data.",
 					Required:    true,
+					Validators:  []validator.Object{validators.DictionarySourceValidator{}},
 					Attributes: map[string]schema.Attribute{
 						"http_source": schema.SingleNestedAttribute{
 							Description: "HTTP source for the external dictionary.",
@@ -2461,9 +2463,12 @@ func ExternalDictionarySchema() schema.MapNestedAttribute {
 								},
 							},
 						},
+						"postgresql_source_v2": dictionaryPostgresqlSourceV2Schema(),
+						"yt_source_v2":         dictionaryYtSourceV2Schema(),
 						"postgresql_source": schema.SingleNestedAttribute{
-							Description: "PostgreSQL source for the external dictionary.",
-							Optional:    true,
+							DeprecationMessage: "postgresql_source is deprecated. Use postgresql_source_v2 instead. Existing configurations remain supported.",
+							Description:        "Deprecated ODBC-based PostgreSQL source. Use postgresql_source_v2 for new configurations. Existing configurations remain supported and are not migrated automatically.",
+							Optional:           true,
 							Attributes: map[string]schema.Attribute{
 								"db": schema.StringAttribute{
 									Description: "PostgreSQL database name.",

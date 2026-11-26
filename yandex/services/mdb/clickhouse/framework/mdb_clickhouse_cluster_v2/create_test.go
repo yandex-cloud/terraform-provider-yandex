@@ -810,11 +810,13 @@ var (
 
 func makeDictSourceTF(sourceKey string, sourceVal attr.Value) types.Object {
 	attrs := map[string]attr.Value{
-		"http_source":       types.ObjectNull(models.DictionaryHttpSourceAttrTypes),
-		"clickhouse_source": types.ObjectNull(models.DictionaryClickhouseSourceAttrTypes),
-		"mongodb_source":    types.ObjectNull(models.DictionaryMongodbSourceAttrTypes),
-		"postgresql_source": types.ObjectNull(models.DictionaryPostgresqlSourceAttrTypes),
-		"mysql_source":      types.ObjectNull(models.DictionaryMysqlSourceAttrTypes),
+		"http_source":          types.ObjectNull(models.DictionaryHttpSourceAttrTypes),
+		"clickhouse_source":    types.ObjectNull(models.DictionaryClickhouseSourceAttrTypes),
+		"mongodb_source":       types.ObjectNull(models.DictionaryMongodbSourceAttrTypes),
+		"postgresql_source":    types.ObjectNull(models.DictionaryPostgresqlSourceAttrTypes),
+		"postgresql_source_v2": types.ObjectNull(models.DictionaryPostgresqlSourceV2AttrTypes),
+		"yt_source_v2":         types.ObjectNull(models.DictionaryYtSourceV2AttrTypes),
+		"mysql_source":         types.ObjectNull(models.DictionaryMysqlSourceAttrTypes),
 	}
 	attrs[sourceKey] = sourceVal
 	return types.ObjectValueMust(models.DictionarySourceAttrTypes, attrs)

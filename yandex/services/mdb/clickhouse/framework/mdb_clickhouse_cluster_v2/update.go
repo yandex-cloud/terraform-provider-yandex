@@ -960,6 +960,14 @@ func restoreDictProtoPasswords(
 		if stateSrc, ok := state.Source.(*clickhouseConfig.ClickhouseConfig_ExternalDictionary_PostgresqlSource_); ok {
 			currSrc.PostgresqlSource.Password = stateSrc.PostgresqlSource.Password
 		}
+	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_PostgresqlSourceV2_:
+		if stateSrc, ok := state.Source.(*clickhouseConfig.ClickhouseConfig_ExternalDictionary_PostgresqlSourceV2_); ok {
+			models.RestoreDictionaryPostgresqlV2Passwords(currSrc.PostgresqlSourceV2, stateSrc.PostgresqlSourceV2)
+		}
+	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_YtSourceV2_:
+		if stateSrc, ok := state.Source.(*clickhouseConfig.ClickhouseConfig_ExternalDictionary_YtSourceV2_); ok && currSrc.YtSourceV2 != nil && stateSrc.YtSourceV2 != nil && currSrc.YtSourceV2.OauthToken == "" {
+			currSrc.YtSourceV2.OauthToken = stateSrc.YtSourceV2.OauthToken
+		}
 	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_MysqlSource_:
 		if stateSrc, ok := state.Source.(*clickhouseConfig.ClickhouseConfig_ExternalDictionary_MysqlSource_); ok {
 			currSrc.MysqlSource.Password = stateSrc.MysqlSource.Password

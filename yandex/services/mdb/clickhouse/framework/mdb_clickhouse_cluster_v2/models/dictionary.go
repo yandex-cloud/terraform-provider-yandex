@@ -70,11 +70,13 @@ func flattenExternalDictionary(ctx context.Context, apiDict *clickhouseConfig.Cl
 	diags.Append(d...)
 
 	prevSrc := DictionarySource{
-		HttpSource:       types.ObjectNull(DictionaryHttpSourceAttrTypes),
-		ClickhouseSource: types.ObjectNull(DictionaryClickhouseSourceAttrTypes),
-		MongodbSource:    types.ObjectNull(DictionaryMongodbSourceAttrTypes),
-		PostgresqlSource: types.ObjectNull(DictionaryPostgresqlSourceAttrTypes),
-		MysqlSource:      types.ObjectNull(DictionaryMysqlSourceAttrTypes),
+		HttpSource:         types.ObjectNull(DictionaryHttpSourceAttrTypes),
+		ClickhouseSource:   types.ObjectNull(DictionaryClickhouseSourceAttrTypes),
+		MongodbSource:      types.ObjectNull(DictionaryMongodbSourceAttrTypes),
+		PostgresqlSource:   types.ObjectNull(DictionaryPostgresqlSourceAttrTypes),
+		PostgresqlSourceV2: types.ObjectNull(DictionaryPostgresqlSourceV2AttrTypes),
+		YtSourceV2:         types.ObjectNull(DictionaryYtSourceV2AttrTypes),
+		MysqlSource:        types.ObjectNull(DictionaryMysqlSourceAttrTypes),
 	}
 	if !prevDict.IsNull() && !prevDict.IsUnknown() {
 		var prev ExternalDictionary
@@ -85,11 +87,13 @@ func flattenExternalDictionary(ctx context.Context, apiDict *clickhouseConfig.Cl
 	}
 
 	source := DictionarySource{
-		HttpSource:       types.ObjectNull(DictionaryHttpSourceAttrTypes),
-		ClickhouseSource: types.ObjectNull(DictionaryClickhouseSourceAttrTypes),
-		MongodbSource:    types.ObjectNull(DictionaryMongodbSourceAttrTypes),
-		PostgresqlSource: types.ObjectNull(DictionaryPostgresqlSourceAttrTypes),
-		MysqlSource:      types.ObjectNull(DictionaryMysqlSourceAttrTypes),
+		HttpSource:         types.ObjectNull(DictionaryHttpSourceAttrTypes),
+		ClickhouseSource:   types.ObjectNull(DictionaryClickhouseSourceAttrTypes),
+		MongodbSource:      types.ObjectNull(DictionaryMongodbSourceAttrTypes),
+		PostgresqlSource:   types.ObjectNull(DictionaryPostgresqlSourceAttrTypes),
+		PostgresqlSourceV2: types.ObjectNull(DictionaryPostgresqlSourceV2AttrTypes),
+		YtSourceV2:         types.ObjectNull(DictionaryYtSourceV2AttrTypes),
+		MysqlSource:        types.ObjectNull(DictionaryMysqlSourceAttrTypes),
 	}
 
 	switch src := apiDict.Source.(type) {
@@ -101,6 +105,10 @@ func flattenExternalDictionary(ctx context.Context, apiDict *clickhouseConfig.Cl
 		source.MongodbSource = flattenDictionaryMongoDbSource(ctx, src.MongodbSource, prevSrc.MongodbSource, diags)
 	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_PostgresqlSource_:
 		source.PostgresqlSource = flattenDictionaryPostgreSqlSource(ctx, src.PostgresqlSource, prevSrc.PostgresqlSource, diags)
+	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_PostgresqlSourceV2_:
+		source.PostgresqlSourceV2 = flattenDictionaryPostgresqlSourceV2(ctx, src.PostgresqlSourceV2, prevSrc.PostgresqlSourceV2, diags)
+	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_YtSourceV2_:
+		source.YtSourceV2 = flattenDictionaryYtSourceV2(ctx, src.YtSourceV2, prevSrc.YtSourceV2, diags)
 	case *clickhouseConfig.ClickhouseConfig_ExternalDictionary_MysqlSource_:
 		source.MysqlSource = flattenDictionaryMySqlSource(ctx, src.MysqlSource, prevSrc.MysqlSource, diags)
 	default:
@@ -192,19 +200,23 @@ var DictionaryLifetimeAttrTypes = map[string]attr.Type{
 }
 
 type DictionarySource struct {
-	HttpSource       types.Object `tfsdk:"http_source"`
-	ClickhouseSource types.Object `tfsdk:"clickhouse_source"`
-	MongodbSource    types.Object `tfsdk:"mongodb_source"`
-	PostgresqlSource types.Object `tfsdk:"postgresql_source"`
-	MysqlSource      types.Object `tfsdk:"mysql_source"`
+	HttpSource         types.Object `tfsdk:"http_source"`
+	ClickhouseSource   types.Object `tfsdk:"clickhouse_source"`
+	MongodbSource      types.Object `tfsdk:"mongodb_source"`
+	PostgresqlSource   types.Object `tfsdk:"postgresql_source"`
+	PostgresqlSourceV2 types.Object `tfsdk:"postgresql_source_v2"`
+	YtSourceV2         types.Object `tfsdk:"yt_source_v2"`
+	MysqlSource        types.Object `tfsdk:"mysql_source"`
 }
 
 var DictionarySourceAttrTypes = map[string]attr.Type{
-	"http_source":       types.ObjectType{AttrTypes: DictionaryHttpSourceAttrTypes},
-	"clickhouse_source": types.ObjectType{AttrTypes: DictionaryClickhouseSourceAttrTypes},
-	"mongodb_source":    types.ObjectType{AttrTypes: DictionaryMongodbSourceAttrTypes},
-	"postgresql_source": types.ObjectType{AttrTypes: DictionaryPostgresqlSourceAttrTypes},
-	"mysql_source":      types.ObjectType{AttrTypes: DictionaryMysqlSourceAttrTypes},
+	"http_source":          types.ObjectType{AttrTypes: DictionaryHttpSourceAttrTypes},
+	"clickhouse_source":    types.ObjectType{AttrTypes: DictionaryClickhouseSourceAttrTypes},
+	"mongodb_source":       types.ObjectType{AttrTypes: DictionaryMongodbSourceAttrTypes},
+	"postgresql_source":    types.ObjectType{AttrTypes: DictionaryPostgresqlSourceAttrTypes},
+	"postgresql_source_v2": types.ObjectType{AttrTypes: DictionaryPostgresqlSourceV2AttrTypes},
+	"yt_source_v2":         types.ObjectType{AttrTypes: DictionaryYtSourceV2AttrTypes},
+	"mysql_source":         types.ObjectType{AttrTypes: DictionaryMysqlSourceAttrTypes},
 }
 
 type DictionaryStructure struct {
@@ -600,6 +612,20 @@ func expandDictionarySource(ctx context.Context, c types.Object, proto *clickhou
 		return
 	}
 
+	if !source.PostgresqlSourceV2.IsNull() && !source.PostgresqlSourceV2.IsUnknown() {
+		proto.Source = &clickhouseConfig.ClickhouseConfig_ExternalDictionary_PostgresqlSourceV2_{
+			PostgresqlSourceV2: expandDictionaryPostgresqlSourceV2(ctx, source.PostgresqlSourceV2, diags),
+		}
+		return
+	}
+
+	if !source.YtSourceV2.IsNull() && !source.YtSourceV2.IsUnknown() {
+		proto.Source = &clickhouseConfig.ClickhouseConfig_ExternalDictionary_YtSourceV2_{
+			YtSourceV2: expandDictionaryYtSourceV2(ctx, source.YtSourceV2, diags),
+		}
+		return
+	}
+
 	if !source.MysqlSource.IsNull() && !source.MysqlSource.IsUnknown() {
 		proto.Source = &clickhouseConfig.ClickhouseConfig_ExternalDictionary_MysqlSource_{
 			MysqlSource: expandDictionaryMySqlSource(ctx, source.MysqlSource, diags),
@@ -609,7 +635,7 @@ func expandDictionarySource(ctx context.Context, c types.Object, proto *clickhou
 
 	diags.AddError(
 		"Invalid dictionary source",
-		"External dictionary must have exactly one source defined (http_source, clickhouse_source, mongodb_source, postgresql_source, mysql_source)",
+		"External dictionary must have exactly one source defined (http_source, clickhouse_source, mongodb_source, postgresql_source, postgresql_source_v2, yt_source_v2, mysql_source)",
 	)
 }
 

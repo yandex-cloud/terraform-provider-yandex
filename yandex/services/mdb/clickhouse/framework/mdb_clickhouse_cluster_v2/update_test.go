@@ -7,12 +7,14 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	clickhouse "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1"
 	clickhouseConfig "github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/clickhouse/v1/config"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/framework/mdb_clickhouse_cluster_v2/models"
 	"github.com/yandex-cloud/terraform-provider-yandex/yandex/services/mdb/clickhouse/framework/mdb_clickhouse_cluster_v2/utils"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -273,6 +275,34 @@ func TestYandexProvider_MDBClickHouseClusterPrepareExternalDictionaryUpdateOps(t
 		},
 	}
 
+	pgReplicas, pgDiags := types.ListValueFrom(ctx, types.ObjectType{AttrTypes: models.DictionaryPostgresqlReplicaV2AttrTypes}, []models.DictionaryPostgresqlReplicaV2{
+		{Host: types.StringValue("pg"), Priority: types.Int64Value(1), Password: types.StringValue("first")},
+		{Host: types.StringValue("pg"), Port: types.Int64Value(5433), Priority: types.Int64Value(2), Password: types.StringValue("second")},
+	})
+	if pgDiags.HasError() {
+		t.Fatalf("Unexpected replica diagnostics: %v", pgDiags)
+	}
+	pgConfig := dictionaryTestConfig(t, map[string]attr.Value{"replicas": pgReplicas})
+	var pgState types.Map
+	pgDiags.Append(pgConfig.GetAttribute(ctx, path.Root("external_dictionary"), &pgState)...)
+	pgStateAPI := models.ExpandExternalDictionaries(ctx, pgState, &pgDiags)
+	if pgDiags.HasError() {
+		t.Fatalf("Unexpected PostgreSQL dictionary diagnostics: %v", pgDiags)
+	}
+	pgCurrent := proto.Clone(pgStateAPI[0]).(*clickhouseConfig.ClickhouseConfig_ExternalDictionary)
+	pgCurrent.Layout.AllowReadExpiredKeys = wrapperspb.Bool(false)
+	pgCurrent.Layout.AccessToKeyFromAttributes = wrapperspb.Bool(false)
+	pgSource := pgCurrent.GetPostgresqlSourceV2()
+	pgSource.Replicas[0], pgSource.Replicas[1] = pgSource.Replicas[1], pgSource.Replicas[0]
+	for i, replica := range pgSource.Replicas {
+		replica.Priority = int64(i + 3)
+		replica.Password = ""
+	}
+	pgPlan := models.FlattenExternalDictionaries(ctx, []*clickhouseConfig.ClickhouseConfig_ExternalDictionary{pgCurrent}, pgState, &pgDiags)
+	if pgDiags.HasError() {
+		t.Fatalf("Unexpected PostgreSQL flatten diagnostics: %v", pgDiags)
+	}
+
 	cases := []struct {
 		name            string
 		current         []*clickhouseConfig.ClickhouseConfig_ExternalDictionary
@@ -296,6 +326,12 @@ func TestYandexProvider_MDBClickHouseClusterPrepareExternalDictionaryUpdateOps(t
 			plan:            mysqlDictTF,
 			expectedDelete:  nil,
 			expectedCreates: nil,
+		},
+		{
+			name:    "postgresql_reordered_replicas_with_changed_priorities",
+			current: []*clickhouseConfig.ClickhouseConfig_ExternalDictionary{pgCurrent},
+			state:   pgState,
+			plan:    pgPlan,
 		},
 		{
 			name:           "add_new_dict",

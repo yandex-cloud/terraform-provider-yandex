@@ -875,13 +875,16 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 	}
 `
 
+	dictionariesForFirstStep := testAccMDBClickHouseClusterDictionaryV2Config("cities", "pg-source-password", "//home/terraform/cities", "yt-token")
+	dictionariesForSecondStep := testAccMDBClickHouseClusterDictionaryV2Config("active_cities", "rotated-pg-password", "//home/terraform/active_cities", "rotated-yt-token")
+
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { test.AccPreCheck(t) },
 		ProtoV6ProviderFactories: test.AccProviderFactories,
 		CheckDestroy:             testAccCheckMDBClickHouseClusterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForFirstStep, defaultUserSettingsForFirstStep, ""),
+				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForFirstStep, defaultUserSettingsForFirstStep, "", dictionariesForFirstStep),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckMDBClickHouseClusterExists(chResource, &r, 1),
 					resource.TestCheckResourceAttr(chResource, "name", chName),
@@ -1058,7 +1061,7 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.jdbc_bridge.host", "127.0.0.2"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.jdbc_bridge.port", "8999"),
 
-					resource.TestCheckResourceAttr(chResource, "external_dictionary.%", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.%", "3"),
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.lifetime.fixed_lifetime", "300"),
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.layout.type", "FLAT"),
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.db", "mydb"),
@@ -1075,11 +1078,27 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.0.name", "city"),
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.0.type", "String"),
 
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.db", "mydb"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.table", "cities"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.port", "5432"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.user", "pg_user"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.password", "pg-source-password"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.ssl_mode", "REQUIRE"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.replicas.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.replicas.0.host", "rc1d-postgresql.mdb.yandexcloud.net"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.replicas.0.priority", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.replicas.0.password", "pg-replica-password"),
+
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.yt_v2_dict.source.yt_source_v2.http_proxy_urls.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.yt_v2_dict.source.yt_source_v2.http_proxy_urls.0", "https://yt.example.com"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.yt_v2_dict.source.yt_source_v2.cypress_path", "//home/terraform/cities"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.yt_v2_dict.source.yt_source_v2.oauth_token", "yt-token"),
+
 					testAccCheckCreatedAtAttr(chResource)),
 			},
 			mdbClickHouseClusterImportStep(chResource),
 			{
-				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForSecondStep, defaultUserSettingsForSecondStep, sqlManagementEnabled),
+				Config: testAccMDBClickHouseCluster_clickhouse_config(chName, configForSecondStep, defaultUserSettingsForSecondStep, sqlManagementEnabled, dictionariesForSecondStep),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction(chResource, plancheck.ResourceActionUpdate),
@@ -1283,7 +1302,7 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.jdbc_bridge.host", "127.0.0.3"),
 					resource.TestCheckResourceAttr(chResource, "clickhouse.config.jdbc_bridge.port", "8998"),
 
-					resource.TestCheckResourceAttr(chResource, "external_dictionary.%", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.%", "3"),
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.lifetime.fixed_lifetime", "300"),
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.layout.type", "FLAT"),
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.source.mysql_source.db", "mydb"),
@@ -1299,6 +1318,22 @@ func TestAccMDBClickHouseCluster_clickhouse_config(t *testing.T) {
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.#", "1"),
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.0.name", "city"),
 					resource.TestCheckResourceAttr(chResource, "external_dictionary.mysql_dict.structure.attributes.0.type", "String"),
+
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.db", "mydb"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.table", "active_cities"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.port", "5432"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.user", "pg_user"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.password", "rotated-pg-password"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.ssl_mode", "REQUIRE"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.replicas.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.replicas.0.host", "rc1d-postgresql.mdb.yandexcloud.net"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.replicas.0.priority", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.pg_v2_dict.source.postgresql_source_v2.replicas.0.password", "pg-replica-password"),
+
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.yt_v2_dict.source.yt_source_v2.http_proxy_urls.#", "1"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.yt_v2_dict.source.yt_source_v2.http_proxy_urls.0", "https://yt.example.com"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.yt_v2_dict.source.yt_source_v2.cypress_path", "//home/terraform/active_cities"),
+					resource.TestCheckResourceAttr(chResource, "external_dictionary.yt_v2_dict.source.yt_source_v2.oauth_token", "rotated-yt-token"),
 
 					testAccCheckCreatedAtAttr(chResource)),
 			},
@@ -2002,7 +2037,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 	)
 }
 
-func testAccMDBClickHouseCluster_clickhouse_config(name string, config *clickhouseConfig.ClickhouseConfig, defaultUserSettings, sqlManagement string) string {
+func testAccMDBClickHouseCluster_clickhouse_config(name string, config *clickhouseConfig.ClickhouseConfig, defaultUserSettings, sqlManagement, dictionaries string) string {
 	return fmt.Sprintf(clickHouseVPCDependencies+"\n"+`
 resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
   name           = "%s"
@@ -2091,6 +2126,7 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
         }
       }
     }
+    %s
   }
 
   # deletion_protection = true
@@ -2104,7 +2140,50 @@ resource "yandex_mdb_clickhouse_cluster_v2" "foo" {
 		buildClickhouseConfigHCL(config),
 		defaultUserSettings,
 		maintenanceWindowAnytime,
+		dictionaries,
 	)
+}
+
+func testAccMDBClickHouseClusterDictionaryV2Config(pgTable, pgPassword, ytPath, ytToken string) string {
+	return fmt.Sprintf(`
+    pg_v2_dict = {
+      lifetime = { fixed_lifetime = 300 }
+      layout   = { type = "FLAT" }
+      structure = {
+        id = { name = "id" }
+        attributes = [{ name = "city", type = "String" }]
+      }
+      source = {
+        postgresql_source_v2 = {
+          db       = "mydb"
+          table    = %q
+          user     = "pg_user"
+          password = %q
+          ssl_mode = "REQUIRE"
+          replicas = [{
+            host     = "rc1d-postgresql.mdb.yandexcloud.net"
+            priority = 1
+            password = "pg-replica-password"
+          }]
+        }
+      }
+    }
+    yt_v2_dict = {
+      lifetime = { fixed_lifetime = 300 }
+      layout   = { type = "FLAT" }
+      structure = {
+        id = { name = "id" }
+        attributes = [{ name = "city", type = "String" }]
+      }
+      source = {
+        yt_source_v2 = {
+          http_proxy_urls = ["https://yt.example.com"]
+          cypress_path    = %q
+          oauth_token     = %q
+        }
+      }
+    }
+`, pgTable, pgPassword, ytPath, ytToken)
 }
 
 func testAccMDBClickHouseCluster_sharded(name, shards string) string {
@@ -2881,10 +2960,13 @@ func mdbClickHouseClusterImportStep(name string) resource.TestStep {
 			"admin_password_wo_version",      // write-only password versions are not returned
 			"clickhouse.config.kafka",        // passwords are not returned
 			"clickhouse.config.rabbitmq",     // passwords are not returned
-			"external_dictionary.mysql_dict.source.mysql_source.replicas.0.password", // passwords are not returned
-			"external_dictionary.mysql_dict.source.mysql_source.replicas.1.password", // passwords are not returned
-			"shard_group.0.external_shard.0.replica.0.password",                      // passwords are not returned
-			"shard_group.0.external_shard.1.replica.0.password",                      // passwords are not returned
+			"external_dictionary.mysql_dict.source.mysql_source.replicas.0.password",         // passwords are not returned
+			"external_dictionary.mysql_dict.source.mysql_source.replicas.1.password",         // passwords are not returned
+			"external_dictionary.pg_v2_dict.source.postgresql_source_v2.password",            // passwords are not returned
+			"external_dictionary.pg_v2_dict.source.postgresql_source_v2.replicas.0.password", // passwords are not returned
+			"external_dictionary.yt_v2_dict.source.yt_source_v2.oauth_token",                 // tokens are not returned
+			"shard_group.0.external_shard.0.replica.0.password",                              // passwords are not returned
+			"shard_group.0.external_shard.1.replica.0.password",                              // passwords are not returned
 		},
 	}
 }

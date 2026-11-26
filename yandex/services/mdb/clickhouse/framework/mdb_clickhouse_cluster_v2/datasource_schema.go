@@ -1558,9 +1558,12 @@ func DataSourceExternalDictionarySchema() schema.MapNestedAttribute {
 							},
 						},
 
+						"postgresql_source_v2": dataSourceDictionaryPostgresqlSourceV2Schema(),
+						"yt_source_v2":         dataSourceDictionaryYtSourceV2Schema(),
 						"postgresql_source": schema.SingleNestedAttribute{
-							Computed:    true,
-							Description: "PostgreSQL source for the external dictionary.",
+							DeprecationMessage: "postgresql_source is deprecated. Use postgresql_source_v2 instead. Existing configurations remain supported.",
+							Computed:           true,
+							Description:        "Deprecated ODBC-based PostgreSQL source. Use postgresql_source_v2 for new configurations. Existing configurations remain supported and are not migrated automatically.",
 							Attributes: map[string]schema.Attribute{
 								"db": schema.StringAttribute{
 									Computed:    true,
