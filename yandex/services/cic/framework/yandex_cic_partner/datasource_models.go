@@ -14,15 +14,19 @@ import (
 )
 
 type yandexCicPartnerDatasourceModel struct {
-	Name      types.String   `tfsdk:"name"`
-	PartnerId types.String   `tfsdk:"partner_id"`
-	ID        types.String   `tfsdk:"id"`
-	PopIds    types.List     `tfsdk:"pop_ids"`
-	Status    types.String   `tfsdk:"status"`
-	Url       types.String   `tfsdk:"url"`
-	Timeouts  timeouts.Value `tfsdk:"timeouts"`
+	MaxTrunkBandwidth types.String   `tfsdk:"max_trunk_bandwidth"`
+	Name              types.String   `tfsdk:"name"`
+	PartnerId         types.String   `tfsdk:"partner_id"`
+	ID                types.String   `tfsdk:"id"`
+	PopIds            types.List     `tfsdk:"pop_ids"`
+	Status            types.String   `tfsdk:"status"`
+	Url               types.String   `tfsdk:"url"`
+	Timeouts          timeouts.Value `tfsdk:"timeouts"`
 }
 
+func (m *yandexCicPartnerDatasourceModel) GetMaxTrunkBandwidth() types.String {
+	return m.MaxTrunkBandwidth
+}
 func (m *yandexCicPartnerDatasourceModel) GetName() types.String {
 	return m.Name
 }
@@ -42,6 +46,9 @@ func (m *yandexCicPartnerDatasourceModel) GetUrl() types.String {
 	return m.Url
 }
 
+func (m *yandexCicPartnerDatasourceModel) SetMaxTrunkBandwidth(target types.String) {
+	m.MaxTrunkBandwidth = target
+}
 func (m *yandexCicPartnerDatasourceModel) SetName(target types.String) {
 	m.Name = target
 }
@@ -63,16 +70,20 @@ func (m *yandexCicPartnerDatasourceModel) SetUrl(target types.String) {
 
 func NewYandexCicPartnerDatasourceModel() yandexCicPartnerDatasourceModel {
 	return yandexCicPartnerDatasourceModel{
-		Name:      types.StringNull(),
-		PartnerId: types.StringNull(),
-		ID:        types.StringNull(),
-		PopIds:    types.ListNull(types.StringType),
-		Status:    types.StringNull(),
-		Url:       types.StringNull(),
+		MaxTrunkBandwidth: types.StringNull(),
+		Name:              types.StringNull(),
+		PartnerId:         types.StringNull(),
+		ID:                types.StringNull(),
+		PopIds:            types.ListNull(types.StringType),
+		Status:            types.StringNull(),
+		Url:               types.StringNull(),
 	}
 }
 
 func yandexCicPartnerDatasourceModelFillUnknown(target yandexCicPartnerDatasourceModel) yandexCicPartnerDatasourceModel {
+	if target.MaxTrunkBandwidth.IsUnknown() || target.MaxTrunkBandwidth.IsNull() {
+		target.MaxTrunkBandwidth = types.StringNull()
+	}
 	if target.Name.IsUnknown() || target.Name.IsNull() {
 		target.Name = types.StringNull()
 	}
@@ -96,13 +107,14 @@ func yandexCicPartnerDatasourceModelFillUnknown(target yandexCicPartnerDatasourc
 
 var yandexCicPartnerDatasourceModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
-		"name":       types.StringType,
-		"partner_id": types.StringType,
-		"id":         types.StringType,
-		"pop_ids":    types.ListType{ElemType: types.StringType},
-		"status":     types.StringType,
-		"url":        types.StringType,
-		"timeouts":   timeouts.AttributesAll(context.Background()).GetType(),
+		"max_trunk_bandwidth": types.StringType,
+		"name":                types.StringType,
+		"partner_id":          types.StringType,
+		"id":                  types.StringType,
+		"pop_ids":             types.ListType{ElemType: types.StringType},
+		"status":              types.StringType,
+		"url":                 types.StringType,
+		"timeouts":            timeouts.AttributesAll(context.Background()).GetType(),
 	},
 }
 
@@ -115,13 +127,14 @@ func flattenYandexCicPartnerDatasource(ctx context.Context,
 		return types.ObjectNull(yandexCicPartnerDatasourceModelType.AttrTypes)
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexCicPartnerDatasourceModelType.AttrTypes, yandexCicPartnerDatasourceModel{
-		Name:      types.StringValue(yandexCicPartnerDatasource.GetName()),
-		PartnerId: types.StringValue(yandexCicPartnerDatasource.GetId()),
-		ID:        types.StringValue(yandexCicPartnerDatasource.GetId()),
-		PopIds:    flattenYandexCicPartnerPopIds(ctx, yandexCicPartnerDatasource.GetPopIds(), state.PopIds, diags),
-		Status:    types.StringValue(yandexCicPartnerDatasource.GetStatus().String()),
-		Url:       types.StringValue(yandexCicPartnerDatasource.GetUrl()),
-		Timeouts:  to,
+		MaxTrunkBandwidth: types.StringValue(yandexCicPartnerDatasource.GetMaxTrunkBandwidth().String()),
+		Name:              types.StringValue(yandexCicPartnerDatasource.GetName()),
+		PartnerId:         types.StringValue(yandexCicPartnerDatasource.GetId()),
+		ID:                types.StringValue(yandexCicPartnerDatasource.GetId()),
+		PopIds:            flattenYandexCicPartnerPopIds(ctx, yandexCicPartnerDatasource.GetPopIds(), state.PopIds, diags),
+		Status:            types.StringValue(yandexCicPartnerDatasource.GetStatus().String()),
+		Url:               types.StringValue(yandexCicPartnerDatasource.GetUrl()),
+		Timeouts:          to,
 	})
 	diags.Append(diag...)
 	return value
@@ -141,6 +154,7 @@ func expandYandexCicPartnerDatasource(ctx context.Context, yandexCicPartnerDatas
 
 func expandYandexCicPartnerDatasourceModel(ctx context.Context, yandexCicPartnerDatasourceState yandexCicPartnerDatasourceModel, diags *diag.Diagnostics) *cic.Partner {
 	value := &cic.Partner{}
+	value.SetMaxTrunkBandwidth(cic.Partner_Bandwidth(cic.Partner_Bandwidth_value[yandexCicPartnerDatasourceState.MaxTrunkBandwidth.ValueString()]))
 	value.SetName(yandexCicPartnerDatasourceState.Name.ValueString())
 	value.SetId(yandexCicPartnerDatasourceState.PartnerId.ValueString())
 	value.SetPopIds(expandYandexCicPartnerPopIds(ctx, yandexCicPartnerDatasourceState.PopIds, diags))

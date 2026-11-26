@@ -306,6 +306,10 @@ func (m *ClickhouseConfig) SetDefaultDatabase(v *wrapperspb.StringValue) {
 	m.DefaultDatabase = v
 }
 
+func (m *ClickhouseConfig) SetDefaultReplicaPath(v *wrapperspb.StringValue) {
+	m.DefaultReplicaPath = v
+}
+
 func (m *ClickhouseConfig) SetTotalMemoryProfilerStep(v *wrapperspb.Int64Value) {
 	m.TotalMemoryProfilerStep = v
 }

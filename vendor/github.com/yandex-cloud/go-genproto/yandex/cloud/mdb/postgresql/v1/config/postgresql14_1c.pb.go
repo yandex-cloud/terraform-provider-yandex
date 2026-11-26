@@ -2689,7 +2689,7 @@ var File_yandex_cloud_mdb_postgresql_v1_config_postgresql14_1c_proto protoreflec
 
 const file_yandex_cloud_mdb_postgresql_v1_config_postgresql14_1c_proto_rawDesc = "" +
 	"\n" +
-	";yandex/cloud/mdb/postgresql/v1/config/postgresql14_1c.proto\x12%yandex.cloud.mdb.postgresql.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\xa4\x8d\x01\n" +
+	";yandex/cloud/mdb/postgresql/v1/config/postgresql14_1c.proto\x12%yandex.cloud.mdb.postgresql.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\xac\x8d\x01\n" +
 	"\x15PostgresqlConfig14_1C\x12N\n" +
 	"\x0fmax_connections\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\b\xfa\xc71\x04>=16R\x0emaxConnections\x12B\n" +
 	"\x0eshared_buffers\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueR\rsharedBuffers\x12>\n" +
@@ -2972,7 +2972,7 @@ const file_yandex_cloud_mdb_postgresql_v1_config_postgresql14_1c_proto_rawDesc =
 	"\tXmlOption\x12\x1a\n" +
 	"\x16XML_OPTION_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13XML_OPTION_DOCUMENT\x10\x01\x12\x16\n" +
-	"\x12XML_OPTION_CONTENT\x10\x02J\x04\bN\x10OJ\x04\bj\x10kJ\x04\b}\x10~J\x06\b\x96\x01\x10\x98\x01J\x06\b\xa6\x01\x10\xa7\x01J\x04\b@\x10AJ\x06\b\xa9\x01\x10\xad\x01J\x06\b\xaf\x01\x10\xb1\x01\"\xc7\x02\n" +
+	"\x12XML_OPTION_CONTENT\x10\x02J\x04\bN\x10OJ\x04\bj\x10kJ\x04\b}\x10~J\x06\b\x96\x01\x10\x98\x01J\x06\b\xa6\x01\x10\xa7\x01J\x04\b@\x10AJ\x06\b\xa9\x01\x10\xad\x01J\x06\b\xaf\x01\x10\xb1\x01J\x06\b\xb3\x01\x10\xb9\x01\"\xc7\x02\n" +
 	"\x18PostgresqlConfigSet14_1C\x12g\n" +
 	"\x10effective_config\x18\x01 \x01(\v2<.yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14_1CR\x0feffectiveConfig\x12]\n" +
 	"\vuser_config\x18\x02 \x01(\v2<.yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig14_1CR\n" +

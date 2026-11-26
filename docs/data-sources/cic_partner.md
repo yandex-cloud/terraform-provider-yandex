@@ -15,13 +15,13 @@ A Partner resource.
 data "yandex_cic_partner" "example" {
   partner_id = "partner-id"
 }
-
 ```
 
 ## Arguments & Attributes Reference
 
 - `id` (String). ID of the Partner resource to return.
  To get the partner ID use a [PartnerService.List] request.
+- `max_trunk_bandwidth` (*Read-Only*) (String). Maximum bandwidth of a trunk connection through this partner.
 - `name` (*Read-Only*) (String). Name of the partner.
 - `partner_id` (String). ID of the Partner resource to return.
  To get the partner ID use a [PartnerService.List] request.

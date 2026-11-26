@@ -85,3 +85,7 @@ func (m *Dashboard) SetLinks(v []*LinkItem) {
 func (m *Dashboard) SetPresetItems(v []*PresetItem) {
 	m.PresetItems = v
 }
+
+func (m *Dashboard) SetDefaultPresetTitle(v string) {
+	m.DefaultPresetTitle = v
+}

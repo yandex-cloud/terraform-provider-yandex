@@ -73,6 +73,62 @@ func (Partner_Status) EnumDescriptor() ([]byte, []int) {
 	return file_yandex_cloud_cic_v1_partner_proto_rawDescGZIP(), []int{0, 0}
 }
 
+type Partner_Bandwidth int32
+
+const (
+	// Bandwidth is not specified.
+	Partner_BANDWIDTH_UNSPECIFIED Partner_Bandwidth = 0
+	// Maximum trunk bandwidth is 1 Gbps (1000 Mbps).
+	Partner_BANDWIDTH_1G Partner_Bandwidth = 1
+	// Maximum trunk bandwidth is 10 Gbps (10000 Mbps).
+	Partner_BANDWIDTH_10G Partner_Bandwidth = 2
+	// The partner has no maximum trunk bandwidth.
+	Partner_BANDWIDTH_UNLIMITED Partner_Bandwidth = 99
+)
+
+// Enum value maps for Partner_Bandwidth.
+var (
+	Partner_Bandwidth_name = map[int32]string{
+		0:  "BANDWIDTH_UNSPECIFIED",
+		1:  "BANDWIDTH_1G",
+		2:  "BANDWIDTH_10G",
+		99: "BANDWIDTH_UNLIMITED",
+	}
+	Partner_Bandwidth_value = map[string]int32{
+		"BANDWIDTH_UNSPECIFIED": 0,
+		"BANDWIDTH_1G":          1,
+		"BANDWIDTH_10G":         2,
+		"BANDWIDTH_UNLIMITED":   99,
+	}
+)
+
+func (x Partner_Bandwidth) Enum() *Partner_Bandwidth {
+	p := new(Partner_Bandwidth)
+	*p = x
+	return p
+}
+
+func (x Partner_Bandwidth) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Partner_Bandwidth) Descriptor() protoreflect.EnumDescriptor {
+	return file_yandex_cloud_cic_v1_partner_proto_enumTypes[1].Descriptor()
+}
+
+func (Partner_Bandwidth) Type() protoreflect.EnumType {
+	return &file_yandex_cloud_cic_v1_partner_proto_enumTypes[1]
+}
+
+func (x Partner_Bandwidth) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Partner_Bandwidth.Descriptor instead.
+func (Partner_Bandwidth) EnumDescriptor() ([]byte, []int) {
+	return file_yandex_cloud_cic_v1_partner_proto_rawDescGZIP(), []int{0, 1}
+}
+
 // A Partner resource.
 type Partner struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -85,9 +141,11 @@ type Partner struct {
 	// List of pointOfPresence IDs that the partner is connected to.
 	PopIds []string `protobuf:"bytes,9,rep,name=pop_ids,json=popIds,proto3" json:"pop_ids,omitempty"`
 	// Status of the partner.
-	Status        Partner_Status `protobuf:"varint,11,opt,name=status,proto3,enum=yandex.cloud.cic.v1.Partner_Status" json:"status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Status Partner_Status `protobuf:"varint,11,opt,name=status,proto3,enum=yandex.cloud.cic.v1.Partner_Status" json:"status,omitempty"`
+	// Maximum bandwidth of a trunk connection through this partner.
+	MaxTrunkBandwidth Partner_Bandwidth `protobuf:"varint,12,opt,name=max_trunk_bandwidth,json=maxTrunkBandwidth,proto3,enum=yandex.cloud.cic.v1.Partner_Bandwidth" json:"max_trunk_bandwidth,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *Partner) Reset() {
@@ -155,21 +213,34 @@ func (x *Partner) GetStatus() Partner_Status {
 	return Partner_STATUS_UNSPECIFIED
 }
 
+func (x *Partner) GetMaxTrunkBandwidth() Partner_Bandwidth {
+	if x != nil {
+		return x.MaxTrunkBandwidth
+	}
+	return Partner_BANDWIDTH_UNSPECIFIED
+}
+
 var File_yandex_cloud_cic_v1_partner_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_cic_v1_partner_proto_rawDesc = "" +
 	"\n" +
-	"!yandex/cloud/cic/v1/partner.proto\x12\x13yandex.cloud.cic.v1\"\xd5\x01\n" +
+	"!yandex/cloud/cic/v1/partner.proto\x12\x13yandex.cloud.cic.v1\"\x93\x03\n" +
 	"\aPartner\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\a \x01(\tR\x04name\x12\x10\n" +
 	"\x03url\x18\b \x01(\tR\x03url\x12\x17\n" +
 	"\apop_ids\x18\t \x03(\tR\x06popIds\x12;\n" +
-	"\x06status\x18\v \x01(\x0e2#.yandex.cloud.cic.v1.Partner.StatusR\x06status\"2\n" +
+	"\x06status\x18\v \x01(\x0e2#.yandex.cloud.cic.v1.Partner.StatusR\x06status\x12V\n" +
+	"\x13max_trunk_bandwidth\x18\f \x01(\x0e2&.yandex.cloud.cic.v1.Partner.BandwidthR\x11maxTrunkBandwidth\"2\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x06\n" +
 	"\x02UP\x10\x01\x12\b\n" +
-	"\x04DOWN\x10\x02J\x04\b\x02\x10\aJ\x04\b\n" +
+	"\x04DOWN\x10\x02\"d\n" +
+	"\tBandwidth\x12\x19\n" +
+	"\x15BANDWIDTH_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fBANDWIDTH_1G\x10\x01\x12\x11\n" +
+	"\rBANDWIDTH_10G\x10\x02\x12\x17\n" +
+	"\x13BANDWIDTH_UNLIMITED\x10cJ\x04\b\x02\x10\aJ\x04\b\n" +
 	"\x10\vBV\n" +
 	"\x17yandex.cloud.api.cic.v1Z;github.com/yandex-cloud/go-genproto/yandex/cloud/cic/v1;cicb\x06proto3"
 
@@ -185,19 +256,21 @@ func file_yandex_cloud_cic_v1_partner_proto_rawDescGZIP() []byte {
 	return file_yandex_cloud_cic_v1_partner_proto_rawDescData
 }
 
-var file_yandex_cloud_cic_v1_partner_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_yandex_cloud_cic_v1_partner_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_yandex_cloud_cic_v1_partner_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_yandex_cloud_cic_v1_partner_proto_goTypes = []any{
-	(Partner_Status)(0), // 0: yandex.cloud.cic.v1.Partner.Status
-	(*Partner)(nil),     // 1: yandex.cloud.cic.v1.Partner
+	(Partner_Status)(0),    // 0: yandex.cloud.cic.v1.Partner.Status
+	(Partner_Bandwidth)(0), // 1: yandex.cloud.cic.v1.Partner.Bandwidth
+	(*Partner)(nil),        // 2: yandex.cloud.cic.v1.Partner
 }
 var file_yandex_cloud_cic_v1_partner_proto_depIdxs = []int32{
 	0, // 0: yandex.cloud.cic.v1.Partner.status:type_name -> yandex.cloud.cic.v1.Partner.Status
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 1: yandex.cloud.cic.v1.Partner.max_trunk_bandwidth:type_name -> yandex.cloud.cic.v1.Partner.Bandwidth
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_cic_v1_partner_proto_init() }
@@ -210,7 +283,7 @@ func file_yandex_cloud_cic_v1_partner_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_cic_v1_partner_proto_rawDesc), len(file_yandex_cloud_cic_v1_partner_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,

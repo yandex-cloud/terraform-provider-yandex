@@ -1465,8 +1465,11 @@ type PostgresqlConfig19 struct {
 	// it's equivalent to the IO option of EXPLAIN. This parameter has no effect unless
 	// auto_explain.log_analyze is enabled. This parameter is off by default.
 	AutoExplainLogIo *wrapperspb.BoolValue `protobuf:"bytes,183,opt,name=auto_explain_log_io,json=autoExplainLogIo,proto3" json:"auto_explain_log_io,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// Enables a physical standby to synchronize logical failover slots from the primary server
+	// so that logical subscribers can resume replication from the new primary server after failover.
+	SyncReplicationSlots *wrapperspb.BoolValue `protobuf:"bytes,184,opt,name=sync_replication_slots,json=syncReplicationSlots,proto3" json:"sync_replication_slots,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *PostgresqlConfig19) Reset() {
@@ -2703,6 +2706,13 @@ func (x *PostgresqlConfig19) GetAutoExplainLogIo() *wrapperspb.BoolValue {
 	return nil
 }
 
+func (x *PostgresqlConfig19) GetSyncReplicationSlots() *wrapperspb.BoolValue {
+	if x != nil {
+		return x.SyncReplicationSlots
+	}
+	return nil
+}
+
 type PostgresqlConfigSet19 struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Effective settings for a PostgreSQL 19 cluster (a combination of settings defined
@@ -2771,7 +2781,7 @@ var File_yandex_cloud_mdb_postgresql_v1_config_postgresql19_proto protoreflect.F
 
 const file_yandex_cloud_mdb_postgresql_v1_config_postgresql19_proto_rawDesc = "" +
 	"\n" +
-	"8yandex/cloud/mdb/postgresql/v1/config/postgresql19.proto\x12%yandex.cloud.mdb.postgresql.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\x8c\x93\x01\n" +
+	"8yandex/cloud/mdb/postgresql/v1/config/postgresql19.proto\x12%yandex.cloud.mdb.postgresql.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"ߓ\x01\n" +
 	"\x12PostgresqlConfig19\x12N\n" +
 	"\x0fmax_connections\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\b\xfa\xc71\x04>=16R\x0emaxConnections\x12B\n" +
 	"\x0eshared_buffers\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueR\rsharedBuffers\x12>\n" +
@@ -2963,7 +2973,8 @@ const file_yandex_cloud_mdb_postgresql_v1_config_postgresql19_proto_rawDesc = ""
 	"\xfa\xc71\x060-1024R\x1cautovacuumMaxParallelWorkers\x12p\n" +
 	"\x1clog_autoanalyze_min_duration\x18\xb5\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\x11\xfa\xc71\r-1-2147483647R\x19logAutoanalyzeMinDuration\x12h\n" +
 	"\x1cmax_repack_replication_slots\x18\xb6\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\t\xfa\xc71\x050-100R\x19maxRepackReplicationSlots\x12J\n" +
-	"\x13auto_explain_log_io\x18\xb7\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x10autoExplainLogIo\"\xc6\x01\n" +
+	"\x13auto_explain_log_io\x18\xb7\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x10autoExplainLogIo\x12Q\n" +
+	"\x16sync_replication_slots\x18\xb8\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x14syncReplicationSlots\"\xc6\x01\n" +
 	"\x14AutoExplainLogFormat\x12'\n" +
 	"#AUTO_EXPLAIN_LOG_FORMAT_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cAUTO_EXPLAIN_LOG_FORMAT_TEXT\x10\x01\x12\x1f\n" +
@@ -3286,14 +3297,15 @@ var file_yandex_cloud_mdb_postgresql_v1_config_postgresql19_proto_depIdxs = []in
 	19,  // 167: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19.log_autoanalyze_min_duration:type_name -> google.protobuf.Int64Value
 	19,  // 168: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19.max_repack_replication_slots:type_name -> google.protobuf.Int64Value
 	21,  // 169: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19.auto_explain_log_io:type_name -> google.protobuf.BoolValue
-	17,  // 170: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet19.effective_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
-	17,  // 171: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet19.user_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
-	17,  // 172: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet19.default_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
-	173, // [173:173] is the sub-list for method output_type
-	173, // [173:173] is the sub-list for method input_type
-	173, // [173:173] is the sub-list for extension type_name
-	173, // [173:173] is the sub-list for extension extendee
-	0,   // [0:173] is the sub-list for field type_name
+	21,  // 170: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19.sync_replication_slots:type_name -> google.protobuf.BoolValue
+	17,  // 171: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet19.effective_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
+	17,  // 172: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet19.user_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
+	17,  // 173: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet19.default_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig19
+	174, // [174:174] is the sub-list for method output_type
+	174, // [174:174] is the sub-list for method input_type
+	174, // [174:174] is the sub-list for extension type_name
+	174, // [174:174] is the sub-list for extension extendee
+	0,   // [0:174] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_postgresql_v1_config_postgresql19_proto_init() }

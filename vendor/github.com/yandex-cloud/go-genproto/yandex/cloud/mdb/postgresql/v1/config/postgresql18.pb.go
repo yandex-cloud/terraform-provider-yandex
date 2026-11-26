@@ -1456,8 +1456,11 @@ type PostgresqlConfig18 struct {
 	AutovacuumAnalyzeThreshold *wrapperspb.Int64Value `protobuf:"bytes,178,opt,name=autovacuum_analyze_threshold,json=autovacuumAnalyzeThreshold,proto3" json:"autovacuum_analyze_threshold,omitempty"`
 	// Sets the maximum number of active replication origins.
 	MaxActiveReplicationOrigins *wrapperspb.Int64Value `protobuf:"bytes,179,opt,name=max_active_replication_origins,json=maxActiveReplicationOrigins,proto3" json:"max_active_replication_origins,omitempty"`
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	// Enables a physical standby to synchronize logical failover slots from the primary server
+	// so that logical subscribers can resume replication from the new primary server after failover.
+	SyncReplicationSlots *wrapperspb.BoolValue `protobuf:"bytes,184,opt,name=sync_replication_slots,json=syncReplicationSlots,proto3" json:"sync_replication_slots,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *PostgresqlConfig18) Reset() {
@@ -2680,6 +2683,13 @@ func (x *PostgresqlConfig18) GetMaxActiveReplicationOrigins() *wrapperspb.Int64V
 	return nil
 }
 
+func (x *PostgresqlConfig18) GetSyncReplicationSlots() *wrapperspb.BoolValue {
+	if x != nil {
+		return x.SyncReplicationSlots
+	}
+	return nil
+}
+
 type PostgresqlConfigSet18 struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Effective settings for a PostgreSQL 18 cluster (a combination of settings defined
@@ -2748,7 +2758,7 @@ var File_yandex_cloud_mdb_postgresql_v1_config_postgresql18_proto protoreflect.F
 
 const file_yandex_cloud_mdb_postgresql_v1_config_postgresql18_proto_rawDesc = "" +
 	"\n" +
-	"8yandex/cloud/mdb/postgresql/v1/config/postgresql18.proto\x12%yandex.cloud.mdb.postgresql.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\x93\x91\x01\n" +
+	"8yandex/cloud/mdb/postgresql/v1/config/postgresql18.proto\x12%yandex.cloud.mdb.postgresql.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\xee\x91\x01\n" +
 	"\x12PostgresqlConfig18\x12N\n" +
 	"\x0fmax_connections\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\b\xfa\xc71\x04>=16R\x0emaxConnections\x12B\n" +
 	"\x0eshared_buffers\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueR\rsharedBuffers\x12>\n" +
@@ -2937,7 +2947,8 @@ const file_yandex_cloud_mdb_postgresql_v1_config_postgresql18_proto_rawDesc = ""
 	"\x1bautovacuum_vacuum_threshold\x18\xb1\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\x10\xfa\xc71\f0-2147483647R\x19autovacuumVacuumThreshold\x12p\n" +
 	"\x1cautovacuum_analyze_threshold\x18\xb2\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\x10\xfa\xc71\f0-2147483647R\x1aautovacuumAnalyzeThreshold\x12m\n" +
 	"\x1emax_active_replication_origins\x18\xb3\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\n" +
-	"\xfa\xc71\x0620-100R\x1bmaxActiveReplicationOrigins\"\xc6\x01\n" +
+	"\xfa\xc71\x0620-100R\x1bmaxActiveReplicationOrigins\x12Q\n" +
+	"\x16sync_replication_slots\x18\xb8\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x14syncReplicationSlots\"\xc6\x01\n" +
 	"\x14AutoExplainLogFormat\x12'\n" +
 	"#AUTO_EXPLAIN_LOG_FORMAT_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cAUTO_EXPLAIN_LOG_FORMAT_TEXT\x10\x01\x12\x1f\n" +
@@ -3043,7 +3054,7 @@ const file_yandex_cloud_mdb_postgresql_v1_config_postgresql18_proto_rawDesc = ""
 	"\tXmlOption\x12\x1a\n" +
 	"\x16XML_OPTION_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13XML_OPTION_DOCUMENT\x10\x01\x12\x16\n" +
-	"\x12XML_OPTION_CONTENT\x10\x02J\x04\b\x13\x10\x14J\x04\b@\x10AJ\x04\bN\x10PJ\x04\bj\x10kJ\x04\b}\x10~J\x06\b\x95\x01\x10\x96\x01J\x06\b\xa6\x01\x10\xa7\x01J\x06\b\xb0\x01\x10\xb1\x01\"\xbb\x02\n" +
+	"\x12XML_OPTION_CONTENT\x10\x02J\x04\b\x13\x10\x14J\x04\b@\x10AJ\x04\bN\x10PJ\x04\bj\x10kJ\x04\b}\x10~J\x06\b\x95\x01\x10\x96\x01J\x06\b\xa6\x01\x10\xa7\x01J\x06\b\xb0\x01\x10\xb1\x01J\x06\b\xb4\x01\x10\xb8\x01\"\xbb\x02\n" +
 	"\x15PostgresqlConfigSet18\x12d\n" +
 	"\x10effective_config\x18\x01 \x01(\v29.yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18R\x0feffectiveConfig\x12Z\n" +
 	"\vuser_config\x18\x02 \x01(\v29.yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18R\n" +
@@ -3258,14 +3269,15 @@ var file_yandex_cloud_mdb_postgresql_v1_config_postgresql18_proto_depIdxs = []in
 	19,  // 165: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18.autovacuum_vacuum_threshold:type_name -> google.protobuf.Int64Value
 	19,  // 166: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18.autovacuum_analyze_threshold:type_name -> google.protobuf.Int64Value
 	19,  // 167: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18.max_active_replication_origins:type_name -> google.protobuf.Int64Value
-	17,  // 168: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet18.effective_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
-	17,  // 169: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet18.user_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
-	17,  // 170: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet18.default_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
-	171, // [171:171] is the sub-list for method output_type
-	171, // [171:171] is the sub-list for method input_type
-	171, // [171:171] is the sub-list for extension type_name
-	171, // [171:171] is the sub-list for extension extendee
-	0,   // [0:171] is the sub-list for field type_name
+	21,  // 168: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18.sync_replication_slots:type_name -> google.protobuf.BoolValue
+	17,  // 169: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet18.effective_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
+	17,  // 170: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet18.user_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
+	17,  // 171: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet18.default_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig18
+	172, // [172:172] is the sub-list for method output_type
+	172, // [172:172] is the sub-list for method input_type
+	172, // [172:172] is the sub-list for extension type_name
+	172, // [172:172] is the sub-list for extension extendee
+	0,   // [0:172] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_postgresql_v1_config_postgresql18_proto_init() }

@@ -678,6 +678,10 @@ func (m *PostgresqlConfig17) SetAutovacuumAnalyzeThreshold(v *wrapperspb.Int64Va
 	m.AutovacuumAnalyzeThreshold = v
 }
 
+func (m *PostgresqlConfig17) SetSyncReplicationSlots(v *wrapperspb.BoolValue) {
+	m.SyncReplicationSlots = v
+}
+
 func (m *PostgresqlConfigSet17) SetEffectiveConfig(v *PostgresqlConfig17) {
 	m.EffectiveConfig = v
 }

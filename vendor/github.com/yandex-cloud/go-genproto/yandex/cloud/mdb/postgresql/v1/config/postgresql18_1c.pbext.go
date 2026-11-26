@@ -694,6 +694,10 @@ func (m *PostgresqlConfig18_1C) SetMaxActiveReplicationOrigins(v *wrapperspb.Int
 	m.MaxActiveReplicationOrigins = v
 }
 
+func (m *PostgresqlConfig18_1C) SetSyncReplicationSlots(v *wrapperspb.BoolValue) {
+	m.SyncReplicationSlots = v
+}
+
 func (m *PostgresqlConfigSet18_1C) SetEffectiveConfig(v *PostgresqlConfig18_1C) {
 	m.EffectiveConfig = v
 }

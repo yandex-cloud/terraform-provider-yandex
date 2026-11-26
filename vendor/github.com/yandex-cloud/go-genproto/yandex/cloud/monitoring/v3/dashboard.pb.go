@@ -66,9 +66,13 @@ type Dashboard struct {
 	// Dashboard links
 	Links []*LinkItem `protobuf:"bytes,35,rep,name=links,proto3" json:"links,omitempty"`
 	// Parameters / Infra events / Logs overlays presets list
-	PresetItems   []*PresetItem `protobuf:"bytes,37,rep,name=preset_items,json=presetItems,proto3" json:"preset_items,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	PresetItems []*PresetItem `protobuf:"bytes,37,rep,name=preset_items,json=presetItems,proto3" json:"preset_items,omitempty"`
+	// Title of the preset from preset_items applied when the dashboard is opened. Empty means no default preset.
+	// Must match the title of a preset in preset_items: a request that renames or removes that preset updates this field too.
+	// If several presets share the title, the first one applies.
+	DefaultPresetTitle string `protobuf:"bytes,39,opt,name=default_preset_title,json=defaultPresetTitle,proto3" json:"default_preset_title,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Dashboard) Reset() {
@@ -236,6 +240,13 @@ func (x *Dashboard) GetPresetItems() []*PresetItem {
 	return nil
 }
 
+func (x *Dashboard) GetDefaultPresetTitle() string {
+	if x != nil {
+		return x.DefaultPresetTitle
+	}
+	return ""
+}
+
 type isDashboard_Container interface {
 	isDashboard_Container()
 }
@@ -251,7 +262,7 @@ var File_yandex_cloud_monitoring_v3_dashboard_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_monitoring_v3_dashboard_proto_rawDesc = "" +
 	"\n" +
-	"*yandex/cloud/monitoring/v3/dashboard.proto\x12\x1ayandex.cloud.monitoring.v3\x1a\x1fgoogle/protobuf/timestamp.proto\x1a*yandex/cloud/monitoring/v3/link_item.proto\x1a0yandex/cloud/monitoring/v3/parametrization.proto\x1a,yandex/cloud/monitoring/v3/preset_item.proto\x1a)yandex/cloud/monitoring/v3/timeline.proto\x1a'yandex/cloud/monitoring/v3/widget.proto\"\x9d\a\n" +
+	"*yandex/cloud/monitoring/v3/dashboard.proto\x12\x1ayandex.cloud.monitoring.v3\x1a\x1fgoogle/protobuf/timestamp.proto\x1a*yandex/cloud/monitoring/v3/link_item.proto\x1a0yandex/cloud/monitoring/v3/parametrization.proto\x1a,yandex/cloud/monitoring/v3/preset_item.proto\x1a)yandex/cloud/monitoring/v3/timeline.proto\x1a'yandex/cloud/monitoring/v3/widget.proto\"\xd5\a\n" +
 	"\tDashboard\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
 	"\tfolder_id\x18\x03 \x01(\tH\x00R\bfolderId\x129\n" +
@@ -275,11 +286,12 @@ const file_yandex_cloud_monitoring_v3_dashboard_proto_rawDesc = "" +
 	"\fmanaged_link\x18! \x01(\tR\vmanagedLink\x12@\n" +
 	"\btimeline\x18\" \x01(\v2$.yandex.cloud.monitoring.v3.TimelineR\btimeline\x12:\n" +
 	"\x05links\x18# \x03(\v2$.yandex.cloud.monitoring.v3.LinkItemR\x05links\x12I\n" +
-	"\fpreset_items\x18% \x03(\v2&.yandex.cloud.monitoring.v3.PresetItemR\vpresetItems\x1a9\n" +
+	"\fpreset_items\x18% \x03(\v2&.yandex.cloud.monitoring.v3.PresetItemR\vpresetItems\x120\n" +
+	"\x14default_preset_title\x18' \x01(\tR\x12defaultPresetTitle\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
-	"\tcontainerJ\x04\b\x02\x10\x03J\x04\b\x04\x10\x14J\x04\b\x1f\x10 J\x04\b$\x10%Bk\n" +
+	"\tcontainerJ\x04\b\x02\x10\x03J\x04\b\x04\x10\x14J\x04\b\x1f\x10 J\x04\b$\x10%J\x04\b&\x10'Bk\n" +
 	"\x1eyandex.cloud.api.monitoring.v3ZIgithub.com/yandex-cloud/go-genproto/yandex/cloud/monitoring/v3;monitoringb\x06proto3"
 
 var (

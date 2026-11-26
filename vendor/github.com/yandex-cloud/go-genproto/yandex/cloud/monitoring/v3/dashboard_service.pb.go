@@ -279,9 +279,13 @@ type CreateDashboardRequest struct {
 	// Dashboard links
 	Links []*LinkItem `protobuf:"bytes,29,rep,name=links,proto3" json:"links,omitempty"`
 	// Parameters / Infra events / Logs overlays presets list
-	PresetItems   []*PresetItem `protobuf:"bytes,34,rep,name=preset_items,json=presetItems,proto3" json:"preset_items,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	PresetItems []*PresetItem `protobuf:"bytes,34,rep,name=preset_items,json=presetItems,proto3" json:"preset_items,omitempty"`
+	// Title of the preset from preset_items applied when the dashboard is opened. Empty means no default preset.
+	// Must match the title of a preset in preset_items: a request that renames or removes that preset updates this field too.
+	// If several presets share the title, the first one applies.
+	DefaultPresetTitle string `protobuf:"bytes,36,opt,name=default_preset_title,json=defaultPresetTitle,proto3" json:"default_preset_title,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *CreateDashboardRequest) Reset() {
@@ -407,6 +411,13 @@ func (x *CreateDashboardRequest) GetPresetItems() []*PresetItem {
 	return nil
 }
 
+func (x *CreateDashboardRequest) GetDefaultPresetTitle() string {
+	if x != nil {
+		return x.DefaultPresetTitle
+	}
+	return ""
+}
+
 type isCreateDashboardRequest_Container interface {
 	isCreateDashboardRequest_Container()
 }
@@ -495,9 +506,13 @@ type UpdateDashboardRequest struct {
 	// Comment, for update operation
 	Comment string `protobuf:"bytes,31,opt,name=comment,proto3" json:"comment,omitempty"`
 	// Parameters / Infra events / Logs overlays presets list
-	PresetItems   []*PresetItem `protobuf:"bytes,32,rep,name=preset_items,json=presetItems,proto3" json:"preset_items,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	PresetItems []*PresetItem `protobuf:"bytes,32,rep,name=preset_items,json=presetItems,proto3" json:"preset_items,omitempty"`
+	// Title of the preset from preset_items applied when the dashboard is opened. Empty means no default preset.
+	// Must match the title of a preset in preset_items: a request that renames or removes that preset updates this field too.
+	// If several presets share the title, the first one applies.
+	DefaultPresetTitle string `protobuf:"bytes,33,opt,name=default_preset_title,json=defaultPresetTitle,proto3" json:"default_preset_title,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *UpdateDashboardRequest) Reset() {
@@ -626,6 +641,13 @@ func (x *UpdateDashboardRequest) GetPresetItems() []*PresetItem {
 		return x.PresetItems
 	}
 	return nil
+}
+
+func (x *UpdateDashboardRequest) GetDefaultPresetTitle() string {
+	if x != nil {
+		return x.DefaultPresetTitle
+	}
+	return ""
 }
 
 type UpdateDashboardMetadata struct {
@@ -1179,7 +1201,7 @@ const file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDesc = "" +
 	"\n" +
 	"dashboards\x18\x01 \x03(\v2%.yandex.cloud.monitoring.v3.DashboardR\n" +
 	"dashboards\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\x9c\x06\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xd4\x06\n" +
 	"\x16CreateDashboardRequest\x12+\n" +
 	"\tfolder_id\x18\x02 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50H\x00R\bfolderId\x12\x12\n" +
 	"\x04name\x18\x13 \x01(\tR\x04name\x12 \n" +
@@ -1193,13 +1215,14 @@ const file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDesc = "" +
 	"\fmanaged_link\x18\x1b \x01(\tR\vmanagedLink\x12@\n" +
 	"\btimeline\x18\x1c \x01(\v2$.yandex.cloud.monitoring.v3.TimelineR\btimeline\x12:\n" +
 	"\x05links\x18\x1d \x03(\v2$.yandex.cloud.monitoring.v3.LinkItemR\x05links\x12I\n" +
-	"\fpreset_items\x18\" \x03(\v2&.yandex.cloud.monitoring.v3.PresetItemR\vpresetItems\x1a9\n" +
+	"\fpreset_items\x18\" \x03(\v2&.yandex.cloud.monitoring.v3.PresetItemR\vpresetItems\x120\n" +
+	"\x14default_preset_title\x18$ \x01(\tR\x12defaultPresetTitle\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\v\n" +
-	"\tcontainerJ\x04\b\x01\x10\x02J\x04\b\x03\x10\x13J\x04\b\x19\x10\x1aJ\x04\b\x1e\x10\"\"<\n" +
+	"\tcontainerJ\x04\b\x01\x10\x02J\x04\b\x03\x10\x13J\x04\b\x19\x10\x1aJ\x04\b\x1e\x10\"J\x04\b#\x10$\"<\n" +
 	"\x17CreateDashboardMetadata\x12!\n" +
-	"\fdashboard_id\x18\x01 \x01(\tR\vdashboardId\"\xb5\x06\n" +
+	"\fdashboard_id\x18\x01 \x01(\tR\vdashboardId\"\xe7\x06\n" +
 	"\x16UpdateDashboardRequest\x12/\n" +
 	"\fdashboard_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\vdashboardId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -1215,7 +1238,8 @@ const file_yandex_cloud_monitoring_v3_dashboard_service_proto_rawDesc = "" +
 	"\btimeline\x18\x1c \x01(\v2$.yandex.cloud.monitoring.v3.TimelineR\btimeline\x12:\n" +
 	"\x05links\x18\x1d \x03(\v2$.yandex.cloud.monitoring.v3.LinkItemR\x05links\x12\x18\n" +
 	"\acomment\x18\x1f \x01(\tR\acomment\x12I\n" +
-	"\fpreset_items\x18  \x03(\v2&.yandex.cloud.monitoring.v3.PresetItemR\vpresetItems\x1a9\n" +
+	"\fpreset_items\x18  \x03(\v2&.yandex.cloud.monitoring.v3.PresetItemR\vpresetItems\x120\n" +
+	"\x14default_preset_title\x18! \x01(\tR\x12defaultPresetTitle\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\t\x10\x1aJ\x04\b\x1e\x10\x1f\"<\n" +

@@ -1,4 +1,0 @@
-kind: FEATURES
-body: 'trino: add cluster-level additional_properties to the yandex_trino_cluster
-  resource and data source'
-time: 2026-09-17T14:57:50.597658+02:00

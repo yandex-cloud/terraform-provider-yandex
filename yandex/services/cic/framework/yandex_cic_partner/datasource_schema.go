@@ -18,6 +18,16 @@ func YandexCicPartnerDatasourceSchema(ctx context.Context) schema.Schema {
 		MarkdownDescription: "A Partner resource.",
 		Attributes: map[string]schema.Attribute{
 
+			"max_trunk_bandwidth": schema.StringAttribute{
+				MarkdownDescription: "Maximum bandwidth of a trunk connection through this partner.",
+				Description: "Maximum bandwidth of a trunk connection through this partner." +
+					// proto paths: +
+					// -> yandex.cloud.cic.v1.Partner.max_trunk_bandwidth
+					"package: yandex.cloud.cic.v1\n" +
+					"filename: yandex/cloud/cic/v1/partner.proto\n",
+				Computed: true,
+			},
+
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Name of the partner.",
 				Description: "Name of the partner." +

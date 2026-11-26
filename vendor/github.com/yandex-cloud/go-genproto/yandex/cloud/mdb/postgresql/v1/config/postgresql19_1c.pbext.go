@@ -702,6 +702,10 @@ func (m *PostgresqlConfig19_1C) SetAutoExplainLogIo(v *wrapperspb.BoolValue) {
 	m.AutoExplainLogIo = v
 }
 
+func (m *PostgresqlConfig19_1C) SetSyncReplicationSlots(v *wrapperspb.BoolValue) {
+	m.SyncReplicationSlots = v
+}
+
 func (m *PostgresqlConfigSet19_1C) SetEffectiveConfig(v *PostgresqlConfig19_1C) {
 	m.EffectiveConfig = v
 }

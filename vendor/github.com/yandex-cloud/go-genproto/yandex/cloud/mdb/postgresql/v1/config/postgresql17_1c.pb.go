@@ -1456,8 +1456,11 @@ type PostgresqlConfig17_1C struct {
 	AutovacuumVacuumThreshold *wrapperspb.Int64Value `protobuf:"bytes,177,opt,name=autovacuum_vacuum_threshold,json=autovacuumVacuumThreshold,proto3" json:"autovacuum_vacuum_threshold,omitempty"`
 	// Minimum number of tuple inserts, updates, or deletes prior to analyze.
 	AutovacuumAnalyzeThreshold *wrapperspb.Int64Value `protobuf:"bytes,178,opt,name=autovacuum_analyze_threshold,json=autovacuumAnalyzeThreshold,proto3" json:"autovacuum_analyze_threshold,omitempty"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
+	// Enables a physical standby to synchronize logical failover slots from the primary server
+	// so that logical subscribers can resume replication from the new primary server after failover.
+	SyncReplicationSlots *wrapperspb.BoolValue `protobuf:"bytes,184,opt,name=sync_replication_slots,json=syncReplicationSlots,proto3" json:"sync_replication_slots,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *PostgresqlConfig17_1C) Reset() {
@@ -2680,6 +2683,13 @@ func (x *PostgresqlConfig17_1C) GetAutovacuumAnalyzeThreshold() *wrapperspb.Int6
 	return nil
 }
 
+func (x *PostgresqlConfig17_1C) GetSyncReplicationSlots() *wrapperspb.BoolValue {
+	if x != nil {
+		return x.SyncReplicationSlots
+	}
+	return nil
+}
+
 type PostgresqlConfigSet17_1C struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Effective settings for a PostgreSQL 17 1C cluster (a combination of settings defined
@@ -2748,7 +2758,7 @@ var File_yandex_cloud_mdb_postgresql_v1_config_postgresql17_1c_proto protoreflec
 
 const file_yandex_cloud_mdb_postgresql_v1_config_postgresql17_1c_proto_rawDesc = "" +
 	"\n" +
-	";yandex/cloud/mdb/postgresql/v1/config/postgresql17_1c.proto\x12%yandex.cloud.mdb.postgresql.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\xc0\x91\x01\n" +
+	";yandex/cloud/mdb/postgresql/v1/config/postgresql17_1c.proto\x12%yandex.cloud.mdb.postgresql.v1.config\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x1dyandex/cloud/validation.proto\"\x9b\x92\x01\n" +
 	"\x15PostgresqlConfig17_1C\x12N\n" +
 	"\x0fmax_connections\x18\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\b\xfa\xc71\x04>=16R\x0emaxConnections\x12B\n" +
 	"\x0eshared_buffers\x18\x02 \x01(\v2\x1b.google.protobuf.Int64ValueR\rsharedBuffers\x12>\n" +
@@ -2936,7 +2946,8 @@ const file_yandex_cloud_mdb_postgresql_v1_config_postgresql17_1c_proto_rawDesc =
 	"\x14idle_session_timeout\x18\xad\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\x10\xfa\xc71\f0-2147483647R\x12idleSessionTimeout\x12`\n" +
 	"\x12checkpoint_warning\x18\xae\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\x13\xfa\xc71\x0f0-2147483647000R\x11checkpointWarning\x12n\n" +
 	"\x1bautovacuum_vacuum_threshold\x18\xb1\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\x10\xfa\xc71\f0-2147483647R\x19autovacuumVacuumThreshold\x12p\n" +
-	"\x1cautovacuum_analyze_threshold\x18\xb2\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\x10\xfa\xc71\f0-2147483647R\x1aautovacuumAnalyzeThreshold\"\xc6\x01\n" +
+	"\x1cautovacuum_analyze_threshold\x18\xb2\x01 \x01(\v2\x1b.google.protobuf.Int64ValueB\x10\xfa\xc71\f0-2147483647R\x1aautovacuumAnalyzeThreshold\x12Q\n" +
+	"\x16sync_replication_slots\x18\xb8\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\x14syncReplicationSlots\"\xc6\x01\n" +
 	"\x14AutoExplainLogFormat\x12'\n" +
 	"#AUTO_EXPLAIN_LOG_FORMAT_UNSPECIFIED\x10\x00\x12 \n" +
 	"\x1cAUTO_EXPLAIN_LOG_FORMAT_TEXT\x10\x01\x12\x1f\n" +
@@ -3042,7 +3053,7 @@ const file_yandex_cloud_mdb_postgresql_v1_config_postgresql17_1c_proto_rawDesc =
 	"\tXmlOption\x12\x1a\n" +
 	"\x16XML_OPTION_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13XML_OPTION_DOCUMENT\x10\x01\x12\x16\n" +
-	"\x12XML_OPTION_CONTENT\x10\x02J\x04\b\x13\x10\x14J\x04\b@\x10AJ\x04\bN\x10OJ\x04\bj\x10kJ\x04\b}\x10~J\x06\b\xa6\x01\x10\xa7\x01J\x06\b\xaf\x01\x10\xb1\x01\"\xc7\x02\n" +
+	"\x12XML_OPTION_CONTENT\x10\x02J\x04\b\x13\x10\x14J\x04\b@\x10AJ\x04\bN\x10OJ\x04\bj\x10kJ\x04\b}\x10~J\x06\b\xa6\x01\x10\xa7\x01J\x06\b\xaf\x01\x10\xb1\x01J\x06\b\xb3\x01\x10\xb8\x01\"\xc7\x02\n" +
 	"\x18PostgresqlConfigSet17_1C\x12g\n" +
 	"\x10effective_config\x18\x01 \x01(\v2<.yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1CR\x0feffectiveConfig\x12]\n" +
 	"\vuser_config\x18\x02 \x01(\v2<.yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1CR\n" +
@@ -3257,14 +3268,15 @@ var file_yandex_cloud_mdb_postgresql_v1_config_postgresql17_1c_proto_depIdxs = [
 	19,  // 165: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C.checkpoint_warning:type_name -> google.protobuf.Int64Value
 	19,  // 166: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C.autovacuum_vacuum_threshold:type_name -> google.protobuf.Int64Value
 	19,  // 167: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C.autovacuum_analyze_threshold:type_name -> google.protobuf.Int64Value
-	17,  // 168: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet17_1C.effective_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
-	17,  // 169: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet17_1C.user_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
-	17,  // 170: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet17_1C.default_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
-	171, // [171:171] is the sub-list for method output_type
-	171, // [171:171] is the sub-list for method input_type
-	171, // [171:171] is the sub-list for extension type_name
-	171, // [171:171] is the sub-list for extension extendee
-	0,   // [0:171] is the sub-list for field type_name
+	21,  // 168: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C.sync_replication_slots:type_name -> google.protobuf.BoolValue
+	17,  // 169: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet17_1C.effective_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
+	17,  // 170: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet17_1C.user_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
+	17,  // 171: yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfigSet17_1C.default_config:type_name -> yandex.cloud.mdb.postgresql.v1.config.PostgresqlConfig17_1C
+	172, // [172:172] is the sub-list for method output_type
+	172, // [172:172] is the sub-list for method input_type
+	172, // [172:172] is the sub-list for extension type_name
+	172, // [172:172] is the sub-list for extension extendee
+	0,   // [0:172] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_mdb_postgresql_v1_config_postgresql17_1c_proto_init() }

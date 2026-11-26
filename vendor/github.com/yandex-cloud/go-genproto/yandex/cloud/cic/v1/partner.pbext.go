@@ -21,3 +21,7 @@ func (m *Partner) SetPopIds(v []string) {
 func (m *Partner) SetStatus(v Partner_Status) {
 	m.Status = v
 }
+
+func (m *Partner) SetMaxTrunkBandwidth(v Partner_Bandwidth) {
+	m.MaxTrunkBandwidth = v
+}

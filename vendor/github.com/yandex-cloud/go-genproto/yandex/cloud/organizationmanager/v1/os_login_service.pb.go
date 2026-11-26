@@ -604,7 +604,7 @@ type UpdateOsLoginProfileRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	OsLoginProfileId string                 `protobuf:"bytes,1,opt,name=os_login_profile_id,json=osLoginProfileId,proto3" json:"os_login_profile_id,omitempty"`
 	Login            string                 `protobuf:"bytes,2,opt,name=login,proto3" json:"login,omitempty"` // must not contain . or end in ~
-	Uid              int64                  `protobuf:"varint,3,opt,name=uid,proto3" json:"uid,omitempty"`    // 1000 - 2^63 - 1
+	Uid              int64                  `protobuf:"varint,3,opt,name=uid,proto3" json:"uid,omitempty"`    // 1002 - 2^63 - 1
 	HomeDirectory    string                 `protobuf:"bytes,4,opt,name=home_directory,json=homeDirectory,proto3" json:"home_directory,omitempty"`
 	Shell            string                 `protobuf:"bytes,5,opt,name=shell,proto3" json:"shell,omitempty"`
 	UpdateMask       *fieldmaskpb.FieldMask `protobuf:"bytes,6,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
@@ -733,7 +733,7 @@ type CreateOsLoginProfileRequest struct {
 	OrganizationId string                 `protobuf:"bytes,1,opt,name=organization_id,json=organizationId,proto3" json:"organization_id,omitempty"`
 	SubjectId      string                 `protobuf:"bytes,2,opt,name=subject_id,json=subjectId,proto3" json:"subject_id,omitempty"`
 	Login          string                 `protobuf:"bytes,3,opt,name=login,proto3" json:"login,omitempty"` // must not contain . or end in ~
-	Uid            int64                  `protobuf:"varint,4,opt,name=uid,proto3" json:"uid,omitempty"`    // 1000 - 2^63 - 1
+	Uid            int64                  `protobuf:"varint,4,opt,name=uid,proto3" json:"uid,omitempty"`    // 1002 - 2^63 - 1
 	HomeDirectory  string                 `protobuf:"bytes,5,opt,name=home_directory,json=homeDirectory,proto3" json:"home_directory,omitempty"`
 	Shell          string                 `protobuf:"bytes,6,opt,name=shell,proto3" json:"shell,omitempty"`
 	unknownFields  protoimpl.UnknownFields
@@ -1208,7 +1208,7 @@ const file_yandex_cloud_organizationmanager_v1_os_login_service_proto_rawDesc = 
 	"\x1bUpdateOsLoginProfileRequest\x12;\n" +
 	"\x13os_login_profile_id\x18\x01 \x01(\tB\f\xe8\xc71\x01\x8a\xc81\x04<=50R\x10osLoginProfileId\x12G\n" +
 	"\x05login\x18\x02 \x01(\tB1\xe8\xc71\x01\xf2\xc71!^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,31}$\x8a\xc81\x04<=32R\x05login\x12.\n" +
-	"\x03uid\x18\x03 \x01(\x03B\x1c\xfa\xc71\x181000-9223372036854775807R\x03uid\x120\n" +
+	"\x03uid\x18\x03 \x01(\x03B\x1c\xfa\xc71\x181002-9223372036854775807R\x03uid\x120\n" +
 	"\x0ehome_directory\x18\x04 \x01(\tB\t\x8a\xc81\x05<=255R\rhomeDirectory\x12\x1f\n" +
 	"\x05shell\x18\x05 \x01(\tB\t\x8a\xc81\x05<=255R\x05shell\x12;\n" +
 	"\vupdate_mask\x18\x06 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
@@ -1220,7 +1220,7 @@ const file_yandex_cloud_organizationmanager_v1_os_login_service_proto_rawDesc = 
 	"\n" +
 	"subject_id\x18\x02 \x01(\tB\b\x8a\xc81\x04<=50R\tsubjectId\x12G\n" +
 	"\x05login\x18\x03 \x01(\tB1\xe8\xc71\x01\xf2\xc71!^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,31}$\x8a\xc81\x04<=32R\x05login\x12.\n" +
-	"\x03uid\x18\x04 \x01(\x03B\x1c\xfa\xc71\x181000-9223372036854775807R\x03uid\x120\n" +
+	"\x03uid\x18\x04 \x01(\x03B\x1c\xfa\xc71\x181002-9223372036854775807R\x03uid\x120\n" +
 	"\x0ehome_directory\x18\x05 \x01(\tB\t\x8a\xc81\x05<=255R\rhomeDirectory\x12\x1f\n" +
 	"\x05shell\x18\x06 \x01(\tB\t\x8a\xc81\x05<=255R\x05shell\"M\n" +
 	"\x1cUpdateOsLoginProfileMetadata\x12-\n" +
