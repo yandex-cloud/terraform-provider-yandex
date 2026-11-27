@@ -126,6 +126,7 @@ resource "yandex_vpc_subnet" "foo" {
 - `folder_id` (String). The folder identifier that resource belongs to. If it is not provided, the default provider `folder-id` is used.
 - `hosts` [Block]. A host configuration of the PostgreSQL cluster.
   - `assign_public_ip` (Bool). Whether the host should get a public IP address.
+  - `backup_priority` (Number). Priority of the host as a backup source. Backup is made from the host with the highest priority. Must be between 0 and 100.
   - `fqdn` (*Read-Only*) (String). The fully qualified domain name of the host.
   - `priority` (Number). Host priority in HA group. Must be between 0 and 100.
   - `replication_source` (*Read-Only*) (String). FQDN of the host that is used as a replication source. Resolved from replication_source_name.

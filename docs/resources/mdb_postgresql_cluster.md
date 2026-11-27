@@ -330,6 +330,7 @@ resource "yandex_vpc_subnet" "maintenance" {
     - `version` (String). Version of the extension.
 - `host` [Block]. A host of the PostgreSQL cluster.
   - `assign_public_ip` (Bool). Whether the host should get a public IP address.
+  - `backup_priority` (Number). Priority of the host as a backup source. Backup is made from the host with the highest priority. Must be between 0 and 100.
   - `fqdn` (*Read-Only*) (String). The fully qualified domain name of the host.
   - `name` (String). Host state name. It should be set for all hosts or unset for all hosts. This field can be used by another host, to select which host will be its replication source. Please see `replication_source_name` parameter.
   - `priority` (Number). Host priority in HA group. It works only when `name` is set. Must be between 0 and 100.

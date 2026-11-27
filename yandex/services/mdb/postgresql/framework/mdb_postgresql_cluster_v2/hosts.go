@@ -51,6 +51,9 @@ func (r PostgresqlHostService) GetChanges(plan Host, state Host) (*postgresql.Up
 	if !plan.Priority.IsUnknown() && !plan.Priority.Equal(state.Priority) {
 		paths = append(paths, "priority")
 	}
+	if !plan.BackupPriority.IsUnknown() && !plan.BackupPriority.Equal(state.BackupPriority) {
+		paths = append(paths, "backup_priority")
+	}
 	if len(paths) == 0 {
 		return nil, nil
 	}
@@ -63,6 +66,7 @@ func (r PostgresqlHostService) GetChanges(plan Host, state Host) (*postgresql.Up
 		AssignPublicIp:    plan.AssignPublicIp.ValueBool(),
 		ReplicationSource: plan.ReplicationSource.ValueString(),
 		Priority:          wrapperspb.Int64(plan.Priority.ValueInt64()),
+		BackupPriority:    wrapperspb.Int64(plan.BackupPriority.ValueInt64()),
 	}, diags
 }
 
@@ -73,6 +77,7 @@ func (r PostgresqlHostService) ConvertToProto(h Host) *postgresql.HostSpec {
 		AssignPublicIp:    h.AssignPublicIp.ValueBool(),
 		ReplicationSource: h.ReplicationSource.ValueString(),
 		Priority:          wrapperspb.Int64(h.Priority.ValueInt64()),
+		BackupPriority:    wrapperspb.Int64(h.BackupPriority.ValueInt64()),
 	}
 }
 
@@ -84,6 +89,7 @@ func (r PostgresqlHostService) ConvertFromProto(apiHost *postgresql.Host) Host {
 		ReplicationSource: types.StringValue(apiHost.ReplicationSource),
 		FQDN:              types.StringValue(apiHost.Name),
 		Priority:          types.Int64Value(apiHost.Priority.GetValue()),
+		BackupPriority:    types.Int64Value(apiHost.BackupPriority.GetValue()),
 		// ReplicationSourceName is not returned by API; it is preserved from user config in refreshResourceState.
 		ReplicationSourceName: types.StringNull(),
 	}

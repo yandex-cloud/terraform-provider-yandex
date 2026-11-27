@@ -176,6 +176,17 @@ func (r *clusterResource) Schema(ctx context.Context, _ resource.SchemaRequest, 
 								int64planmodifier.UseStateForUnknown(),
 							},
 						},
+						"backup_priority": schema.Int64Attribute{
+							Description: "Priority of the host as a backup source. Backup is made from the host with the highest priority. Must be between 0 and 100.",
+							Optional:    true,
+							Computed:    true,
+							Validators: []validator.Int64{
+								int64validator.Between(0, 100),
+							},
+							PlanModifiers: []planmodifier.Int64{
+								int64planmodifier.UseStateForUnknown(),
+							},
+						},
 					},
 				},
 			},

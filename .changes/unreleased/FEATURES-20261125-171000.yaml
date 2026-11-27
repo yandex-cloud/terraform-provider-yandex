@@ -1,0 +1,5 @@
+kind: FEATURES
+body: 'postgresql: add host `backup_priority` to the `yandex_mdb_postgresql_cluster`
+  and `yandex_mdb_postgresql_cluster_v2` resources and expose it in the `yandex_mdb_postgresql_cluster`
+  data source'
+time: 2026-11-25T17:10:00.000000+03:00

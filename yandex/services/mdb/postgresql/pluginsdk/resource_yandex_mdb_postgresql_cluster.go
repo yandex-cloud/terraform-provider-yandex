@@ -577,6 +577,13 @@ func resourceYandexMDBPostgreSQLClusterHost() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.IntBetween(0, 100),
 			},
+			"backup_priority": {
+				Type:         schema.TypeInt,
+				Description:  "Priority of the host as a backup source. Backup is made from the host with the highest priority. Must be between 0 and 100.",
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntBetween(0, 100),
+			},
 			"replication_source_name": {
 				Type:        schema.TypeString,
 				Description: "Host replication source name points to host's `name` from which this host should replicate. When not set then host in HA group. It works only when `name` is set.",
@@ -957,10 +964,7 @@ func PrepareCreatePostgreSQLRequest(d *schema.ResourceData, meta *providerconfig
 		return nil, fmt.Errorf("Error getting folder ID while creating PostgreSQL Cluster: %s", err)
 	}
 
-	hostsFromScheme, err := expandPGHosts(d)
-	if err != nil {
-		return nil, fmt.Errorf("Error while expanding host specs on PostgreSQL Cluster create: %s", err)
-	}
+	hostsFromScheme := expandPGHosts(d)
 
 	e := d.Get("environment").(string)
 	env, err := parsePostgreSQLEnv(e)
@@ -1330,30 +1334,12 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	for _, hostInfo := range compareHostsInfo.hostsInfo {
-		if hostInfo.inTargetSet {
-			var maskPaths []string
-			if hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
-				maskPaths = append(maskPaths, "replication_source")
-			}
-			if hostInfo.oldAssignPublicIP != hostInfo.newAssignPublicIP {
-				maskPaths = append(maskPaths, "assign_public_ip")
-			}
-			if hostInfo.oldPriority != hostInfo.newPriority {
-				maskPaths = append(maskPaths, "priority")
-			}
-
-			if len(maskPaths) > 0 {
-				hostSpec := &postgresql.UpdateHostSpec{
-					HostName:          hostInfo.fqdn,
-					ReplicationSource: hostInfo.newReplicationSource,
-					AssignPublicIp:    hostInfo.newAssignPublicIP,
-					Priority:          wrapperspb.Int64(hostInfo.newPriority),
-					UpdateMask:        &field_mask.FieldMask{Paths: maskPaths},
-				}
-
-				if err := updatePGHost(ctx, config, d, hostSpec); err != nil {
-					return err
-				}
+		if !hostInfo.inTargetSet {
+			continue
+		}
+		if hostSpec := pgHostChanges(hostInfo); hostSpec != nil {
+			if err := updatePGHost(ctx, config, d, hostSpec); err != nil {
+				return err
 			}
 		}
 	}
@@ -1368,6 +1354,48 @@ func updatePGClusterHosts(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	return nil
+}
+
+func pgHostChanges(hostInfo *PgHostInfo) *postgresql.UpdateHostSpec {
+	var maskPaths []string
+	if hostInfo.oldReplicationSource != hostInfo.newReplicationSource {
+		maskPaths = append(maskPaths, "replication_source")
+	}
+	if hostInfo.oldAssignPublicIP != hostInfo.newAssignPublicIP {
+		maskPaths = append(maskPaths, "assign_public_ip")
+	}
+	if hostInfo.oldPriority != hostInfo.newPriority {
+		maskPaths = append(maskPaths, "priority")
+	}
+	if hostInfo.oldBackupPriority != hostInfo.newBackupPriority {
+		maskPaths = append(maskPaths, "backup_priority")
+	}
+	if len(maskPaths) == 0 {
+		return nil
+	}
+
+	return &postgresql.UpdateHostSpec{
+		HostName:          hostInfo.fqdn,
+		ReplicationSource: hostInfo.newReplicationSource,
+		AssignPublicIp:    hostInfo.newAssignPublicIP,
+		Priority:          wrapperspb.Int64(hostInfo.newPriority),
+		BackupPriority:    wrapperspb.Int64(hostInfo.newBackupPriority),
+		UpdateMask:        &field_mask.FieldMask{Paths: maskPaths},
+	}
+}
+
+func pgCreateHostSpec(newHostInfo *PgHostInfo, haveHostWithName bool) *postgresql.HostSpec {
+	host := &postgresql.HostSpec{
+		ZoneId:         newHostInfo.zone,
+		SubnetId:       newHostInfo.subnetID,
+		AssignPublicIp: newHostInfo.newAssignPublicIP,
+		Priority:       wrapperspb.Int64(newHostInfo.newPriority),
+		BackupPriority: wrapperspb.Int64(newHostInfo.newBackupPriority),
+	}
+	if haveHostWithName {
+		host.ReplicationSource = newHostInfo.newReplicationSource
+	}
+	return host
 }
 
 func createPGClusterHosts(ctx context.Context, config *providerconfig.Config, d *schema.ResourceData) error {
@@ -1385,15 +1413,7 @@ func createPGClusterHosts(ctx context.Context, config *providerconfig.Config, d 
 	}
 
 	for _, newHostInfo := range compareHostsInfo.createHostsInfo {
-		host := &postgresql.HostSpec{
-			ZoneId:         newHostInfo.zone,
-			SubnetId:       newHostInfo.subnetID,
-			AssignPublicIp: newHostInfo.newAssignPublicIP,
-			Priority:       wrapperspb.Int64(newHostInfo.newPriority),
-		}
-		if compareHostsInfo.haveHostWithName {
-			host.ReplicationSource = newHostInfo.newReplicationSource
-		}
+		host := pgCreateHostSpec(newHostInfo, compareHostsInfo.haveHostWithName)
 		if err := addPGHost(ctx, config, d, host); err != nil {
 			return err
 		}
@@ -1489,6 +1509,9 @@ func resourceYandexMDBPostgreSQLClusterDelete(d *schema.ResourceData, meta inter
 }
 
 func resourceYandexMDBPostgreSQLClusterCustomizeDiff(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
+	if err := validatePGHostPriorityRequiresName(d); err != nil {
+		return err
+	}
 	if err := CustomizePGMaintenanceWindowsDiff(d); err != nil {
 		return err
 	}

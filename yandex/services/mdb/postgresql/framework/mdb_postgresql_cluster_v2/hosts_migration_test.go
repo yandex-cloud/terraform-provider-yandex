@@ -29,6 +29,7 @@ func planHost(zone, subnetID string) Host {
 		ReplicationSource:     types.StringUnknown(),
 		ReplicationSourceName: types.StringNull(),
 		Priority:              types.Int64Unknown(),
+		BackupPriority:        types.Int64Unknown(),
 	}
 }
 
@@ -48,6 +49,7 @@ func stateHost(zone, subnetID, fqdn string) Host {
 		ReplicationSource:     types.StringValue(""),
 		ReplicationSourceName: types.StringNull(),
 		Priority:              types.Int64Value(0),
+		BackupPriority:        types.Int64Value(0),
 	}
 }
 

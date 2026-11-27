@@ -1,0 +1,6 @@
+kind: BUG FIXES
+body: 'postgresql: fix `yandex_mdb_postgresql_cluster` refresh failing with `priority
+  can be set only when name is specified` when the priority of a host without `name`
+  was set outside Terraform; the rule is now checked against the configuration at
+  plan time'
+time: 2026-11-25T17:40:00.000000+03:00

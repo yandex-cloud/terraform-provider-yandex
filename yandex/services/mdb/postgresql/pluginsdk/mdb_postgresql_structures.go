@@ -7,10 +7,12 @@ import (
 	"log"
 	"maps"
 	"reflect"
+	"slices"
 	"sort"
 	"strings"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/objx"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -428,11 +430,13 @@ type PgHostInfo struct {
 	oldReplicationSource     string
 	oldReplicationSourceName string
 	oldPriority              int64
+	oldBackupPriority        int64
 
 	newAssignPublicIP        bool
 	newReplicationSource     string
 	newReplicationSourceName string
 	newPriority              int64
+	newBackupPriority        int64
 
 	inTargetSet bool
 
@@ -454,6 +458,7 @@ func loadNewHosts(newHosts []any) ([]*PgHostInfo, error) {
 			newAssignPublicIP:        hni.Get("assign_public_ip").Bool(),
 			newReplicationSourceName: hni.Get("replication_source_name").Str(),
 			newPriority:              int64(hni.Get("priority").Int()),
+			newBackupPriority:        int64(hni.Get("backup_priority").Int()),
 			rowNumber:                i,
 			inTargetSet:              true,
 		})
@@ -632,6 +637,7 @@ func loadExistingHosts(currentHosts []*postgresql.Host, oldHosts []any) (map[str
 			oldAssignPublicIP:    h.AssignPublicIp,
 			oldReplicationSource: h.ReplicationSource,
 			oldPriority:          priority,
+			oldBackupPriority:    h.GetBackupPriority().GetValue(),
 
 			rowNumber: i,
 		}
@@ -656,26 +662,28 @@ func loadExistingHosts(currentHosts []*postgresql.Host, oldHosts []any) (map[str
 	return hostsInfo, nil
 }
 
-func validatePriority(existingHosts map[string]*PgHostInfo, newHosts []*PgHostInfo) error {
-	check := func(host *PgHostInfo) error {
-		if host.newPriority > 0 && host.name == "" {
-			return fmt.Errorf("priority can be set only when name is specified")
-		}
+func validatePGHostPriorityRequiresName(d mdbcommon.RawConfigProvider) error {
+	hosts, ok := mdbcommon.LookupRawConfigPath(d, "host")
+	if !ok {
 		return nil
 	}
-
-	for _, host := range existingHosts {
-		if err := check(host); err != nil {
-			return err
+	for it := hosts.ElementIterator(); it.Next(); {
+		if _, host := it.Element(); pgHostConfigSetsPriorityWithoutName(host) {
+			return fmt.Errorf("priority can be set only when name is specified")
 		}
 	}
-	for _, host := range newHosts {
-		if err := check(host); err != nil {
-			return err
-		}
-	}
-
 	return nil
+}
+
+func pgHostConfigSetsPriorityWithoutName(host cty.Value) bool {
+	if host.IsNull() || !host.IsKnown() {
+		return false
+	}
+	priority, name := host.GetAttr("priority"), host.GetAttr("name")
+	if priority.IsNull() || !priority.IsKnown() || priority.AsBigFloat().Sign() <= 0 {
+		return false
+	}
+	return name.IsKnown() && (name.IsNull() || name.AsString() == "")
 }
 
 func validateNewPGHostsInfo(newHostsInfo []*PgHostInfo, isUpdate bool) (bool, error) {
@@ -731,10 +739,32 @@ func comparePGHostsInfo(d *schema.ResourceData, currentHosts []*postgresql.Host,
 	}
 
 	nameToHost := getNameToHost(existingHosts)
+	compare := compareUnnamedHosts
 	if haveHostWithName {
-		return compareNamedHosts(existingHosts, newHosts, nameToHost)
+		compare = compareNamedHosts
 	}
-	return compareUnnamedHosts(existingHosts, newHosts, nameToHost)
+	compared := compare(existingHosts, newHosts, nameToHost)
+	keepPGHostPrioritiesMissingInConfig(d, compared)
+	return compared, nil
+}
+
+// The plan fills a priority missing in the config from the state row with the same index,
+// and once a host is added or removed that row may belong to another host.
+func keepPGHostPrioritiesMissingInConfig(d mdbcommon.RawConfigProvider, compared *comparePGHostsInfoResult) {
+	hostsInfo := slices.Concat(compared.createHostsInfo, slices.Collect(maps.Values(compared.hostsInfo)))
+	for _, hostInfo := range hostsInfo {
+		if !pgHostConfigSets(d, hostInfo.rowNumber, "priority") {
+			hostInfo.newPriority = hostInfo.oldPriority
+		}
+		if !pgHostConfigSets(d, hostInfo.rowNumber, "backup_priority") {
+			hostInfo.newBackupPriority = hostInfo.oldBackupPriority
+		}
+	}
+}
+
+func pgHostConfigSets(d mdbcommon.RawConfigProvider, row int, attribute string) bool {
+	_, ok := mdbcommon.LookupRawConfigPath(d, fmt.Sprintf("host.%d.%s", row, attribute))
+	return ok
 }
 
 func getNameToHost(hosts map[string]*PgHostInfo) map[string]string {
@@ -754,6 +784,7 @@ func applyNewHostInfo(exist *PgHostInfo, new *PgHostInfo) {
 	exist.newAssignPublicIP = new.newAssignPublicIP
 	exist.inTargetSet = true
 	exist.newPriority = new.newPriority
+	exist.newBackupPriority = new.newBackupPriority
 }
 
 func resolveNewReplicationSource(
@@ -806,7 +837,7 @@ func compareNamedHosts(
 	existingHosts map[string]*PgHostInfo,
 	newHosts []*PgHostInfo,
 	nameToHost map[string]string,
-) (*comparePGHostsInfoResult, error) {
+) *comparePGHostsInfoResult {
 	createHostsInfoPrepare := make([]*PgHostInfo, 0)
 	compareMap, hostToName := comparePGNamedHostsInfo(existingHosts, nameToHost, newHosts)
 
@@ -838,23 +869,19 @@ func compareNamedHosts(
 		}
 	}
 
-	if err := validatePriority(existingHosts, createHostsInfo); err != nil {
-		return nil, err
-	}
-
 	return &comparePGHostsInfoResult{
 		haveHostWithName: true,
 		createHostsInfo:  createHostsInfo,
 		hierarchyExists:  hierarchyExists,
 		hostsInfo:        existingHosts,
-	}, nil
+	}
 }
 
 func compareUnnamedHosts(
 	existingHosts map[string]*PgHostInfo,
 	newHosts []*PgHostInfo,
 	nameToHost map[string]string,
-) (*comparePGHostsInfoResult, error) {
+) *comparePGHostsInfoResult {
 	createHostsInfoPrepare := make([]*PgHostInfo, 0)
 	compareMap := comparePGNoNamedHostsInfo(existingHosts, newHosts)
 
@@ -874,15 +901,11 @@ func compareUnnamedHosts(
 		}
 	}
 
-	if err := validatePriority(existingHosts, createHostsInfoPrepare); err != nil {
-		return nil, err
-	}
-
 	return &comparePGHostsInfoResult{
 		haveHostWithName: false,
 		createHostsInfo:  createHostsInfoPrepare,
 		hostsInfo:        existingHosts,
-	}, nil
+	}
 }
 
 func flattenPGHostsInfo(d *schema.ResourceData, hs []*postgresql.Host) ([]*PgHostInfo, error) {
@@ -959,6 +982,7 @@ func flattenPGHostsFromHostInfos(d *schema.ResourceData, orderedHostsInfo []*PgH
 		m["role"] = hostInfo.role.String()
 		m["replication_source"] = hostInfo.oldReplicationSource
 		m["priority"] = hostInfo.oldPriority
+		m["backup_priority"] = hostInfo.oldBackupPriority
 		if !isDataSource && isNameFieldUsed {
 			m["name"] = hostInfo.name
 			m["replication_source_name"] = hostInfo.oldReplicationSourceName
@@ -1322,23 +1346,18 @@ func expandPGUserPermissions(ps *schema.Set) ([]*postgresql.Permission, error) {
 	return out, nil
 }
 
-func expandPGHosts(d *schema.ResourceData) ([]*PostgreSQLHostSpec, error) {
+func expandPGHosts(d *schema.ResourceData) []*PostgreSQLHostSpec {
 	out := []*PostgreSQLHostSpec{}
 	hosts := d.Get("host").([]interface{})
 
 	for _, v := range hosts {
-		m := v.(map[string]interface{})
-		h, err := expandPGHost(m)
-		if err != nil {
-			return nil, err
-		}
-		out = append(out, h)
+		out = append(out, expandPGHost(v.(map[string]interface{})))
 	}
 
-	return out, nil
+	return out
 }
 
-func expandPGHost(m map[string]interface{}) (*PostgreSQLHostSpec, error) {
+func expandPGHost(m map[string]interface{}) *PostgreSQLHostSpec {
 	hostSpec := &postgresql.HostSpec{}
 	host := &PostgreSQLHostSpec{HostSpec: hostSpec}
 
@@ -1358,14 +1377,13 @@ func expandPGHost(m map[string]interface{}) (*PostgreSQLHostSpec, error) {
 		host.HostSpec.ReplicationSource = v.(string)
 	}
 	if v, ok := m["priority"].(int); ok {
-		priority := int64(v)
-		if name, ok := m["name"]; priority > 0 && (!ok || name.(string) == "") {
-			return nil, fmt.Errorf("priority can be set only when name is specified")
-		}
-		host.HostSpec.Priority = wrapperspb.Int64(priority)
+		host.HostSpec.Priority = wrapperspb.Int64(int64(v))
+	}
+	if v, ok := m["backup_priority"].(int); ok {
+		host.HostSpec.BackupPriority = wrapperspb.Int64(int64(v))
 	}
 
-	return host, nil
+	return host
 }
 
 func expandPGDatabaseSpecs(d *schema.ResourceData) ([]*postgresql.DatabaseSpec, error) {

@@ -79,6 +79,7 @@ output "fqdn" {
 - `health` (*Read-Only*) (String). Aggregated health of the cluster.
 - `host` (*Read-Only*) (List Of Object). A host of the PostgreSQL cluster.
   - `assign_public_ip` . 
+  - `backup_priority` . 
   - `fqdn` . 
   - `priority` . 
   - `replication_source` . 

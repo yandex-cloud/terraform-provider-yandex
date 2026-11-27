@@ -34,6 +34,7 @@ type Host struct {
 	ReplicationSource     types.String `tfsdk:"replication_source"`
 	ReplicationSourceName types.String `tfsdk:"replication_source_name"`
 	Priority              types.Int64  `tfsdk:"priority"`
+	BackupPriority        types.Int64  `tfsdk:"backup_priority"`
 }
 
 var hostType = types.ObjectType{
@@ -45,6 +46,7 @@ var hostType = types.ObjectType{
 		"replication_source":      types.StringType,
 		"replication_source_name": types.StringType,
 		"priority":                types.Int64Type,
+		"backup_priority":         types.Int64Type,
 	},
 }
 

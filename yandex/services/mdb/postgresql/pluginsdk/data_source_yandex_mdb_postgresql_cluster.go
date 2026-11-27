@@ -472,6 +472,11 @@ func dataSourceYandexMDBPostgreSQLClusterHostBlock() *schema.Resource {
 				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["priority"].Description,
 				Computed:    true,
 			},
+			"backup_priority": {
+				Type:        schema.TypeInt,
+				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["backup_priority"].Description,
+				Computed:    true,
+			},
 			"replication_source_name": {
 				Type:        schema.TypeString,
 				Description: resourceYandexMDBPostgreSQLClusterHost().Schema["replication_source_name"].Description,

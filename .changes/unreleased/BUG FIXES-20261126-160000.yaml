@@ -1,0 +1,5 @@
+kind: BUG FIXES
+body: 'postgresql: fix `yandex_mdb_postgresql_cluster` moving a host `priority` that
+  is not set in the configuration to a neighbouring host when a host is added to
+  or removed from the middle of the `host` list'
+time: 2026-11-26T16:00:00.000000+03:00
