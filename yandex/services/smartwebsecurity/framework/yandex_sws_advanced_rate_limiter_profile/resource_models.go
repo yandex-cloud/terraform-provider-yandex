@@ -12290,6 +12290,7 @@ func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynam
 
 type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel struct {
 	Authority   types.List `tfsdk:"authority"`
+	Body        types.List `tfsdk:"body"`
 	BotCategory types.List `tfsdk:"bot_category"`
 	BotName     types.List `tfsdk:"bot_name"`
 	BotScore    types.List `tfsdk:"bot_score"`
@@ -12304,6 +12305,9 @@ type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuot
 
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel) GetAuthority() types.List {
 	return m.Authority
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel) GetBody() types.List {
+	return m.Body
 }
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel) GetBotCategory() types.List {
 	return m.BotCategory
@@ -12339,6 +12343,9 @@ func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamic
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel) SetAuthority(target types.List) {
 	m.Authority = target
 }
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel) SetBody(target types.List) {
+	m.Body = target
+}
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel) SetBotCategory(target types.List) {
 	m.BotCategory = target
 }
@@ -12373,6 +12380,7 @@ func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamic
 func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel {
 	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel{
 		Authority:   types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionAuthorityModelType),
+		Body:        types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType),
 		BotCategory: types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotCategoryModelType),
 		BotName:     types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotNameModelType),
 		BotScore:    types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotScoreModelType),
@@ -12389,6 +12397,9 @@ func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQ
 func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel {
 	if target.Authority.IsUnknown() || target.Authority.IsNull() {
 		target.Authority = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionAuthorityModelType)
+	}
+	if target.Body.IsUnknown() || target.Body.IsNull() {
+		target.Body = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType)
 	}
 	if target.BotCategory.IsUnknown() || target.BotCategory.IsNull() {
 		target.BotCategory = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotCategoryModelType)
@@ -12426,6 +12437,7 @@ func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuot
 var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"authority":    types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionAuthorityModelType},
+		"body":         types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType},
 		"bot_category": types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotCategoryModelType},
 		"bot_name":     types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotNameModelType},
 		"bot_score":    types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotScoreModelType},
@@ -12471,6 +12483,7 @@ func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDyna
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel{
 		Authority:   flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionAuthority(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCondition.GetAuthority(), state.Authority, diags),
+		Body:        flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBody(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCondition.GetBody(), state.Body, diags),
 		BotCategory: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotCategory(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCondition.GetBotCategory(), state.BotCategory, diags),
 		BotName:     flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotName(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCondition.GetBotName(), state.BotName, diags),
 		BotScore:    flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotScore(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaCondition.GetBotScore(), state.BotScore, diags),
@@ -12506,6 +12519,7 @@ func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynam
 func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionModel, diags *diag.Diagnostics) *smartwebsecurity.Condition {
 	value := &smartwebsecurity.Condition{}
 	value.SetAuthority(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionAuthority(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionState.Authority, diags))
+	value.SetBody(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBody(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionState.Body, diags))
 	value.SetBotCategory(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotCategory(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionState.BotCategory, diags))
 	value.SetBotName(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotName(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionState.BotName, diags))
 	value.SetBotScore(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotScore(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionState.BotScore, diags))
@@ -13542,6 +13556,968 @@ func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynam
 		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionAuthorityAuthorityMatcherListsMatchersStrListsNotMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionAuthorityAuthorityMatcherListsMatchersStrListsNotMatchListIdsRes, elem.ValueString())
 	}
 	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionAuthorityAuthorityMatcherListsMatchersStrListsNotMatchListIdsRes
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel struct {
+	BodyMatcher types.List `tfsdk:"body_matcher"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel) GetBodyMatcher() types.List {
+	return m.BodyMatcher
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel) SetBodyMatcher(target types.List) {
+	m.BodyMatcher = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel{
+		BodyMatcher: types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel {
+	if target.BodyMatcher.IsUnknown() || target.BodyMatcher.IsNull() {
+		target.BodyMatcher = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"body_matcher": types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBody(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBody *smartwebsecurity.Condition_BodyMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBody == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBody.String() == (&smartwebsecurity.Condition_BodyMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel{
+		BodyMatcher: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBody.GetBodyMatcher(), state.BodyMatcher, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBody(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_BodyMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_BodyMatcher {
+	value := &smartwebsecurity.Condition_BodyMatcher{}
+	value.SetBodyMatcher(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyState.BodyMatcher, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel struct {
+	Defined           types.Bool   `tfsdk:"defined"`
+	ExactMatch        types.String `tfsdk:"exact_match"`
+	ExactNotMatch     types.String `tfsdk:"exact_not_match"`
+	ListsMatchers     types.List   `tfsdk:"lists_matchers"`
+	PireRegexMatch    types.String `tfsdk:"pire_regex_match"`
+	PireRegexNotMatch types.String `tfsdk:"pire_regex_not_match"`
+	PrefixMatch       types.String `tfsdk:"prefix_match"`
+	PrefixNotMatch    types.String `tfsdk:"prefix_not_match"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) GetDefined() types.Bool {
+	return m.Defined
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) GetExactMatch() types.String {
+	return m.ExactMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) GetExactNotMatch() types.String {
+	return m.ExactNotMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) GetListsMatchers() types.List {
+	return m.ListsMatchers
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) GetPireRegexMatch() types.String {
+	return m.PireRegexMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) GetPireRegexNotMatch() types.String {
+	return m.PireRegexNotMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) GetPrefixMatch() types.String {
+	return m.PrefixMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) GetPrefixNotMatch() types.String {
+	return m.PrefixNotMatch
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) SetDefined(target types.Bool) {
+	m.Defined = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) SetExactMatch(target types.String) {
+	m.ExactMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) SetExactNotMatch(target types.String) {
+	m.ExactNotMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) SetListsMatchers(target types.List) {
+	m.ListsMatchers = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) SetPireRegexMatch(target types.String) {
+	m.PireRegexMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) SetPireRegexNotMatch(target types.String) {
+	m.PireRegexNotMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) SetPrefixMatch(target types.String) {
+	m.PrefixMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) SetPrefixNotMatch(target types.String) {
+	m.PrefixNotMatch = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel{
+		Defined:           types.BoolNull(),
+		ExactMatch:        types.StringNull(),
+		ExactNotMatch:     types.StringNull(),
+		ListsMatchers:     types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType),
+		PireRegexMatch:    types.StringNull(),
+		PireRegexNotMatch: types.StringNull(),
+		PrefixMatch:       types.StringNull(),
+		PrefixNotMatch:    types.StringNull(),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel {
+	if target.Defined.IsUnknown() || target.Defined.IsNull() {
+		target.Defined = types.BoolNull()
+	}
+	if target.ExactMatch.IsUnknown() || target.ExactMatch.IsNull() {
+		target.ExactMatch = types.StringNull()
+	}
+	if target.ExactNotMatch.IsUnknown() || target.ExactNotMatch.IsNull() {
+		target.ExactNotMatch = types.StringNull()
+	}
+	if target.ListsMatchers.IsUnknown() || target.ListsMatchers.IsNull() {
+		target.ListsMatchers = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType)
+	}
+	if target.PireRegexMatch.IsUnknown() || target.PireRegexMatch.IsNull() {
+		target.PireRegexMatch = types.StringNull()
+	}
+	if target.PireRegexNotMatch.IsUnknown() || target.PireRegexNotMatch.IsNull() {
+		target.PireRegexNotMatch = types.StringNull()
+	}
+	if target.PrefixMatch.IsUnknown() || target.PrefixMatch.IsNull() {
+		target.PrefixMatch = types.StringNull()
+	}
+	if target.PrefixNotMatch.IsUnknown() || target.PrefixNotMatch.IsNull() {
+		target.PrefixNotMatch = types.StringNull()
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"defined":              types.BoolType,
+		"exact_match":          types.StringType,
+		"exact_not_match":      types.StringType,
+		"lists_matchers":       types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType},
+		"pire_regex_match":     types.StringType,
+		"pire_regex_not_match": types.StringType,
+		"prefix_match":         types.StringType,
+		"prefix_not_match":     types.StringType,
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher *smartwebsecurity.Condition_StringMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher.String() == (&smartwebsecurity.Condition_StringMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel{
+		Defined:           types.BoolValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher.GetDefined()),
+		ExactMatch:        types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher.GetExactMatch()),
+		ExactNotMatch:     types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher.GetExactNotMatch()),
+		ListsMatchers:     flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher.GetListsMatchers(), state.ListsMatchers, diags),
+		PireRegexMatch:    types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher.GetPireRegexMatch()),
+		PireRegexNotMatch: types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher.GetPireRegexNotMatch()),
+		PrefixMatch:       types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher.GetPrefixMatch()),
+		PrefixNotMatch:    types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher.GetPrefixNotMatch()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcher(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_StringMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_StringMatcher {
+	value := &smartwebsecurity.Condition_StringMatcher{}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.Defined.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.Defined.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.Defined.Equal(types.BoolValue(false))) {
+		value.SetDefined(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.Defined.ValueBool())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ExactMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ExactMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ExactMatch.Equal(types.StringValue(""))) {
+		value.SetExactMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ExactMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ExactNotMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ExactNotMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ExactNotMatch.Equal(types.StringValue(""))) {
+		value.SetExactNotMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ExactNotMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ListsMatchers.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ListsMatchers.IsUnknown() || len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ListsMatchers.Elements()) == 0) {
+		value.SetListsMatchers(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.ListsMatchers, diags))
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PireRegexMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PireRegexMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PireRegexMatch.Equal(types.StringValue(""))) {
+		value.SetPireRegexMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PireRegexMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PireRegexNotMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PireRegexNotMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PireRegexNotMatch.Equal(types.StringValue(""))) {
+		value.SetPireRegexNotMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PireRegexNotMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PrefixMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PrefixMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PrefixMatch.Equal(types.StringValue(""))) {
+		value.SetPrefixMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PrefixMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PrefixNotMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PrefixNotMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PrefixNotMatch.Equal(types.StringValue(""))) {
+		value.SetPrefixNotMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherState.PrefixNotMatch.ValueString())
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel struct {
+	RegExpListsMatch    types.List `tfsdk:"reg_exp_lists_match"`
+	RegExpListsNotMatch types.List `tfsdk:"reg_exp_lists_not_match"`
+	StrListsMatch       types.List `tfsdk:"str_lists_match"`
+	StrListsNotMatch    types.List `tfsdk:"str_lists_not_match"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel) GetRegExpListsMatch() types.List {
+	return m.RegExpListsMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel) GetRegExpListsNotMatch() types.List {
+	return m.RegExpListsNotMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel) GetStrListsMatch() types.List {
+	return m.StrListsMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel) GetStrListsNotMatch() types.List {
+	return m.StrListsNotMatch
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel) SetRegExpListsMatch(target types.List) {
+	m.RegExpListsMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel) SetRegExpListsNotMatch(target types.List) {
+	m.RegExpListsNotMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel) SetStrListsMatch(target types.List) {
+	m.StrListsMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel) SetStrListsNotMatch(target types.List) {
+	m.StrListsNotMatch = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel{
+		RegExpListsMatch:    types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType),
+		RegExpListsNotMatch: types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType),
+		StrListsMatch:       types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType),
+		StrListsNotMatch:    types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel {
+	if target.RegExpListsMatch.IsUnknown() || target.RegExpListsMatch.IsNull() {
+		target.RegExpListsMatch = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+	}
+	if target.RegExpListsNotMatch.IsUnknown() || target.RegExpListsNotMatch.IsNull() {
+		target.RegExpListsNotMatch = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+	}
+	if target.StrListsMatch.IsUnknown() || target.StrListsMatch.IsNull() {
+		target.StrListsMatch = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+	}
+	if target.StrListsNotMatch.IsUnknown() || target.StrListsNotMatch.IsNull() {
+		target.StrListsNotMatch = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"reg_exp_lists_match":     types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType},
+		"reg_exp_lists_not_match": types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType},
+		"str_lists_match":         types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType},
+		"str_lists_not_match":     types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers *smartwebsecurity.Condition_ListsMatchers,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers.String() == (&smartwebsecurity.Condition_ListsMatchers{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel{
+		RegExpListsMatch:    flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers.GetRegExpListsMatch(), state.RegExpListsMatch, diags),
+		RegExpListsNotMatch: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers.GetRegExpListsNotMatch(), state.RegExpListsNotMatch, diags),
+		StrListsMatch:       flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers.GetStrListsMatch(), state.StrListsMatch, diags),
+		StrListsNotMatch:    flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers.GetStrListsNotMatch(), state.StrListsNotMatch, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchers(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatchers {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatchers {
+	value := &smartwebsecurity.Condition_ListsMatchers{}
+	value.SetRegExpListsMatch(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState.RegExpListsMatch, diags))
+	value.SetRegExpListsNotMatch(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState.RegExpListsNotMatch, diags))
+	value.SetStrListsMatch(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState.StrListsMatch, diags))
+	value.SetStrListsNotMatch(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersState.StrListsNotMatch, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel{
+		ListIds: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes := make([]string, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.Elements()))
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsType := make([]types.String, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsType {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel{
+		ListIds: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes := make([]string, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.Elements()))
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsType := make([]types.String, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsType {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel{
+		ListIds: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes := make([]string, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.Elements()))
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsType := make([]types.String, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsType {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel{
+		ListIds: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes := make([]string, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.Elements()))
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsType := make([]types.String, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsType {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes
 }
 
 type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructDynamicQuotaConditionBotCategoryModel struct {
@@ -20371,6 +21347,7 @@ func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStati
 
 type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel struct {
 	Authority   types.List `tfsdk:"authority"`
+	Body        types.List `tfsdk:"body"`
 	BotCategory types.List `tfsdk:"bot_category"`
 	BotName     types.List `tfsdk:"bot_name"`
 	BotScore    types.List `tfsdk:"bot_score"`
@@ -20385,6 +21362,9 @@ type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuota
 
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel) GetAuthority() types.List {
 	return m.Authority
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel) GetBody() types.List {
+	return m.Body
 }
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel) GetBotCategory() types.List {
 	return m.BotCategory
@@ -20420,6 +21400,9 @@ func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQ
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel) SetAuthority(target types.List) {
 	m.Authority = target
 }
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel) SetBody(target types.List) {
+	m.Body = target
+}
 func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel) SetBotCategory(target types.List) {
 	m.BotCategory = target
 }
@@ -20454,6 +21437,7 @@ func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQ
 func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel {
 	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel{
 		Authority:   types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionAuthorityModelType),
+		Body:        types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType),
 		BotCategory: types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotCategoryModelType),
 		BotName:     types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotNameModelType),
 		BotScore:    types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotScoreModelType),
@@ -20470,6 +21454,9 @@ func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQu
 func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel {
 	if target.Authority.IsUnknown() || target.Authority.IsNull() {
 		target.Authority = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionAuthorityModelType)
+	}
+	if target.Body.IsUnknown() || target.Body.IsNull() {
+		target.Body = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType)
 	}
 	if target.BotCategory.IsUnknown() || target.BotCategory.IsNull() {
 		target.BotCategory = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotCategoryModelType)
@@ -20507,6 +21494,7 @@ func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuota
 var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"authority":    types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionAuthorityModelType},
+		"body":         types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType},
 		"bot_category": types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotCategoryModelType},
 		"bot_name":     types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotNameModelType},
 		"bot_score":    types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotScoreModelType},
@@ -20552,6 +21540,7 @@ func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStat
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel{
 		Authority:   flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionAuthority(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaCondition.GetAuthority(), state.Authority, diags),
+		Body:        flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBody(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaCondition.GetBody(), state.Body, diags),
 		BotCategory: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotCategory(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaCondition.GetBotCategory(), state.BotCategory, diags),
 		BotName:     flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotName(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaCondition.GetBotName(), state.BotName, diags),
 		BotScore:    flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotScore(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaCondition.GetBotScore(), state.BotScore, diags),
@@ -20587,6 +21576,7 @@ func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStati
 func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionModel, diags *diag.Diagnostics) *smartwebsecurity.Condition {
 	value := &smartwebsecurity.Condition{}
 	value.SetAuthority(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionAuthority(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionState.Authority, diags))
+	value.SetBody(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBody(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionState.Body, diags))
 	value.SetBotCategory(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotCategory(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionState.BotCategory, diags))
 	value.SetBotName(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotName(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionState.BotName, diags))
 	value.SetBotScore(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotScore(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionState.BotScore, diags))
@@ -21623,6 +22613,968 @@ func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStati
 		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionAuthorityAuthorityMatcherListsMatchersStrListsNotMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionAuthorityAuthorityMatcherListsMatchersStrListsNotMatchListIdsRes, elem.ValueString())
 	}
 	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionAuthorityAuthorityMatcherListsMatchersStrListsNotMatchListIdsRes
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel struct {
+	BodyMatcher types.List `tfsdk:"body_matcher"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel) GetBodyMatcher() types.List {
+	return m.BodyMatcher
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel) SetBodyMatcher(target types.List) {
+	m.BodyMatcher = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel{
+		BodyMatcher: types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel {
+	if target.BodyMatcher.IsUnknown() || target.BodyMatcher.IsNull() {
+		target.BodyMatcher = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"body_matcher": types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBody(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBody *smartwebsecurity.Condition_BodyMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBody == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBody.String() == (&smartwebsecurity.Condition_BodyMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel{
+		BodyMatcher: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBody.GetBodyMatcher(), state.BodyMatcher, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBody(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_BodyMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_BodyMatcher {
+	value := &smartwebsecurity.Condition_BodyMatcher{}
+	value.SetBodyMatcher(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyState.BodyMatcher, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel struct {
+	Defined           types.Bool   `tfsdk:"defined"`
+	ExactMatch        types.String `tfsdk:"exact_match"`
+	ExactNotMatch     types.String `tfsdk:"exact_not_match"`
+	ListsMatchers     types.List   `tfsdk:"lists_matchers"`
+	PireRegexMatch    types.String `tfsdk:"pire_regex_match"`
+	PireRegexNotMatch types.String `tfsdk:"pire_regex_not_match"`
+	PrefixMatch       types.String `tfsdk:"prefix_match"`
+	PrefixNotMatch    types.String `tfsdk:"prefix_not_match"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) GetDefined() types.Bool {
+	return m.Defined
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) GetExactMatch() types.String {
+	return m.ExactMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) GetExactNotMatch() types.String {
+	return m.ExactNotMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) GetListsMatchers() types.List {
+	return m.ListsMatchers
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) GetPireRegexMatch() types.String {
+	return m.PireRegexMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) GetPireRegexNotMatch() types.String {
+	return m.PireRegexNotMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) GetPrefixMatch() types.String {
+	return m.PrefixMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) GetPrefixNotMatch() types.String {
+	return m.PrefixNotMatch
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) SetDefined(target types.Bool) {
+	m.Defined = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) SetExactMatch(target types.String) {
+	m.ExactMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) SetExactNotMatch(target types.String) {
+	m.ExactNotMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) SetListsMatchers(target types.List) {
+	m.ListsMatchers = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) SetPireRegexMatch(target types.String) {
+	m.PireRegexMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) SetPireRegexNotMatch(target types.String) {
+	m.PireRegexNotMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) SetPrefixMatch(target types.String) {
+	m.PrefixMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) SetPrefixNotMatch(target types.String) {
+	m.PrefixNotMatch = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel{
+		Defined:           types.BoolNull(),
+		ExactMatch:        types.StringNull(),
+		ExactNotMatch:     types.StringNull(),
+		ListsMatchers:     types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType),
+		PireRegexMatch:    types.StringNull(),
+		PireRegexNotMatch: types.StringNull(),
+		PrefixMatch:       types.StringNull(),
+		PrefixNotMatch:    types.StringNull(),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel {
+	if target.Defined.IsUnknown() || target.Defined.IsNull() {
+		target.Defined = types.BoolNull()
+	}
+	if target.ExactMatch.IsUnknown() || target.ExactMatch.IsNull() {
+		target.ExactMatch = types.StringNull()
+	}
+	if target.ExactNotMatch.IsUnknown() || target.ExactNotMatch.IsNull() {
+		target.ExactNotMatch = types.StringNull()
+	}
+	if target.ListsMatchers.IsUnknown() || target.ListsMatchers.IsNull() {
+		target.ListsMatchers = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType)
+	}
+	if target.PireRegexMatch.IsUnknown() || target.PireRegexMatch.IsNull() {
+		target.PireRegexMatch = types.StringNull()
+	}
+	if target.PireRegexNotMatch.IsUnknown() || target.PireRegexNotMatch.IsNull() {
+		target.PireRegexNotMatch = types.StringNull()
+	}
+	if target.PrefixMatch.IsUnknown() || target.PrefixMatch.IsNull() {
+		target.PrefixMatch = types.StringNull()
+	}
+	if target.PrefixNotMatch.IsUnknown() || target.PrefixNotMatch.IsNull() {
+		target.PrefixNotMatch = types.StringNull()
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"defined":              types.BoolType,
+		"exact_match":          types.StringType,
+		"exact_not_match":      types.StringType,
+		"lists_matchers":       types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType},
+		"pire_regex_match":     types.StringType,
+		"pire_regex_not_match": types.StringType,
+		"prefix_match":         types.StringType,
+		"prefix_not_match":     types.StringType,
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher *smartwebsecurity.Condition_StringMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher.String() == (&smartwebsecurity.Condition_StringMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel{
+		Defined:           types.BoolValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher.GetDefined()),
+		ExactMatch:        types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher.GetExactMatch()),
+		ExactNotMatch:     types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher.GetExactNotMatch()),
+		ListsMatchers:     flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher.GetListsMatchers(), state.ListsMatchers, diags),
+		PireRegexMatch:    types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher.GetPireRegexMatch()),
+		PireRegexNotMatch: types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher.GetPireRegexNotMatch()),
+		PrefixMatch:       types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher.GetPrefixMatch()),
+		PrefixNotMatch:    types.StringValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher.GetPrefixNotMatch()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcher(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_StringMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_StringMatcher {
+	value := &smartwebsecurity.Condition_StringMatcher{}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.Defined.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.Defined.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.Defined.Equal(types.BoolValue(false))) {
+		value.SetDefined(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.Defined.ValueBool())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ExactMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ExactMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ExactMatch.Equal(types.StringValue(""))) {
+		value.SetExactMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ExactMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ExactNotMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ExactNotMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ExactNotMatch.Equal(types.StringValue(""))) {
+		value.SetExactNotMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ExactNotMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ListsMatchers.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ListsMatchers.IsUnknown() || len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ListsMatchers.Elements()) == 0) {
+		value.SetListsMatchers(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.ListsMatchers, diags))
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PireRegexMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PireRegexMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PireRegexMatch.Equal(types.StringValue(""))) {
+		value.SetPireRegexMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PireRegexMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PireRegexNotMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PireRegexNotMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PireRegexNotMatch.Equal(types.StringValue(""))) {
+		value.SetPireRegexNotMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PireRegexNotMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PrefixMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PrefixMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PrefixMatch.Equal(types.StringValue(""))) {
+		value.SetPrefixMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PrefixMatch.ValueString())
+	}
+	if !(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PrefixNotMatch.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PrefixNotMatch.IsUnknown() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PrefixNotMatch.Equal(types.StringValue(""))) {
+		value.SetPrefixNotMatch(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherState.PrefixNotMatch.ValueString())
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel struct {
+	RegExpListsMatch    types.List `tfsdk:"reg_exp_lists_match"`
+	RegExpListsNotMatch types.List `tfsdk:"reg_exp_lists_not_match"`
+	StrListsMatch       types.List `tfsdk:"str_lists_match"`
+	StrListsNotMatch    types.List `tfsdk:"str_lists_not_match"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel) GetRegExpListsMatch() types.List {
+	return m.RegExpListsMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel) GetRegExpListsNotMatch() types.List {
+	return m.RegExpListsNotMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel) GetStrListsMatch() types.List {
+	return m.StrListsMatch
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel) GetStrListsNotMatch() types.List {
+	return m.StrListsNotMatch
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel) SetRegExpListsMatch(target types.List) {
+	m.RegExpListsMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel) SetRegExpListsNotMatch(target types.List) {
+	m.RegExpListsNotMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel) SetStrListsMatch(target types.List) {
+	m.StrListsMatch = target
+}
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel) SetStrListsNotMatch(target types.List) {
+	m.StrListsNotMatch = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel{
+		RegExpListsMatch:    types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType),
+		RegExpListsNotMatch: types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType),
+		StrListsMatch:       types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType),
+		StrListsNotMatch:    types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel {
+	if target.RegExpListsMatch.IsUnknown() || target.RegExpListsMatch.IsNull() {
+		target.RegExpListsMatch = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+	}
+	if target.RegExpListsNotMatch.IsUnknown() || target.RegExpListsNotMatch.IsNull() {
+		target.RegExpListsNotMatch = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+	}
+	if target.StrListsMatch.IsUnknown() || target.StrListsMatch.IsNull() {
+		target.StrListsMatch = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+	}
+	if target.StrListsNotMatch.IsUnknown() || target.StrListsNotMatch.IsNull() {
+		target.StrListsNotMatch = types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"reg_exp_lists_match":     types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType},
+		"reg_exp_lists_not_match": types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType},
+		"str_lists_match":         types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType},
+		"str_lists_not_match":     types.ListType{ElemType: yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers *smartwebsecurity.Condition_ListsMatchers,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers.String() == (&smartwebsecurity.Condition_ListsMatchers{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel{
+		RegExpListsMatch:    flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers.GetRegExpListsMatch(), state.RegExpListsMatch, diags),
+		RegExpListsNotMatch: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers.GetRegExpListsNotMatch(), state.RegExpListsNotMatch, diags),
+		StrListsMatch:       flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers.GetStrListsMatch(), state.StrListsMatch, diags),
+		StrListsNotMatch:    flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers.GetStrListsNotMatch(), state.StrListsNotMatch, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchers(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatchers {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatchers {
+	value := &smartwebsecurity.Condition_ListsMatchers{}
+	value.SetRegExpListsMatch(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState.RegExpListsMatch, diags))
+	value.SetRegExpListsNotMatch(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState.RegExpListsNotMatch, diags))
+	value.SetStrListsMatch(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState.StrListsMatch, diags))
+	value.SetStrListsNotMatch(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersState.StrListsNotMatch, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel{
+		ListIds: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes := make([]string, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.Elements()))
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsType := make([]types.String, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsType {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel{
+		ListIds: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes := make([]string, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.Elements()))
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsType := make([]types.String, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsType {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel{
+		ListIds: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes := make([]string, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.Elements()))
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsType := make([]types.String, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsType {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes
+}
+
+type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel() yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel {
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelFillUnknown(target yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel) yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx context.Context,
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch == nil || (yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+				}
+				state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+	}
+	var state yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+		}
+		state = yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType.AttrTypes, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel{
+		ListIds: flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType := make([]yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchType[0], diags)
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx context.Context, yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.IsNull() || yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes := make([]string, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.Elements()))
+	yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsType := make([]types.String, 0, len(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.Elements()))
+	diags.Append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.ElementsAs(ctx, &yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsType {
+		yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes = append(yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes
 }
 
 type yandexSwsAdvancedRateLimiterProfileAdvancedRateLimiterRuleStructStaticQuotaConditionBotCategoryModel struct {

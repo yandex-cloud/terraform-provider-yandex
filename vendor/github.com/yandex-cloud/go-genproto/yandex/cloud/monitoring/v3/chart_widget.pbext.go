@@ -370,6 +370,18 @@ func (m *ChartWidget_SeriesOverrides_SeriesOverrideSettings) SetUnitFormat(v Uni
 	m.UnitFormat = v
 }
 
+func (m *ChartWidget_SeriesOverrides_SeriesOverrideSettings) SetColorSchemeSettings(v *ChartWidget_VisualizationSettings_ColorSchemeSettings) {
+	m.ColorSchemeSettings = v
+}
+
+func (m *ChartWidget_SeriesOverrides_SeriesOverrideSettings) SetThresholds(v *Thresholds) {
+	m.Thresholds = v
+}
+
+func (m *ChartWidget_SeriesOverrides_SeriesOverrideSettings) SetCellDisplayMode(v TableSettings_CellDisplayMode) {
+	m.CellDisplayMode = v
+}
+
 type ChartWidget_OverrideMatcher_Type = isChartWidget_OverrideMatcher_Type
 
 func (m *ChartWidget_OverrideMatcher) SetType(v ChartWidget_OverrideMatcher_Type) {

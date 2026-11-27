@@ -198,6 +198,10 @@ func (m *Condition) SetSourceIp(v *Condition_IpMatcher) {
 	m.SourceIp = v
 }
 
+func (m *Condition) SetBody(v *Condition_BodyMatcher) {
+	m.Body = v
+}
+
 func (m *Condition) SetCookies(v []*Condition_CookieMatcher) {
 	m.Cookies = v
 }
@@ -476,6 +480,10 @@ func (m *Condition_GeoIpMatcher) SetLocations(v []string) {
 
 func (m *Condition_AsnRangesMatcher) SetAsnRanges(v []int64) {
 	m.AsnRanges = v
+}
+
+func (m *Condition_BodyMatcher) SetBodyMatcher(v *Condition_StringMatcher) {
+	m.BodyMatcher = v
 }
 
 func (m *Condition_CookieMatcher) SetName(v string) {

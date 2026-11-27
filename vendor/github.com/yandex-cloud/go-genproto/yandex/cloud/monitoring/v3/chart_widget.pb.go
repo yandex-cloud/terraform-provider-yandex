@@ -1579,8 +1579,9 @@ func (x *ChartWidget_ValueMatcher) GetValueType() ChartWidget_ValuesType {
 }
 
 // Table columns, see TableSettings.columns. Of the override settings
-// only name and unit_format apply: the column title and the unit of
-// its values.
+// only name, unit_format, color_scheme_settings, thresholds and
+// cell_display_mode apply: the column title, the unit of its values and
+// the coloring of its cells.
 type ChartWidget_ColumnMatcher struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Columns.
@@ -2583,9 +2584,21 @@ type ChartWidget_SeriesOverrides_SeriesOverrideSettings struct {
 	// Unit of the series values; for a table column matched by
 	// ColumnMatcher, the unit of the column values.
 	// UNIT_FORMAT_UNSPECIFIED leaves the widget setting in force.
-	UnitFormat    UnitFormat `protobuf:"varint,19,opt,name=unit_format,json=unitFormat,proto3,enum=yandex.cloud.monitoring.v3.UnitFormat" json:"unit_format,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	UnitFormat UnitFormat `protobuf:"varint,19,opt,name=unit_format,json=unitFormat,proto3,enum=yandex.cloud.monitoring.v3.UnitFormat" json:"unit_format,omitempty"`
+	// Color scheme of the series. For a table column matched by
+	// ColumnMatcher, the color scheme of the column cells. If unset, the
+	// widget setting remains in force.
+	ColorSchemeSettings *ChartWidget_VisualizationSettings_ColorSchemeSettings `protobuf:"bytes,20,opt,name=color_scheme_settings,json=colorSchemeSettings,proto3" json:"color_scheme_settings,omitempty"`
+	// Thresholds for the color scheme of the series. For a table column
+	// matched by ColumnMatcher, the thresholds of the column cells. If
+	// unset, the widget thresholds remain in force.
+	Thresholds *Thresholds `protobuf:"bytes,21,opt,name=thresholds,proto3" json:"thresholds,omitempty"`
+	// For a table column matched by ColumnMatcher, how the column cells
+	// show their values. CELL_DISPLAY_MODE_UNSPECIFIED leaves the widget
+	// setting in force.
+	CellDisplayMode TableSettings_CellDisplayMode `protobuf:"varint,22,opt,name=cell_display_mode,json=cellDisplayMode,proto3,enum=yandex.cloud.monitoring.v3.TableSettings_CellDisplayMode" json:"cell_display_mode,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *ChartWidget_SeriesOverrides_SeriesOverrideSettings) Reset() {
@@ -2748,11 +2761,32 @@ func (x *ChartWidget_SeriesOverrides_SeriesOverrideSettings) GetUnitFormat() Uni
 	return UnitFormat_UNIT_FORMAT_UNSPECIFIED
 }
 
+func (x *ChartWidget_SeriesOverrides_SeriesOverrideSettings) GetColorSchemeSettings() *ChartWidget_VisualizationSettings_ColorSchemeSettings {
+	if x != nil {
+		return x.ColorSchemeSettings
+	}
+	return nil
+}
+
+func (x *ChartWidget_SeriesOverrides_SeriesOverrideSettings) GetThresholds() *Thresholds {
+	if x != nil {
+		return x.Thresholds
+	}
+	return nil
+}
+
+func (x *ChartWidget_SeriesOverrides_SeriesOverrideSettings) GetCellDisplayMode() TableSettings_CellDisplayMode {
+	if x != nil {
+		return x.CellDisplayMode
+	}
+	return TableSettings_CELL_DISPLAY_MODE_UNSPECIFIED
+}
+
 var File_yandex_cloud_monitoring_v3_chart_widget_proto protoreflect.FileDescriptor
 
 const file_yandex_cloud_monitoring_v3_chart_widget_proto_rawDesc = "" +
 	"\n" +
-	"-yandex/cloud/monitoring/v3/chart_widget.proto\x12\x1ayandex.cloud.monitoring.v3\x1a\x1egoogle/protobuf/wrappers.proto\x1a3yandex/cloud/monitoring/v3/bar_chart_settings.proto\x1a-yandex/cloud/monitoring/v3/downsampling.proto\x1a%yandex/cloud/monitoring/v3/fill.proto\x1a+yandex/cloud/monitoring/v3/sort_order.proto\x1a/yandex/cloud/monitoring/v3/table_settings.proto\x1a+yandex/cloud/monitoring/v3/thresholds.proto\x1a,yandex/cloud/monitoring/v3/unit_format.proto\x1a\x1dyandex/cloud/validation.proto\"\xb2H\n" +
+	"-yandex/cloud/monitoring/v3/chart_widget.proto\x12\x1ayandex.cloud.monitoring.v3\x1a\x1egoogle/protobuf/wrappers.proto\x1a3yandex/cloud/monitoring/v3/bar_chart_settings.proto\x1a-yandex/cloud/monitoring/v3/downsampling.proto\x1a%yandex/cloud/monitoring/v3/fill.proto\x1a+yandex/cloud/monitoring/v3/sort_order.proto\x1a/yandex/cloud/monitoring/v3/table_settings.proto\x1a+yandex/cloud/monitoring/v3/thresholds.proto\x1a,yandex/cloud/monitoring/v3/unit_format.proto\x1a\x1dyandex/cloud/validation.proto\"\xe9J\n" +
 	"\vChartWidget\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12I\n" +
 	"\aqueries\x18\x02 \x01(\v2/.yandex.cloud.monitoring.v3.ChartWidget.QueriesR\aqueries\x12t\n" +
@@ -2882,13 +2916,13 @@ const file_yandex_cloud_monitoring_v3_chart_widget_proto_rawDesc = "" +
 	"\x16SERIES_AGGREGATION_MIN\x10\x02\x12\x1a\n" +
 	"\x16SERIES_AGGREGATION_MAX\x10\x03\x12\x1b\n" +
 	"\x17SERIES_AGGREGATION_LAST\x10\x04\x12\x1a\n" +
-	"\x16SERIES_AGGREGATION_SUM\x10\x05J\x04\b\v\x10\f\x1a\xa8\x14\n" +
+	"\x16SERIES_AGGREGATION_SUM\x10\x05J\x04\b\v\x10\f\x1a\xdf\x16\n" +
 	"\x0fSeriesOverrides\x12\x14\n" +
 	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x12#\n" +
 	"\ftarget_index\x18\x02 \x01(\tH\x00R\vtargetIndex\x12j\n" +
 	"\bsettings\x18\x03 \x01(\v2N.yandex.cloud.monitoring.v3.ChartWidget.SeriesOverrides.SeriesOverrideSettingsR\bsettings\x12#\n" +
 	"\roverride_name\x18\x04 \x01(\tR\foverrideName\x12Q\n" +
-	"\amatcher\x18\x05 \x01(\v27.yandex.cloud.monitoring.v3.ChartWidget.OverrideMatcherR\amatcher\x1a\xad\x0f\n" +
+	"\amatcher\x18\x05 \x01(\v27.yandex.cloud.monitoring.v3.ChartWidget.OverrideMatcherR\amatcher\x1a\xe4\x11\n" +
 	"\x16SeriesOverrideSettings\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05color\x18\x02 \x01(\tR\x05color\x12c\n" +
@@ -2912,7 +2946,12 @@ const file_yandex_cloud_monitoring_v3_chart_widget_proto_rawDesc = "" +
 	"\x04fill\x18\x11 \x01(\x0e2 .yandex.cloud.monitoring.v3.FillR\x04fill\x12I\n" +
 	"\ffill_opacity\x18\x12 \x01(\v2\x1b.google.protobuf.Int64ValueB\t\xfa\xc71\x050-100R\vfillOpacity\x12G\n" +
 	"\vunit_format\x18\x13 \x01(\x0e2&.yandex.cloud.monitoring.v3.UnitFormatR\n" +
-	"unitFormat\"g\n" +
+	"unitFormat\x12\x85\x01\n" +
+	"\x15color_scheme_settings\x18\x14 \x01(\v2Q.yandex.cloud.monitoring.v3.ChartWidget.VisualizationSettings.ColorSchemeSettingsR\x13colorSchemeSettings\x12F\n" +
+	"\n" +
+	"thresholds\x18\x15 \x01(\v2&.yandex.cloud.monitoring.v3.ThresholdsR\n" +
+	"thresholds\x12e\n" +
+	"\x11cell_display_mode\x18\x16 \x01(\x0e29.yandex.cloud.monitoring.v3.TableSettings.CellDisplayModeR\x0fcellDisplayMode\"g\n" +
 	"\tLineStyle\x12\x1a\n" +
 	"\x16LINE_STYLE_UNSPECIFIED\x10\x00\x12\x14\n" +
 	"\x10LINE_STYLE_SOLID\x10\x01\x12\x13\n" +
@@ -3029,15 +3068,16 @@ var file_yandex_cloud_monitoring_v3_chart_widget_proto_goTypes = []any{
 	(*ChartWidget_VisualizationSettings_ColorSchemeSettings_ConstantColorScheme)(nil),   // 35: yandex.cloud.monitoring.v3.ChartWidget.VisualizationSettings.ColorSchemeSettings.ConstantColorScheme
 	(*ChartWidget_VisualizationSettings_ColorSchemeSettings_ThresholdsColorScheme)(nil), // 36: yandex.cloud.monitoring.v3.ChartWidget.VisualizationSettings.ColorSchemeSettings.ThresholdsColorScheme
 	(*ChartWidget_SeriesOverrides_SeriesOverrideSettings)(nil),                          // 37: yandex.cloud.monitoring.v3.ChartWidget.SeriesOverrides.SeriesOverrideSettings
-	(*Thresholds)(nil),              // 38: yandex.cloud.monitoring.v3.Thresholds
-	(*Downsampling)(nil),            // 39: yandex.cloud.monitoring.v3.Downsampling
-	(*BarChartSettings)(nil),        // 40: yandex.cloud.monitoring.v3.BarChartSettings
-	(Fill)(0),                       // 41: yandex.cloud.monitoring.v3.Fill
-	(*wrapperspb.Int64Value)(nil),   // 42: google.protobuf.Int64Value
-	(*TableSettings)(nil),           // 43: yandex.cloud.monitoring.v3.TableSettings
-	(*TableSettings_ColumnRef)(nil), // 44: yandex.cloud.monitoring.v3.TableSettings.ColumnRef
-	(UnitFormat)(0),                 // 45: yandex.cloud.monitoring.v3.UnitFormat
-	(SortOrder)(0),                  // 46: yandex.cloud.monitoring.v3.SortOrder
+	(*Thresholds)(nil),                 // 38: yandex.cloud.monitoring.v3.Thresholds
+	(*Downsampling)(nil),               // 39: yandex.cloud.monitoring.v3.Downsampling
+	(*BarChartSettings)(nil),           // 40: yandex.cloud.monitoring.v3.BarChartSettings
+	(Fill)(0),                          // 41: yandex.cloud.monitoring.v3.Fill
+	(*wrapperspb.Int64Value)(nil),      // 42: google.protobuf.Int64Value
+	(*TableSettings)(nil),              // 43: yandex.cloud.monitoring.v3.TableSettings
+	(*TableSettings_ColumnRef)(nil),    // 44: yandex.cloud.monitoring.v3.TableSettings.ColumnRef
+	(UnitFormat)(0),                    // 45: yandex.cloud.monitoring.v3.UnitFormat
+	(SortOrder)(0),                     // 46: yandex.cloud.monitoring.v3.SortOrder
+	(TableSettings_CellDisplayMode)(0), // 47: yandex.cloud.monitoring.v3.TableSettings.CellDisplayMode
 }
 var file_yandex_cloud_monitoring_v3_chart_widget_proto_depIdxs = []int32{
 	14, // 0: yandex.cloud.monitoring.v3.ChartWidget.queries:type_name -> yandex.cloud.monitoring.v3.ChartWidget.Queries
@@ -3093,11 +3133,14 @@ var file_yandex_cloud_monitoring_v3_chart_widget_proto_depIdxs = []int32{
 	41, // 50: yandex.cloud.monitoring.v3.ChartWidget.SeriesOverrides.SeriesOverrideSettings.fill:type_name -> yandex.cloud.monitoring.v3.Fill
 	42, // 51: yandex.cloud.monitoring.v3.ChartWidget.SeriesOverrides.SeriesOverrideSettings.fill_opacity:type_name -> google.protobuf.Int64Value
 	45, // 52: yandex.cloud.monitoring.v3.ChartWidget.SeriesOverrides.SeriesOverrideSettings.unit_format:type_name -> yandex.cloud.monitoring.v3.UnitFormat
-	53, // [53:53] is the sub-list for method output_type
-	53, // [53:53] is the sub-list for method input_type
-	53, // [53:53] is the sub-list for extension type_name
-	53, // [53:53] is the sub-list for extension extendee
-	0,  // [0:53] is the sub-list for field type_name
+	26, // 53: yandex.cloud.monitoring.v3.ChartWidget.SeriesOverrides.SeriesOverrideSettings.color_scheme_settings:type_name -> yandex.cloud.monitoring.v3.ChartWidget.VisualizationSettings.ColorSchemeSettings
+	38, // 54: yandex.cloud.monitoring.v3.ChartWidget.SeriesOverrides.SeriesOverrideSettings.thresholds:type_name -> yandex.cloud.monitoring.v3.Thresholds
+	47, // 55: yandex.cloud.monitoring.v3.ChartWidget.SeriesOverrides.SeriesOverrideSettings.cell_display_mode:type_name -> yandex.cloud.monitoring.v3.TableSettings.CellDisplayMode
+	56, // [56:56] is the sub-list for method output_type
+	56, // [56:56] is the sub-list for method input_type
+	56, // [56:56] is the sub-list for extension type_name
+	56, // [56:56] is the sub-list for extension extendee
+	0,  // [0:56] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_monitoring_v3_chart_widget_proto_init() }

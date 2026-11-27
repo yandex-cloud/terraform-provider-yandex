@@ -450,6 +450,18 @@ func (m *MultiSourceChartWidget_SeriesOverrides_SeriesOverrideSettings) SetUnitF
 	m.UnitFormat = v
 }
 
+func (m *MultiSourceChartWidget_SeriesOverrides_SeriesOverrideSettings) SetColorSchemeSettings(v *MultiSourceChartWidget_VisualizationSettings_ColorSchemeSettings) {
+	m.ColorSchemeSettings = v
+}
+
+func (m *MultiSourceChartWidget_SeriesOverrides_SeriesOverrideSettings) SetThresholds(v *Thresholds) {
+	m.Thresholds = v
+}
+
+func (m *MultiSourceChartWidget_SeriesOverrides_SeriesOverrideSettings) SetCellDisplayMode(v TableSettings_CellDisplayMode) {
+	m.CellDisplayMode = v
+}
+
 type MultiSourceChartWidget_OverrideMatcher_Type = isMultiSourceChartWidget_OverrideMatcher_Type
 
 func (m *MultiSourceChartWidget_OverrideMatcher) SetType(v MultiSourceChartWidget_OverrideMatcher_Type) {

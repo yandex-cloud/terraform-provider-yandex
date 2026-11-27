@@ -1267,6 +1267,394 @@ func YandexSwsWafProfileResourceSchema(ctx context.Context) schema.Schema {
 										},
 									},
 
+									"body": schema.ListNestedBlock{
+										NestedObject: schema.NestedBlockObject{
+
+											Blocks: map[string]schema.Block{
+
+												"body_matcher": schema.ListNestedBlock{
+													NestedObject: schema.NestedBlockObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"defined": schema.BoolAttribute{
+																MarkdownDescription: "Matches if the field is defined.",
+																Description: "Matches if the field is defined." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.Bool{
+																	boolplanmodifier.UseStateForUnknown(),
+																},
+															},
+
+															"exact_match": schema.StringAttribute{
+																MarkdownDescription: "Exact match condition.",
+																Description: "Exact match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"exact_not_match": schema.StringAttribute{
+																MarkdownDescription: "Exact not match condition.",
+																Description: "Exact not match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"pire_regex_match": schema.StringAttribute{
+																MarkdownDescription: "PIRE regex match condition.",
+																Description: "PIRE regex match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"pire_regex_not_match": schema.StringAttribute{
+																MarkdownDescription: "PIRE regex not match condition.",
+																Description: "PIRE regex not match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"prefix_match": schema.StringAttribute{
+																MarkdownDescription: "Prefix match condition.",
+																Description: "Prefix match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+
+															"prefix_not_match": schema.StringAttribute{
+																MarkdownDescription: "Prefix not match condition.",
+																Description: "Prefix not match condition." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																Optional: true,
+																Computed: true,
+
+																PlanModifiers: []planmodifier.String{
+																	stringplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.String{
+																	stringvalidator.LengthBetween(0, 255),
+																},
+															},
+														},
+														Blocks: map[string]schema.Block{
+
+															"lists_matchers": schema.ListNestedBlock{
+																NestedObject: schema.NestedBlockObject{
+
+																	Blocks: map[string]schema.Block{
+
+																		"reg_exp_lists_match": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"list_ids": schema.ListAttribute{
+																						ElementType:         types.StringType,
+																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																						Description: "List of list IDs to match against. OR semantics implied." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																							planmodifiers.NilRelaxedList(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ValueStringsAre(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Regular expression lists to match with.",
+																			Description: "Regular expression lists to match with." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"reg_exp_lists_not_match": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"list_ids": schema.ListAttribute{
+																						ElementType:         types.StringType,
+																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																						Description: "List of list IDs to match against. OR semantics implied." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																							planmodifiers.NilRelaxedList(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ValueStringsAre(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Regular expression lists to not match with.",
+																			Description: "Regular expression lists to not match with." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"str_lists_match": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"list_ids": schema.ListAttribute{
+																						ElementType:         types.StringType,
+																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																						Description: "List of list IDs to match against. OR semantics implied." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																							planmodifiers.NilRelaxedList(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ValueStringsAre(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "String lists to match with.",
+																			Description: "String lists to match with." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.SizeAtMost(1),
+																			},
+																		},
+
+																		"str_lists_not_match": schema.ListNestedBlock{
+																			NestedObject: schema.NestedBlockObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"list_ids": schema.ListAttribute{
+																						ElementType:         types.StringType,
+																						MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																						Description: "List of list IDs to match against. OR semantics implied." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Optional: true,
+																						Computed: true,
+
+																						PlanModifiers: []planmodifier.List{
+																							listplanmodifier.UseStateForUnknown(),
+																							planmodifiers.NilRelaxedList(),
+																						},
+																						Validators: []validator.List{
+																							listvalidator.ValueStringsAre(),
+																						},
+																					},
+																				},
+																			},
+																			MarkdownDescription: "String lists to not match with.",
+																			Description: "String lists to not match with." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+
+																			PlanModifiers: []planmodifier.List{
+																				listplanmodifier.UseStateForUnknown(),
+																			},
+																			Validators: []validator.List{
+																				listvalidator.SizeAtMost(1),
+																			},
+																		},
+																	},
+																},
+																MarkdownDescription: "Matches against string and regular expression lists.",
+																Description: "Matches against string and regular expression lists." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+
+																PlanModifiers: []planmodifier.List{
+																	listplanmodifier.UseStateForUnknown(),
+																},
+																Validators: []validator.List{
+																	listvalidator.SizeAtMost(1),
+																},
+															},
+														},
+													},
+													MarkdownDescription: "HTTP request body matcher.",
+													Description: "HTTP request body matcher." +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher
+														// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher
+														// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher
+														"package: yandex.cloud.smartwebsecurity.v1\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+
+													PlanModifiers: []planmodifier.List{
+														listplanmodifier.UseStateForUnknown(),
+													},
+													Validators: []validator.List{
+														listvalidator.SizeAtMost(1),
+													},
+												},
+											},
+										},
+										MarkdownDescription: "Match HTTP request body.",
+										Description: "Match HTTP request body." +
+											// proto paths: +
+											// -> yandex.cloud.smartwebsecurity.v1.waf.CreateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body
+											// -> yandex.cloud.smartwebsecurity.v1.waf.UpdateWafProfileRequest.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body
+											// -> yandex.cloud.smartwebsecurity.v1.waf.WafProfile.exclusion_rules -> yandex.cloud.smartwebsecurity.v1.waf.WafProfileExclusionRule.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body
+											"package: yandex.cloud.smartwebsecurity.v1\n" +
+											"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+
+										PlanModifiers: []planmodifier.List{
+											listplanmodifier.UseStateForUnknown(),
+										},
+										Validators: []validator.List{
+											listvalidator.SizeAtMost(1),
+										},
+									},
+
 									"bot_category": schema.ListNestedBlock{
 										NestedObject: schema.NestedBlockObject{
 

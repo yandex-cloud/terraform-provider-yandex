@@ -6290,6 +6290,7 @@ func expandYandexSwsWafProfileWafProfileExclusionRuleStructModel(ctx context.Con
 
 type yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel struct {
 	Authority   types.List `tfsdk:"authority"`
+	Body        types.List `tfsdk:"body"`
 	BotCategory types.List `tfsdk:"bot_category"`
 	BotName     types.List `tfsdk:"bot_name"`
 	BotScore    types.List `tfsdk:"bot_score"`
@@ -6304,6 +6305,9 @@ type yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel struct {
 
 func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel) GetAuthority() types.List {
 	return m.Authority
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel) GetBody() types.List {
+	return m.Body
 }
 func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel) GetBotCategory() types.List {
 	return m.BotCategory
@@ -6339,6 +6343,9 @@ func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel) GetVeri
 func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel) SetAuthority(target types.List) {
 	m.Authority = target
 }
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel) SetBody(target types.List) {
+	m.Body = target
+}
 func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel) SetBotCategory(target types.List) {
 	m.BotCategory = target
 }
@@ -6373,6 +6380,7 @@ func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel) SetVeri
 func NewYandexSwsWafProfileWafProfileExclusionRuleStructConditionModel() yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel {
 	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel{
 		Authority:   types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionAuthorityModelType),
+		Body:        types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType),
 		BotCategory: types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBotCategoryModelType),
 		BotName:     types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBotNameModelType),
 		BotScore:    types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBotScoreModelType),
@@ -6389,6 +6397,9 @@ func NewYandexSwsWafProfileWafProfileExclusionRuleStructConditionModel() yandexS
 func yandexSwsWafProfileWafProfileExclusionRuleStructConditionModelFillUnknown(target yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel) yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel {
 	if target.Authority.IsUnknown() || target.Authority.IsNull() {
 		target.Authority = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionAuthorityModelType)
+	}
+	if target.Body.IsUnknown() || target.Body.IsNull() {
+		target.Body = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType)
 	}
 	if target.BotCategory.IsUnknown() || target.BotCategory.IsNull() {
 		target.BotCategory = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBotCategoryModelType)
@@ -6426,6 +6437,7 @@ func yandexSwsWafProfileWafProfileExclusionRuleStructConditionModelFillUnknown(t
 var yandexSwsWafProfileWafProfileExclusionRuleStructConditionModelType = types.ObjectType{
 	AttrTypes: map[string]attr.Type{
 		"authority":    types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionAuthorityModelType},
+		"body":         types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType},
 		"bot_category": types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBotCategoryModelType},
 		"bot_name":     types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBotNameModelType},
 		"bot_score":    types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBotScoreModelType},
@@ -6471,6 +6483,7 @@ func flattenYandexSwsWafProfileWafProfileExclusionRuleStructCondition(ctx contex
 	}
 	value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel{
 		Authority:   flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionAuthority(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructCondition.GetAuthority(), state.Authority, diags),
+		Body:        flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBody(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructCondition.GetBody(), state.Body, diags),
 		BotCategory: flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBotCategory(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructCondition.GetBotCategory(), state.BotCategory, diags),
 		BotName:     flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBotName(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructCondition.GetBotName(), state.BotName, diags),
 		BotScore:    flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBotScore(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructCondition.GetBotScore(), state.BotScore, diags),
@@ -6506,6 +6519,7 @@ func expandYandexSwsWafProfileWafProfileExclusionRuleStructCondition(ctx context
 func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionModel(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionState yandexSwsWafProfileWafProfileExclusionRuleStructConditionModel, diags *diag.Diagnostics) *smartwebsecurity.Condition {
 	value := &smartwebsecurity.Condition{}
 	value.SetAuthority(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionAuthority(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionState.Authority, diags))
+	value.SetBody(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBody(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionState.Body, diags))
 	value.SetBotCategory(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBotCategory(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionState.BotCategory, diags))
 	value.SetBotName(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBotName(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionState.BotName, diags))
 	value.SetBotScore(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBotScore(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionState.BotScore, diags))
@@ -7542,6 +7556,968 @@ func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionAuthorityAut
 		yandexSwsWafProfileWafProfileExclusionRuleStructConditionAuthorityAuthorityMatcherListsMatchersStrListsNotMatchListIdsRes = append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionAuthorityAuthorityMatcherListsMatchersStrListsNotMatchListIdsRes, elem.ValueString())
 	}
 	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionAuthorityAuthorityMatcherListsMatchersStrListsNotMatchListIdsRes
+}
+
+type yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel struct {
+	BodyMatcher types.List `tfsdk:"body_matcher"`
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel) GetBodyMatcher() types.List {
+	return m.BodyMatcher
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel) SetBodyMatcher(target types.List) {
+	m.BodyMatcher = target
+}
+
+func NewYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel() yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel {
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel{
+		BodyMatcher: types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType),
+	}
+}
+
+func yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelFillUnknown(target yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel) yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel {
+	if target.BodyMatcher.IsUnknown() || target.BodyMatcher.IsNull() {
+		target.BodyMatcher = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType)
+	}
+	return target
+}
+
+var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"body_matcher": types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType},
+	},
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBody(ctx context.Context,
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBody *smartwebsecurity.Condition_BodyMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBody == nil || (yandexSwsWafProfileWafProfileExclusionRuleStructConditionBody.String() == (&smartwebsecurity.Condition_BodyMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType)
+				}
+				state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType)
+	}
+	var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType)
+		}
+		state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel{
+		BodyMatcher: flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBody.GetBodyMatcher(), state.BodyMatcher, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBody(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_BodyMatcher {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyType[0], diags)
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyState yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_BodyMatcher {
+	value := &smartwebsecurity.Condition_BodyMatcher{}
+	value.SetBodyMatcher(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyState.BodyMatcher, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel struct {
+	Defined           types.Bool   `tfsdk:"defined"`
+	ExactMatch        types.String `tfsdk:"exact_match"`
+	ExactNotMatch     types.String `tfsdk:"exact_not_match"`
+	ListsMatchers     types.List   `tfsdk:"lists_matchers"`
+	PireRegexMatch    types.String `tfsdk:"pire_regex_match"`
+	PireRegexNotMatch types.String `tfsdk:"pire_regex_not_match"`
+	PrefixMatch       types.String `tfsdk:"prefix_match"`
+	PrefixNotMatch    types.String `tfsdk:"prefix_not_match"`
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) GetDefined() types.Bool {
+	return m.Defined
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) GetExactMatch() types.String {
+	return m.ExactMatch
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) GetExactNotMatch() types.String {
+	return m.ExactNotMatch
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) GetListsMatchers() types.List {
+	return m.ListsMatchers
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) GetPireRegexMatch() types.String {
+	return m.PireRegexMatch
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) GetPireRegexNotMatch() types.String {
+	return m.PireRegexNotMatch
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) GetPrefixMatch() types.String {
+	return m.PrefixMatch
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) GetPrefixNotMatch() types.String {
+	return m.PrefixNotMatch
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) SetDefined(target types.Bool) {
+	m.Defined = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) SetExactMatch(target types.String) {
+	m.ExactMatch = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) SetExactNotMatch(target types.String) {
+	m.ExactNotMatch = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) SetListsMatchers(target types.List) {
+	m.ListsMatchers = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) SetPireRegexMatch(target types.String) {
+	m.PireRegexMatch = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) SetPireRegexNotMatch(target types.String) {
+	m.PireRegexNotMatch = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) SetPrefixMatch(target types.String) {
+	m.PrefixMatch = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) SetPrefixNotMatch(target types.String) {
+	m.PrefixNotMatch = target
+}
+
+func NewYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel() yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel {
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel{
+		Defined:           types.BoolNull(),
+		ExactMatch:        types.StringNull(),
+		ExactNotMatch:     types.StringNull(),
+		ListsMatchers:     types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType),
+		PireRegexMatch:    types.StringNull(),
+		PireRegexNotMatch: types.StringNull(),
+		PrefixMatch:       types.StringNull(),
+		PrefixNotMatch:    types.StringNull(),
+	}
+}
+
+func yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelFillUnknown(target yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel) yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel {
+	if target.Defined.IsUnknown() || target.Defined.IsNull() {
+		target.Defined = types.BoolNull()
+	}
+	if target.ExactMatch.IsUnknown() || target.ExactMatch.IsNull() {
+		target.ExactMatch = types.StringNull()
+	}
+	if target.ExactNotMatch.IsUnknown() || target.ExactNotMatch.IsNull() {
+		target.ExactNotMatch = types.StringNull()
+	}
+	if target.ListsMatchers.IsUnknown() || target.ListsMatchers.IsNull() {
+		target.ListsMatchers = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType)
+	}
+	if target.PireRegexMatch.IsUnknown() || target.PireRegexMatch.IsNull() {
+		target.PireRegexMatch = types.StringNull()
+	}
+	if target.PireRegexNotMatch.IsUnknown() || target.PireRegexNotMatch.IsNull() {
+		target.PireRegexNotMatch = types.StringNull()
+	}
+	if target.PrefixMatch.IsUnknown() || target.PrefixMatch.IsNull() {
+		target.PrefixMatch = types.StringNull()
+	}
+	if target.PrefixNotMatch.IsUnknown() || target.PrefixNotMatch.IsNull() {
+		target.PrefixNotMatch = types.StringNull()
+	}
+	return target
+}
+
+var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"defined":              types.BoolType,
+		"exact_match":          types.StringType,
+		"exact_not_match":      types.StringType,
+		"lists_matchers":       types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType},
+		"pire_regex_match":     types.StringType,
+		"pire_regex_not_match": types.StringType,
+		"prefix_match":         types.StringType,
+		"prefix_not_match":     types.StringType,
+	},
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher(ctx context.Context,
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher *smartwebsecurity.Condition_StringMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher == nil || (yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher.String() == (&smartwebsecurity.Condition_StringMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType)
+				}
+				state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType)
+	}
+	var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType)
+		}
+		state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel{
+		Defined:           types.BoolValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher.GetDefined()),
+		ExactMatch:        types.StringValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher.GetExactMatch()),
+		ExactNotMatch:     types.StringValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher.GetExactNotMatch()),
+		ListsMatchers:     flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher.GetListsMatchers(), state.ListsMatchers, diags),
+		PireRegexMatch:    types.StringValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher.GetPireRegexMatch()),
+		PireRegexNotMatch: types.StringValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher.GetPireRegexNotMatch()),
+		PrefixMatch:       types.StringValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher.GetPrefixMatch()),
+		PrefixNotMatch:    types.StringValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher.GetPrefixNotMatch()),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcher(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_StringMatcher {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherType[0], diags)
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_StringMatcher {
+	value := &smartwebsecurity.Condition_StringMatcher{}
+	if !(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.Defined.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.Defined.IsUnknown() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.Defined.Equal(types.BoolValue(false))) {
+		value.SetDefined(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.Defined.ValueBool())
+	}
+	if !(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ExactMatch.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ExactMatch.IsUnknown() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ExactMatch.Equal(types.StringValue(""))) {
+		value.SetExactMatch(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ExactMatch.ValueString())
+	}
+	if !(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ExactNotMatch.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ExactNotMatch.IsUnknown() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ExactNotMatch.Equal(types.StringValue(""))) {
+		value.SetExactNotMatch(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ExactNotMatch.ValueString())
+	}
+	if !(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ListsMatchers.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ListsMatchers.IsUnknown() || len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ListsMatchers.Elements()) == 0) {
+		value.SetListsMatchers(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.ListsMatchers, diags))
+	}
+	if !(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PireRegexMatch.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PireRegexMatch.IsUnknown() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PireRegexMatch.Equal(types.StringValue(""))) {
+		value.SetPireRegexMatch(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PireRegexMatch.ValueString())
+	}
+	if !(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PireRegexNotMatch.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PireRegexNotMatch.IsUnknown() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PireRegexNotMatch.Equal(types.StringValue(""))) {
+		value.SetPireRegexNotMatch(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PireRegexNotMatch.ValueString())
+	}
+	if !(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PrefixMatch.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PrefixMatch.IsUnknown() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PrefixMatch.Equal(types.StringValue(""))) {
+		value.SetPrefixMatch(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PrefixMatch.ValueString())
+	}
+	if !(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PrefixNotMatch.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PrefixNotMatch.IsUnknown() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PrefixNotMatch.Equal(types.StringValue(""))) {
+		value.SetPrefixNotMatch(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherState.PrefixNotMatch.ValueString())
+	}
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel struct {
+	RegExpListsMatch    types.List `tfsdk:"reg_exp_lists_match"`
+	RegExpListsNotMatch types.List `tfsdk:"reg_exp_lists_not_match"`
+	StrListsMatch       types.List `tfsdk:"str_lists_match"`
+	StrListsNotMatch    types.List `tfsdk:"str_lists_not_match"`
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel) GetRegExpListsMatch() types.List {
+	return m.RegExpListsMatch
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel) GetRegExpListsNotMatch() types.List {
+	return m.RegExpListsNotMatch
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel) GetStrListsMatch() types.List {
+	return m.StrListsMatch
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel) GetStrListsNotMatch() types.List {
+	return m.StrListsNotMatch
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel) SetRegExpListsMatch(target types.List) {
+	m.RegExpListsMatch = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel) SetRegExpListsNotMatch(target types.List) {
+	m.RegExpListsNotMatch = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel) SetStrListsMatch(target types.List) {
+	m.StrListsMatch = target
+}
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel) SetStrListsNotMatch(target types.List) {
+	m.StrListsNotMatch = target
+}
+
+func NewYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel() yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel {
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel{
+		RegExpListsMatch:    types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType),
+		RegExpListsNotMatch: types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType),
+		StrListsMatch:       types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType),
+		StrListsNotMatch:    types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType),
+	}
+}
+
+func yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelFillUnknown(target yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel) yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel {
+	if target.RegExpListsMatch.IsUnknown() || target.RegExpListsMatch.IsNull() {
+		target.RegExpListsMatch = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+	}
+	if target.RegExpListsNotMatch.IsUnknown() || target.RegExpListsNotMatch.IsNull() {
+		target.RegExpListsNotMatch = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+	}
+	if target.StrListsMatch.IsUnknown() || target.StrListsMatch.IsNull() {
+		target.StrListsMatch = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+	}
+	if target.StrListsNotMatch.IsUnknown() || target.StrListsNotMatch.IsNull() {
+		target.StrListsNotMatch = types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+	}
+	return target
+}
+
+var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"reg_exp_lists_match":     types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType},
+		"reg_exp_lists_not_match": types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType},
+		"str_lists_match":         types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType},
+		"str_lists_not_match":     types.ListType{ElemType: yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType},
+	},
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers(ctx context.Context,
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers *smartwebsecurity.Condition_ListsMatchers,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers == nil || (yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers.String() == (&smartwebsecurity.Condition_ListsMatchers{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType)
+				}
+				state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType)
+	}
+	var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType)
+		}
+		state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel{
+		RegExpListsMatch:    flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers.GetRegExpListsMatch(), state.RegExpListsMatch, diags),
+		RegExpListsNotMatch: flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers.GetRegExpListsNotMatch(), state.RegExpListsNotMatch, diags),
+		StrListsMatch:       flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers.GetStrListsMatch(), state.StrListsMatch, diags),
+		StrListsNotMatch:    flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers.GetStrListsNotMatch(), state.StrListsNotMatch, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchers(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatchers {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersType[0], diags)
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatchers {
+	value := &smartwebsecurity.Condition_ListsMatchers{}
+	value.SetRegExpListsMatch(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState.RegExpListsMatch, diags))
+	value.SetRegExpListsNotMatch(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState.RegExpListsNotMatch, diags))
+	value.SetStrListsMatch(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState.StrListsMatch, diags))
+	value.SetStrListsNotMatch(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersState.StrListsNotMatch, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+type yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel() yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel {
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelFillUnknown(target yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel) yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx context.Context,
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatch == nil || (yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+				}
+				state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+	}
+	var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType)
+		}
+		state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel{
+		ListIds: flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatch(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchType[0], diags)
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchState yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues = append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIds(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes := make([]string, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.Elements()))
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsType := make([]types.String, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsType {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes = append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsMatchListIdsRes
+}
+
+type yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel() yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel {
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelFillUnknown(target yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel) yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx context.Context,
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch == nil || (yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+				}
+				state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+	}
+	var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType)
+		}
+		state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel{
+		ListIds: flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatch(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchType[0], diags)
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues = append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIds(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes := make([]string, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.Elements()))
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsType := make([]types.String, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsType {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes = append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersRegExpListsNotMatchListIdsRes
+}
+
+type yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel() yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel {
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelFillUnknown(target yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel) yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx context.Context,
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatch == nil || (yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+				}
+				state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+	}
+	var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType)
+		}
+		state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel{
+		ListIds: flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatch(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchType[0], diags)
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchState yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues = append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIds(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes := make([]string, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.Elements()))
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsType := make([]types.String, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsType {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes = append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsMatchListIdsRes
+}
+
+type yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel struct {
+	ListIds types.List `tfsdk:"list_ids"`
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel) GetListIds() types.List {
+	return m.ListIds
+}
+
+func (m *yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel) SetListIds(target types.List) {
+	m.ListIds = target
+}
+
+func NewYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel() yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel {
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel{
+		ListIds: types.ListNull(types.StringType),
+	}
+}
+
+func yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelFillUnknown(target yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel) yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel {
+	if target.ListIds.IsUnknown() || target.ListIds.IsNull() {
+		target.ListIds = types.ListNull(types.StringType)
+	}
+	return target
+}
+
+var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType = types.ObjectType{
+	AttrTypes: map[string]attr.Type{
+		"list_ids": types.ListType{ElemType: types.StringType},
+	},
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx context.Context,
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatch *smartwebsecurity.Condition_ListsMatcher,
+	listState types.List,
+	diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatch == nil || (yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatch.String() == (&smartwebsecurity.Condition_ListsMatcher{}).String()) {
+		if !listState.IsNull() && len(listState.Elements()) != 0 {
+			var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel
+			if !listState.IsNull() && len(listState.Elements()) != 0 {
+				yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, 0, len(listState.Elements()))
+				diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchType, false)...)
+				if diags.HasError() {
+					return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+				}
+				state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchType[0]
+			}
+			value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelFillUnknown(state))
+			diags.Append(diag...)
+			return types.ListValueMust(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType, []attr.Value{value})
+		}
+		return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+	}
+	var state yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel
+	if !listState.IsNull() && len(listState.Elements()) != 0 {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, 0, len(listState.Elements()))
+		diags.Append(listState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchType, false)...)
+		if diags.HasError() {
+			return types.ListNull(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType)
+		}
+		state = yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchType[0]
+	}
+	value, diag := types.ObjectValueFrom(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType.AttrTypes, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel{
+		ListIds: flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatch.GetListIds(), state.ListIds, diags),
+	})
+	diags.Append(diag...)
+	valueList, diag := types.ListValue(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModelType, []attr.Value{value})
+	diags.Append(diag...)
+	return valueList
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatch(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchState types.List, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.Elements()) == 0 {
+		return nil
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchType := make([]yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	return expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchType[0], diags)
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchState yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchModel, diags *diag.Diagnostics) *smartwebsecurity.Condition_ListsMatcher {
+	value := &smartwebsecurity.Condition_ListsMatcher{}
+	value.SetListIds(expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchState.ListIds, diags))
+	if diags.HasError() {
+		return nil
+	}
+	return value
+}
+
+func flattenYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds []string, listState types.List, diags *diag.Diagnostics) types.List {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds == nil {
+		if !listState.IsNull() && !listState.IsUnknown() && len(listState.Elements()) == 0 {
+			return listState
+		}
+		return types.ListNull(types.StringType)
+	}
+	var yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues []attr.Value
+	for _, elem := range yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds {
+		val := types.StringValue(elem)
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues = append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues, val)
+	}
+
+	value, diag := types.ListValue(types.StringType, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsValues)
+	diags.Append(diag...)
+	return value
+}
+
+func expandYandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIds(ctx context.Context, yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState types.List, diags *diag.Diagnostics) []string {
+	if yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.IsNull() || yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.IsUnknown() {
+		return nil
+	}
+	if len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.Elements()) == 0 {
+		return []string{}
+	}
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes := make([]string, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.Elements()))
+	yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsType := make([]types.String, 0, len(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.Elements()))
+	diags.Append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsState.ElementsAs(ctx, &yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsType, false)...)
+	if diags.HasError() {
+		return nil
+	}
+	for _, elem := range yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsType {
+		yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes = append(yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes, elem.ValueString())
+	}
+	return yandexSwsWafProfileWafProfileExclusionRuleStructConditionBodyBodyMatcherListsMatchersStrListsNotMatchListIdsRes
 }
 
 type yandexSwsWafProfileWafProfileExclusionRuleStructConditionBotCategoryModel struct {

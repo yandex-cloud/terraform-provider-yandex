@@ -1,3 +1,0 @@
-kind: ENHANCEMENTS
-body: 'mdb_clickhouse: support PostgreSQL v2 and YTsaurus v2 dictionary sources in `yandex_mdb_clickhouse_cluster_v2` resource and data source'
-time: 2026-11-24T22:20:13.801163+05:00

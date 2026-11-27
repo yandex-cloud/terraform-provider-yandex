@@ -606,6 +606,225 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													Computed: true,
 												},
 
+												"body": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"body_matcher": schema.ListNestedAttribute{
+																NestedObject: schema.NestedAttributeObject{
+
+																	Attributes: map[string]schema.Attribute{
+
+																		"defined": schema.BoolAttribute{
+																			MarkdownDescription: "Matches if the field is defined.",
+																			Description: "Matches if the field is defined." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"exact_match": schema.StringAttribute{
+																			MarkdownDescription: "Exact match condition.",
+																			Description: "Exact match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"exact_not_match": schema.StringAttribute{
+																			MarkdownDescription: "Exact not match condition.",
+																			Description: "Exact not match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"lists_matchers": schema.ListNestedAttribute{
+																			NestedObject: schema.NestedAttributeObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"reg_exp_lists_match": schema.ListNestedAttribute{
+																						NestedObject: schema.NestedAttributeObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"list_ids": schema.ListAttribute{
+																									ElementType:         types.StringType,
+																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																									Description: "List of list IDs to match against. OR semantics implied." +
+																										// proto paths: +
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										"package: yandex.cloud.smartwebsecurity.v1\n" +
+																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																									Computed: true,
+																								},
+																							},
+																						},
+																						MarkdownDescription: "Regular expression lists to match with.",
+																						Description: "Regular expression lists to match with." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Computed: true,
+																					},
+
+																					"reg_exp_lists_not_match": schema.ListNestedAttribute{
+																						NestedObject: schema.NestedAttributeObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"list_ids": schema.ListAttribute{
+																									ElementType:         types.StringType,
+																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																									Description: "List of list IDs to match against. OR semantics implied." +
+																										// proto paths: +
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										"package: yandex.cloud.smartwebsecurity.v1\n" +
+																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																									Computed: true,
+																								},
+																							},
+																						},
+																						MarkdownDescription: "Regular expression lists to not match with.",
+																						Description: "Regular expression lists to not match with." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Computed: true,
+																					},
+
+																					"str_lists_match": schema.ListNestedAttribute{
+																						NestedObject: schema.NestedAttributeObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"list_ids": schema.ListAttribute{
+																									ElementType:         types.StringType,
+																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																									Description: "List of list IDs to match against. OR semantics implied." +
+																										// proto paths: +
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										"package: yandex.cloud.smartwebsecurity.v1\n" +
+																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																									Computed: true,
+																								},
+																							},
+																						},
+																						MarkdownDescription: "String lists to match with.",
+																						Description: "String lists to match with." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Computed: true,
+																					},
+
+																					"str_lists_not_match": schema.ListNestedAttribute{
+																						NestedObject: schema.NestedAttributeObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"list_ids": schema.ListAttribute{
+																									ElementType:         types.StringType,
+																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																									Description: "List of list IDs to match against. OR semantics implied." +
+																										// proto paths: +
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										"package: yandex.cloud.smartwebsecurity.v1\n" +
+																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																									Computed: true,
+																								},
+																							},
+																						},
+																						MarkdownDescription: "String lists to not match with.",
+																						Description: "String lists to not match with." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Computed: true,
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Matches against string and regular expression lists.",
+																			Description: "Matches against string and regular expression lists." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"pire_regex_match": schema.StringAttribute{
+																			MarkdownDescription: "PIRE regex match condition.",
+																			Description: "PIRE regex match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"pire_regex_not_match": schema.StringAttribute{
+																			MarkdownDescription: "PIRE regex not match condition.",
+																			Description: "PIRE regex not match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"prefix_match": schema.StringAttribute{
+																			MarkdownDescription: "Prefix match condition.",
+																			Description: "Prefix match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"prefix_not_match": schema.StringAttribute{
+																			MarkdownDescription: "Prefix not match condition.",
+																			Description: "Prefix not match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+																	},
+																},
+																MarkdownDescription: "HTTP request body matcher.",
+																Description: "HTTP request body matcher." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "Match HTTP request body.",
+													Description: "Match HTTP request body." +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.dynamic_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.DynamicQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body
+														"package: yandex.cloud.smartwebsecurity.v1\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+													Computed: true,
+												},
+
 												"bot_category": schema.ListNestedAttribute{
 													NestedObject: schema.NestedAttributeObject{
 
@@ -3856,6 +4075,225 @@ func YandexSwsAdvancedRateLimiterProfileDatasourceSchema(ctx context.Context) sc
 													Description: "Match authority (Host header)." +
 														// proto paths: +
 														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.authority
+														"package: yandex.cloud.smartwebsecurity.v1\n" +
+														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+													Computed: true,
+												},
+
+												"body": schema.ListNestedAttribute{
+													NestedObject: schema.NestedAttributeObject{
+
+														Attributes: map[string]schema.Attribute{
+
+															"body_matcher": schema.ListNestedAttribute{
+																NestedObject: schema.NestedAttributeObject{
+
+																	Attributes: map[string]schema.Attribute{
+
+																		"defined": schema.BoolAttribute{
+																			MarkdownDescription: "Matches if the field is defined.",
+																			Description: "Matches if the field is defined." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.defined
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"exact_match": schema.StringAttribute{
+																			MarkdownDescription: "Exact match condition.",
+																			Description: "Exact match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"exact_not_match": schema.StringAttribute{
+																			MarkdownDescription: "Exact not match condition.",
+																			Description: "Exact not match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.exact_not_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"lists_matchers": schema.ListNestedAttribute{
+																			NestedObject: schema.NestedAttributeObject{
+
+																				Attributes: map[string]schema.Attribute{
+
+																					"reg_exp_lists_match": schema.ListNestedAttribute{
+																						NestedObject: schema.NestedAttributeObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"list_ids": schema.ListAttribute{
+																									ElementType:         types.StringType,
+																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																									Description: "List of list IDs to match against. OR semantics implied." +
+																										// proto paths: +
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										"package: yandex.cloud.smartwebsecurity.v1\n" +
+																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																									Computed: true,
+																								},
+																							},
+																						},
+																						MarkdownDescription: "Regular expression lists to match with.",
+																						Description: "Regular expression lists to match with." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Computed: true,
+																					},
+
+																					"reg_exp_lists_not_match": schema.ListNestedAttribute{
+																						NestedObject: schema.NestedAttributeObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"list_ids": schema.ListAttribute{
+																									ElementType:         types.StringType,
+																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																									Description: "List of list IDs to match against. OR semantics implied." +
+																										// proto paths: +
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										"package: yandex.cloud.smartwebsecurity.v1\n" +
+																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																									Computed: true,
+																								},
+																							},
+																						},
+																						MarkdownDescription: "Regular expression lists to not match with.",
+																						Description: "Regular expression lists to not match with." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Computed: true,
+																					},
+
+																					"str_lists_match": schema.ListNestedAttribute{
+																						NestedObject: schema.NestedAttributeObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"list_ids": schema.ListAttribute{
+																									ElementType:         types.StringType,
+																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																									Description: "List of list IDs to match against. OR semantics implied." +
+																										// proto paths: +
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										"package: yandex.cloud.smartwebsecurity.v1\n" +
+																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																									Computed: true,
+																								},
+																							},
+																						},
+																						MarkdownDescription: "String lists to match with.",
+																						Description: "String lists to match with." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Computed: true,
+																					},
+
+																					"str_lists_not_match": schema.ListNestedAttribute{
+																						NestedObject: schema.NestedAttributeObject{
+
+																							Attributes: map[string]schema.Attribute{
+
+																								"list_ids": schema.ListAttribute{
+																									ElementType:         types.StringType,
+																									MarkdownDescription: "List of list IDs to match against. OR semantics implied.",
+																									Description: "List of list IDs to match against. OR semantics implied." +
+																										// proto paths: +
+																										// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher.list_ids
+																										"package: yandex.cloud.smartwebsecurity.v1\n" +
+																										"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																									Computed: true,
+																								},
+																							},
+																						},
+																						MarkdownDescription: "String lists to not match with.",
+																						Description: "String lists to not match with." +
+																							// proto paths: +
+																							// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match
+																							"package: yandex.cloud.smartwebsecurity.v1\n" +
+																							"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																						Computed: true,
+																					},
+																				},
+																			},
+																			MarkdownDescription: "Matches against string and regular expression lists.",
+																			Description: "Matches against string and regular expression lists." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"pire_regex_match": schema.StringAttribute{
+																			MarkdownDescription: "PIRE regex match condition.",
+																			Description: "PIRE regex match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"pire_regex_not_match": schema.StringAttribute{
+																			MarkdownDescription: "PIRE regex not match condition.",
+																			Description: "PIRE regex not match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.pire_regex_not_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"prefix_match": schema.StringAttribute{
+																			MarkdownDescription: "Prefix match condition.",
+																			Description: "Prefix match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+
+																		"prefix_not_match": schema.StringAttribute{
+																			MarkdownDescription: "Prefix not match condition.",
+																			Description: "Prefix not match condition." +
+																				// proto paths: +
+																				// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.prefix_not_match
+																				"package: yandex.cloud.smartwebsecurity.v1\n" +
+																				"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																			Computed: true,
+																		},
+																	},
+																},
+																MarkdownDescription: "HTTP request body matcher.",
+																Description: "HTTP request body matcher." +
+																	// proto paths: +
+																	// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher
+																	"package: yandex.cloud.smartwebsecurity.v1\n" +
+																	"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
+																Computed: true,
+															},
+														},
+													},
+													MarkdownDescription: "Match HTTP request body.",
+													Description: "Match HTTP request body." +
+														// proto paths: +
+														// -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterProfile.advanced_rate_limiter_rules -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.static_quota -> yandex.cloud.smartwebsecurity.v1.advanced_rate_limiter.AdvancedRateLimiterRule.StaticQuota.condition -> yandex.cloud.smartwebsecurity.v1.Condition.body
 														"package: yandex.cloud.smartwebsecurity.v1\n" +
 														"filename: yandex/cloud/smartwebsecurity/v1/security_profile.proto\n",
 													Computed: true,

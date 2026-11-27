@@ -822,6 +822,8 @@ type Condition struct {
 	Headers []*Condition_HeaderMatcher `protobuf:"bytes,4,rep,name=headers,proto3" json:"headers,omitempty"`
 	// Match IP.
 	SourceIp *Condition_IpMatcher `protobuf:"bytes,5,opt,name=source_ip,json=sourceIp,proto3" json:"source_ip,omitempty"`
+	// Match HTTP request body.
+	Body *Condition_BodyMatcher `protobuf:"bytes,6,opt,name=body,proto3" json:"body,omitempty"`
 	// Match cookies.
 	Cookies []*Condition_CookieMatcher `protobuf:"bytes,7,rep,name=cookies,proto3" json:"cookies,omitempty"`
 	// Match bot category.
@@ -899,6 +901,13 @@ func (x *Condition) GetHeaders() []*Condition_HeaderMatcher {
 func (x *Condition) GetSourceIp() *Condition_IpMatcher {
 	if x != nil {
 		return x.SourceIp
+	}
+	return nil
+}
+
+func (x *Condition) GetBody() *Condition_BodyMatcher {
+	if x != nil {
+		return x.Body
 	}
 	return nil
 }
@@ -2745,6 +2754,52 @@ func (x *Condition_AsnRangesMatcher) GetAsnRanges() []int64 {
 	return nil
 }
 
+// Matcher for the HTTP request body.
+type Condition_BodyMatcher struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// HTTP request body matcher.
+	BodyMatcher   *Condition_StringMatcher `protobuf:"bytes,2,opt,name=body_matcher,json=bodyMatcher,proto3" json:"body_matcher,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Condition_BodyMatcher) Reset() {
+	*x = Condition_BodyMatcher{}
+	mi := &file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Condition_BodyMatcher) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Condition_BodyMatcher) ProtoMessage() {}
+
+func (x *Condition_BodyMatcher) ProtoReflect() protoreflect.Message {
+	mi := &file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Condition_BodyMatcher.ProtoReflect.Descriptor instead.
+func (*Condition_BodyMatcher) Descriptor() ([]byte, []int) {
+	return file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_rawDescGZIP(), []int{2, 23}
+}
+
+func (x *Condition_BodyMatcher) GetBodyMatcher() *Condition_StringMatcher {
+	if x != nil {
+		return x.BodyMatcher
+	}
+	return nil
+}
+
 // CookieMatcher object.
 type Condition_CookieMatcher struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2758,7 +2813,7 @@ type Condition_CookieMatcher struct {
 
 func (x *Condition_CookieMatcher) Reset() {
 	*x = Condition_CookieMatcher{}
-	mi := &file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_msgTypes[32]
+	mi := &file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2770,7 +2825,7 @@ func (x *Condition_CookieMatcher) String() string {
 func (*Condition_CookieMatcher) ProtoMessage() {}
 
 func (x *Condition_CookieMatcher) ProtoReflect() protoreflect.Message {
-	mi := &file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_msgTypes[32]
+	mi := &file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2783,7 +2838,7 @@ func (x *Condition_CookieMatcher) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Condition_CookieMatcher.ProtoReflect.Descriptor instead.
 func (*Condition_CookieMatcher) Descriptor() ([]byte, []int) {
-	return file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_rawDescGZIP(), []int{2, 23}
+	return file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_rawDescGZIP(), []int{2, 24}
 }
 
 func (x *Condition_CookieMatcher) GetName() string {
@@ -2904,7 +2959,7 @@ const file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_rawDesc = "" 
 	"\x10MODE_UNSPECIFIED\x10\x00\x12\b\n" +
 	"\x04FULL\x10\x01\x12\a\n" +
 	"\x03API\x10\x02B\x10\n" +
-	"\x0erule_specifierJ\x04\b\b\x10\t\"\x92/\n" +
+	"\x0erule_specifierJ\x04\b\b\x10\t\"\xcc0\n" +
 	"\tCondition\x12Z\n" +
 	"\tauthority\x18\x01 \x01(\v2<.yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcherR\tauthority\x12^\n" +
 	"\vhttp_method\x18\x02 \x01(\v2=.yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcherR\n" +
@@ -2912,7 +2967,8 @@ const file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_rawDesc = "" 
 	"\vrequest_uri\x18\x03 \x01(\v2=.yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcherR\n" +
 	"requestUri\x12]\n" +
 	"\aheaders\x18\x04 \x03(\v29.yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcherB\b\x82\xc81\x04<=20R\aheaders\x12R\n" +
-	"\tsource_ip\x18\x05 \x01(\v25.yandex.cloud.smartwebsecurity.v1.Condition.IpMatcherR\bsourceIp\x12]\n" +
+	"\tsource_ip\x18\x05 \x01(\v25.yandex.cloud.smartwebsecurity.v1.Condition.IpMatcherR\bsourceIp\x12K\n" +
+	"\x04body\x18\x06 \x01(\v27.yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcherR\x04body\x12]\n" +
 	"\acookies\x18\a \x03(\v29.yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcherB\b\x82\xc81\x04<=20R\acookies\x12a\n" +
 	"\fbot_category\x18\b \x01(\v2>.yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcherR\vbotCategory\x12U\n" +
 	"\bbot_name\x18\t \x01(\v2:.yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcherR\abotName\x12X\n" +
@@ -3012,10 +3068,12 @@ const file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_rawDesc = "" 
 	"\tlocations\x18\x01 \x03(\tB\x10\x82\xc81\x03>=1\x8a\xc81\x012\x90\xc81\x01R\tlocations\x1aN\n" +
 	"\x10AsnRangesMatcher\x12:\n" +
 	"\n" +
-	"asn_ranges\x18\x01 \x03(\x03B\x1b\xfa\xc71\f0-4294967295\x82\xc81\a<=10000R\tasnRanges\x1a\x89\x01\n" +
+	"asn_ranges\x18\x01 \x03(\x03B\x1b\xfa\xc71\f0-4294967295\x82\xc81\a<=10000R\tasnRanges\x1aq\n" +
+	"\vBodyMatcher\x12\\\n" +
+	"\fbody_matcher\x18\x02 \x01(\v29.yandex.cloud.smartwebsecurity.v1.Condition.StringMatcherR\vbodyMatcherJ\x04\b\x01\x10\x02\x1a\x89\x01\n" +
 	"\rCookieMatcher\x12!\n" +
 	"\x04name\x18\x01 \x01(\tB\r\xe8\xc71\x01\x8a\xc81\x051-255R\x04name\x12U\n" +
-	"\x05value\x18\x02 \x01(\v29.yandex.cloud.smartwebsecurity.v1.Condition.StringMatcherB\x04\xe8\xc71\x01R\x05valueJ\x04\b\x06\x10\aB}\n" +
+	"\x05value\x18\x02 \x01(\v29.yandex.cloud.smartwebsecurity.v1.Condition.StringMatcherB\x04\xe8\xc71\x01R\x05valueB}\n" +
 	"$yandex.cloud.api.smartwebsecurity.v1ZUgithub.com/yandex-cloud/go-genproto/yandex/cloud/smartwebsecurity/v1;smartwebsecurityb\x06proto3"
 
 var (
@@ -3031,7 +3089,7 @@ func file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_rawDescGZIP() 
 }
 
 var file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
-var file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_goTypes = []any{
 	(SecurityProfile_DefaultAction)(0),             // 0: yandex.cloud.smartwebsecurity.v1.SecurityProfile.DefaultAction
 	(SecurityProfile_AnalyzeRequestBody_Action)(0), // 1: yandex.cloud.smartwebsecurity.v1.SecurityProfile.AnalyzeRequestBody.Action
@@ -3073,15 +3131,16 @@ var file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_goTypes = []any
 	(*Condition_IpRangesMatcher)(nil),              // 37: yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher
 	(*Condition_GeoIpMatcher)(nil),                 // 38: yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher
 	(*Condition_AsnRangesMatcher)(nil),             // 39: yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher
-	(*Condition_CookieMatcher)(nil),                // 40: yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher
-	(*timestamppb.Timestamp)(nil),                  // 41: google.protobuf.Timestamp
+	(*Condition_BodyMatcher)(nil),                  // 40: yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher
+	(*Condition_CookieMatcher)(nil),                // 41: yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher
+	(*timestamppb.Timestamp)(nil),                  // 42: google.protobuf.Timestamp
 }
 var file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_depIdxs = []int32{
 	13, // 0: yandex.cloud.smartwebsecurity.v1.SecurityProfile.labels:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.LabelsEntry
 	0,  // 1: yandex.cloud.smartwebsecurity.v1.SecurityProfile.default_action:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.DefaultAction
 	9,  // 2: yandex.cloud.smartwebsecurity.v1.SecurityProfile.security_rules:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityRule
-	41, // 3: yandex.cloud.smartwebsecurity.v1.SecurityProfile.created_at:type_name -> google.protobuf.Timestamp
-	41, // 4: yandex.cloud.smartwebsecurity.v1.SecurityProfile.updated_at:type_name -> google.protobuf.Timestamp
+	42, // 3: yandex.cloud.smartwebsecurity.v1.SecurityProfile.created_at:type_name -> google.protobuf.Timestamp
+	42, // 4: yandex.cloud.smartwebsecurity.v1.SecurityProfile.updated_at:type_name -> google.protobuf.Timestamp
 	11, // 5: yandex.cloud.smartwebsecurity.v1.SecurityProfile.analyze_request_body:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.AnalyzeRequestBody
 	12, // 6: yandex.cloud.smartwebsecurity.v1.SecurityProfile.log_options:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions
 	14, // 7: yandex.cloud.smartwebsecurity.v1.SecurityRule.rule_condition:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityRule.RuleCondition
@@ -3092,65 +3151,67 @@ var file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_depIdxs = []int
 	22, // 12: yandex.cloud.smartwebsecurity.v1.Condition.request_uri:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher
 	24, // 13: yandex.cloud.smartwebsecurity.v1.Condition.headers:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher
 	25, // 14: yandex.cloud.smartwebsecurity.v1.Condition.source_ip:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher
-	40, // 15: yandex.cloud.smartwebsecurity.v1.Condition.cookies:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher
-	26, // 16: yandex.cloud.smartwebsecurity.v1.Condition.bot_category:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher
-	27, // 17: yandex.cloud.smartwebsecurity.v1.Condition.bot_name:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher
-	34, // 18: yandex.cloud.smartwebsecurity.v1.Condition.bot_score:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher
-	35, // 19: yandex.cloud.smartwebsecurity.v1.Condition.verified_bot:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher
-	36, // 20: yandex.cloud.smartwebsecurity.v1.Condition.finger_print:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher
-	1,  // 21: yandex.cloud.smartwebsecurity.v1.SecurityProfile.AnalyzeRequestBody.size_limit_action:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.AnalyzeRequestBody.Action
-	2,  // 22: yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_modules:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.Module
-	3,  // 23: yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_actions:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.Action
-	4,  // 24: yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.outputs:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.Output
-	5,  // 25: yandex.cloud.smartwebsecurity.v1.SecurityRule.RuleCondition.action:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityRule.RuleCondition.Action
-	10, // 26: yandex.cloud.smartwebsecurity.v1.SecurityRule.RuleCondition.condition:type_name -> yandex.cloud.smartwebsecurity.v1.Condition
-	6,  // 27: yandex.cloud.smartwebsecurity.v1.SecurityRule.SmartProtection.mode:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityRule.SmartProtection.Mode
-	10, // 28: yandex.cloud.smartwebsecurity.v1.SecurityRule.SmartProtection.condition:type_name -> yandex.cloud.smartwebsecurity.v1.Condition
-	7,  // 29: yandex.cloud.smartwebsecurity.v1.SecurityRule.Waf.mode:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityRule.Waf.Mode
-	10, // 30: yandex.cloud.smartwebsecurity.v1.SecurityRule.Waf.condition:type_name -> yandex.cloud.smartwebsecurity.v1.Condition
-	19, // 31: yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers
-	18, // 32: yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	18, // 33: yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	18, // 34: yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	18, // 35: yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	17, // 36: yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	17, // 37: yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	17, // 38: yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	17, // 39: yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	17, // 40: yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	23, // 41: yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher
-	17, // 42: yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	17, // 43: yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	37, // 44: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher
-	37, // 45: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher
-	38, // 46: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher
-	38, // 47: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher
-	18, // 48: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	18, // 49: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	39, // 50: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher
-	39, // 51: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher
-	18, // 52: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	18, // 53: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	18, // 54: yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	18, // 55: yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	18, // 56: yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	18, // 57: yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
-	29, // 58: yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntLEMatcher
-	30, // 59: yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntGEMatcher
-	31, // 60: yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntEQMatcher
-	32, // 61: yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntNEMatcher
-	33, // 62: yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher
-	28, // 63: yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.BoolMatcher
-	17, // 64: yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	17, // 65: yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	17, // 66: yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	17, // 67: yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	17, // 68: yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
-	69, // [69:69] is the sub-list for method output_type
-	69, // [69:69] is the sub-list for method input_type
-	69, // [69:69] is the sub-list for extension type_name
-	69, // [69:69] is the sub-list for extension extendee
-	0,  // [0:69] is the sub-list for field type_name
+	40, // 15: yandex.cloud.smartwebsecurity.v1.Condition.body:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher
+	41, // 16: yandex.cloud.smartwebsecurity.v1.Condition.cookies:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher
+	26, // 17: yandex.cloud.smartwebsecurity.v1.Condition.bot_category:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher
+	27, // 18: yandex.cloud.smartwebsecurity.v1.Condition.bot_name:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher
+	34, // 19: yandex.cloud.smartwebsecurity.v1.Condition.bot_score:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher
+	35, // 20: yandex.cloud.smartwebsecurity.v1.Condition.verified_bot:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher
+	36, // 21: yandex.cloud.smartwebsecurity.v1.Condition.finger_print:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher
+	1,  // 22: yandex.cloud.smartwebsecurity.v1.SecurityProfile.AnalyzeRequestBody.size_limit_action:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.AnalyzeRequestBody.Action
+	2,  // 23: yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_modules:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.Module
+	3,  // 24: yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.enabled_actions:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.Action
+	4,  // 25: yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.outputs:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityProfile.LogOptions.Output
+	5,  // 26: yandex.cloud.smartwebsecurity.v1.SecurityRule.RuleCondition.action:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityRule.RuleCondition.Action
+	10, // 27: yandex.cloud.smartwebsecurity.v1.SecurityRule.RuleCondition.condition:type_name -> yandex.cloud.smartwebsecurity.v1.Condition
+	6,  // 28: yandex.cloud.smartwebsecurity.v1.SecurityRule.SmartProtection.mode:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityRule.SmartProtection.Mode
+	10, // 29: yandex.cloud.smartwebsecurity.v1.SecurityRule.SmartProtection.condition:type_name -> yandex.cloud.smartwebsecurity.v1.Condition
+	7,  // 30: yandex.cloud.smartwebsecurity.v1.SecurityRule.Waf.mode:type_name -> yandex.cloud.smartwebsecurity.v1.SecurityRule.Waf.Mode
+	10, // 31: yandex.cloud.smartwebsecurity.v1.SecurityRule.Waf.condition:type_name -> yandex.cloud.smartwebsecurity.v1.Condition
+	19, // 32: yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher.lists_matchers:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers
+	18, // 33: yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	18, // 34: yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.str_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	18, // 35: yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	18, // 36: yandex.cloud.smartwebsecurity.v1.Condition.ListsMatchers.reg_exp_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	17, // 37: yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_methods:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 38: yandex.cloud.smartwebsecurity.v1.Condition.HttpMethodMatcher.http_method_matcher:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 39: yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authorities:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 40: yandex.cloud.smartwebsecurity.v1.Condition.AuthorityMatcher.authority_matcher:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 41: yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.path:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	23, // 42: yandex.cloud.smartwebsecurity.v1.Condition.RequestUriMatcher.queries:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher
+	17, // 43: yandex.cloud.smartwebsecurity.v1.Condition.QueryMatcher.value:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 44: yandex.cloud.smartwebsecurity.v1.Condition.HeaderMatcher.value:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	37, // 45: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher
+	37, // 46: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_ranges_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IpRangesMatcher
+	38, // 47: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher
+	38, // 48: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.geo_ip_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.GeoIpMatcher
+	18, // 49: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	18, // 50: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.ip_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	39, // 51: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher
+	39, // 52: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_ranges_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.AsnRangesMatcher
+	18, // 53: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	18, // 54: yandex.cloud.smartwebsecurity.v1.Condition.IpMatcher.asn_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	18, // 55: yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	18, // 56: yandex.cloud.smartwebsecurity.v1.Condition.BotCategoryMatcher.bot_category_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	18, // 57: yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	18, // 58: yandex.cloud.smartwebsecurity.v1.Condition.BotNameMatcher.bot_name_lists_not_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.ListsMatcher
+	29, // 59: yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.le_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntLEMatcher
+	30, // 60: yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ge_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntGEMatcher
+	31, // 61: yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.eq_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntEQMatcher
+	32, // 62: yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher.ne_match:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntNEMatcher
+	33, // 63: yandex.cloud.smartwebsecurity.v1.Condition.BotScoreMatcher.value:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.IntMatcher
+	28, // 64: yandex.cloud.smartwebsecurity.v1.Condition.VerifiedBotMatcher.verified:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.BoolMatcher
+	17, // 65: yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_ranges:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 66: yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_ranges:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 67: yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja3_matcher:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 68: yandex.cloud.smartwebsecurity.v1.Condition.FingerPrintMatcher.ja4_matcher:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 69: yandex.cloud.smartwebsecurity.v1.Condition.BodyMatcher.body_matcher:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	17, // 70: yandex.cloud.smartwebsecurity.v1.Condition.CookieMatcher.value:type_name -> yandex.cloud.smartwebsecurity.v1.Condition.StringMatcher
+	71, // [71:71] is the sub-list for method output_type
+	71, // [71:71] is the sub-list for method input_type
+	71, // [71:71] is the sub-list for extension type_name
+	71, // [71:71] is the sub-list for extension extendee
+	0,  // [0:71] is the sub-list for field type_name
 }
 
 func init() { file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_init() }
@@ -3185,7 +3246,7 @@ func file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_rawDesc), len(file_yandex_cloud_smartwebsecurity_v1_security_profile_proto_rawDesc)),
 			NumEnums:      8,
-			NumMessages:   33,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
