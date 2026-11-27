@@ -760,6 +760,7 @@ func resourceYandexMDBKafkaClusterTopicConfig() *schema.Resource {
 func resourceYandexMDBKafkaClusterZookeeperConfig() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"zone_ids": kafkaRoleZoneSchema("zookeeper", "ZooKeeper"),
 			"resources": {
 				Type:        schema.TypeList,
 				Description: "Resources allocated to hosts of the ZooKeeper subcluster.",
@@ -775,6 +776,7 @@ func resourceYandexMDBKafkaClusterZookeeperConfig() *schema.Resource {
 func resourceYandexMDBKafkaClusterKRaftControllerConfig() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"zone_ids": kafkaRoleZoneSchema("kraft", "dedicated KRaft controller"),
 			"resources": {
 				Type:        schema.TypeList,
 				Description: "Resources allocated to hosts of the KRaft-controller subcluster.",
@@ -783,6 +785,19 @@ func resourceYandexMDBKafkaClusterKRaftControllerConfig() *schema.Resource {
 				MaxItems:    1,
 				Elem:        resourceYandexMDBKafkaKRaftControllerResources(),
 			},
+		},
+	}
+}
+
+func kafkaRoleZoneSchema(role, name string) *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeList,
+		Optional:    true,
+		Computed:    true,
+		Elem:        &schema.Schema{Type: schema.TypeString, Description: "Availability zone ID for one host."},
+		Description: fmt.Sprintf("Availability zones for %s hosts, independent of broker zones. Each entry places one host; repeat a zone for multiple hosts. The API validates placement.", name),
+		DiffSuppressFunc: func(_, _, _ string, d *schema.ResourceData) bool {
+			return suppressKafkaRoleZoneDiff(d, role)
 		},
 	}
 }
@@ -1224,9 +1239,11 @@ var mdbKafkaUpdateFieldsMap = map[string]string{
 	"config.0.zookeeper.0.resources.0.resource_preset_id":             "config_spec.zookeeper.resources.resource_preset_id",
 	"config.0.zookeeper.0.resources.0.disk_type_id":                   "config_spec.zookeeper.resources.disk_type_id",
 	"config.0.zookeeper.0.resources.0.disk_size":                      "config_spec.zookeeper.resources.disk_size",
+	"config.0.zookeeper.0.zone_ids":                                   "config_spec.zookeeper.zone_ids",
 	"config.0.kraft.0.resources.0.resource_preset_id":                 "config_spec.kraft.resources.resource_preset_id",
 	"config.0.kraft.0.resources.0.disk_type_id":                       "config_spec.kraft.resources.disk_type_id",
 	"config.0.kraft.0.resources.0.disk_size":                          "config_spec.kraft.resources.disk_size",
+	"config.0.kraft.0.zone_ids":                                       "config_spec.kraft.zone_ids",
 	"config.0.rest_api":                                               "config_spec.rest_api_config.enabled",
 	"config.0.kafka_ui":                                               "config_spec.kafka_ui_config.enabled",
 }
@@ -1282,9 +1299,20 @@ func KafkaClusterUpdateRequestWithMask(d *schema.ResourceData, config *providerc
 
 	updatePath := []string{}
 	for field, path := range mdbKafkaUpdateFieldsMap {
-		if d.HasChange(field) {
-			updatePath = append(updatePath, strings.Replace(path, "{version}", getSuffixVersion(d), -1))
+		if !d.HasChange(field) {
+			continue
 		}
+		switch field {
+		case "config.0.zookeeper.0.zone_ids":
+			if suppressKafkaRoleZoneDiff(d, "zookeeper") {
+				continue
+			}
+		case "config.0.kraft.0.zone_ids":
+			if suppressKafkaRoleZoneDiff(d, "kraft") {
+				continue
+			}
+		}
+		updatePath = append(updatePath, strings.Replace(path, "{version}", getSuffixVersion(d), -1))
 	}
 
 	if len(updatePath) == 0 {

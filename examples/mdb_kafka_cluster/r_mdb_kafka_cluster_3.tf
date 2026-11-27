@@ -11,7 +11,7 @@ resource "yandex_mdb_kafka_cluster" "kraft-split" {
   config {
     version          = "3.9"
     brokers_count    = 2
-    zones            = ["ru-central1-a", "ru-central1-b", "ru-central1-d"]
+    zones            = ["ru-central1-a", "ru-central1-d", "ru-central1-f"]
     assign_public_ip = true
     schema_registry  = false
     rest_api {
@@ -48,6 +48,8 @@ resource "yandex_mdb_kafka_cluster" "kraft-split" {
       }
     }
     kraft {
+      zone_ids = ["ru-central1-a", "ru-central1-d", "ru-central1-f"]
+
       resources {
         resource_preset_id = "s2.micro"
         disk_type_id       = "network-ssd"
@@ -67,13 +69,14 @@ resource "yandex_vpc_subnet" "foo" {
 }
 
 resource "yandex_vpc_subnet" "bar" {
-  zone           = "ru-central1-b"
+  zone           = "ru-central1-d"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.2.0.0/24"]
 }
 
 resource "yandex_vpc_subnet" "baz" {
-  zone           = "ru-central1-d"
+  zone           = "ru-central1-f"
   network_id     = yandex_vpc_network.foo.id
   v4_cidr_blocks = ["10.3.0.0/24"]
 }
+

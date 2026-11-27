@@ -197,9 +197,14 @@ func (*kafkaSubnetUserAPI) List(context.Context, *kafka.ListUsersRequest) (*kafk
 
 func kafkaSubnetTestConfig(t *testing.T) *providerconfig.Config {
 	t.Helper()
+	return kafkaClusterTestConfig(t, &kafkaSubnetClusterAPI{})
+}
+
+func kafkaClusterTestConfig(t *testing.T, cluster kafka.ClusterServiceServer) *providerconfig.Config {
+	t.Helper()
 	listener := &kafkaSubnetListener{incoming: make(chan net.Conn), closed: make(chan struct{})}
 	server := grpc.NewServer()
-	kafka.RegisterClusterServiceServer(server, &kafkaSubnetClusterAPI{})
+	kafka.RegisterClusterServiceServer(server, cluster)
 	kafka.RegisterTopicServiceServer(server, &kafkaSubnetTopicAPI{})
 	kafka.RegisterUserServiceServer(server, &kafkaSubnetUserAPI{})
 	go func() { _ = server.Serve(listener) }()

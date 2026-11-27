@@ -11825,6 +11825,7 @@
   "yandex/services/mdb/kafka/pluginsdk/registrations.go":"opensource/terraform-provider-yandex-mirror/yandex/services/mdb/kafka/pluginsdk/registrations.go",
   "yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_cluster.go":"opensource/terraform-provider-yandex-mirror/yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_cluster.go",
   "yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_cluster_subnets_test.go":"opensource/terraform-provider-yandex-mirror/yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_cluster_subnets_test.go",
+  "yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_cluster_zones_test.go":"opensource/terraform-provider-yandex-mirror/yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_cluster_zones_test.go",
   "yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_connector.go":"opensource/terraform-provider-yandex-mirror/yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_connector.go",
   "yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_connector_test.go":"opensource/terraform-provider-yandex-mirror/yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_connector_test.go",
   "yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_connector_unit_test.go":"opensource/terraform-provider-yandex-mirror/yandex/services/mdb/kafka/pluginsdk/resource_yandex_mdb_kafka_connector_unit_test.go",

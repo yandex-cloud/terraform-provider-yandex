@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/kafka/v1"
@@ -563,11 +564,17 @@ func ExpandKafkaConfigSpec(d *schema.ResourceData) (*kafka.ConfigSpec, error) {
 	if _, ok := d.GetOk("config.0.zookeeper"); ok {
 		result.Zookeeper = &kafka.ConfigSpec_Zookeeper{}
 		result.Zookeeper.Resources = expandKafkaResources(d, "config.0.zookeeper.0.resources.0")
+		if zones, ok := d.GetOk("config.0.zookeeper.0.zone_ids"); ok {
+			result.Zookeeper.ZoneIds = sdkcommon.ExpandStringSlice(zones.([]interface{}))
+		}
 	}
 
 	if _, ok := d.GetOk("config.0.kraft"); ok {
 		result.Kraft = &kafka.ConfigSpec_KRaft{}
 		result.Kraft.Resources = expandKafkaResources(d, "config.0.kraft.0.resources.0")
+		if zones, ok := d.GetOk("config.0.kraft.0.zone_ids"); ok {
+			result.Kraft.ZoneIds = sdkcommon.ExpandStringSlice(zones.([]interface{}))
+		}
 	}
 
 	result.SetAccess(expandKafkaAccess(d))
@@ -726,6 +733,7 @@ func flattenKafkaConfig(d *schema.ResourceData, cluster *kafka.Cluster) ([]map[s
 		config["zookeeper"] = []map[string]interface{}{
 			{
 				"resources": []map[string]interface{}{zkResources},
+				"zone_ids":  flattenKafkaRoleZones(d, "zookeeper", cluster.Config.Zookeeper.ZoneIds),
 			},
 		}
 	}
@@ -737,6 +745,7 @@ func flattenKafkaConfig(d *schema.ResourceData, cluster *kafka.Cluster) ([]map[s
 		config["kraft"] = []map[string]interface{}{
 			{
 				"resources": []map[string]interface{}{kRaftResources},
+				"zone_ids":  flattenKafkaRoleZones(d, "kraft", cluster.Config.Kraft.ZoneIds),
 			},
 		}
 	}
@@ -755,6 +764,56 @@ func flattenKafkaConfig(d *schema.ResourceData, cluster *kafka.Cluster) ([]map[s
 	config["disk_size_autoscaling"] = flattenKafkaDiskSizeAutoscaling(cluster.Config.DiskSizeAutoscaling)
 
 	return []map[string]interface{}{config}, nil
+}
+
+func suppressKafkaRoleZoneDiff(d *schema.ResourceData, role string) bool {
+	config := d.GetRawConfig()
+	if config.IsNull() {
+		return false // Without raw configuration, omission cannot be established.
+	}
+	path := cty.GetAttrPath("config").IndexInt(0).GetAttr(role).IndexInt(0).GetAttr("zone_ids")
+	zones, err := path.Apply(config)
+	if err != nil || zones.IsNull() {
+		return true // An absent block or null list leaves placement unmanaged.
+	}
+	if !zones.IsWhollyKnown() {
+		return false
+	}
+	old, _ := d.GetChange("config.0." + role + ".0.zone_ids")
+	configured := make([]string, 0, zones.LengthInt())
+	for it := zones.ElementIterator(); it.Next(); {
+		_, zone := it.Element()
+		if zone.IsNull() {
+			return false
+		}
+		configured = append(configured, zone.AsString())
+	}
+	return sameKafkaZoneCounts(sdkcommon.ExpandStringSlice(old.([]interface{})), configured)
+}
+
+func flattenKafkaRoleZones(d *schema.ResourceData, role string, actual []string) []string {
+	prior := sdkcommon.ExpandStringSlice(d.Get("config.0." + role + ".0.zone_ids").([]interface{}))
+	if sameKafkaZoneCounts(prior, actual) {
+		return prior
+	}
+	return actual
+}
+
+func sameKafkaZoneCounts(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	counts := make(map[string]int, len(a))
+	for _, zone := range a {
+		counts[zone]++
+	}
+	for _, zone := range b {
+		if counts[zone] == 0 {
+			return false
+		}
+		counts[zone]--
+	}
+	return true
 }
 
 func flattenKafkaDiskSizeAutoscaling(p *kafka.DiskSizeAutoscaling) []interface{} {
