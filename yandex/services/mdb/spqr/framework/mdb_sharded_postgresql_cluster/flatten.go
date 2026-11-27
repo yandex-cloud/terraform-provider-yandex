@@ -34,11 +34,11 @@ func flattenMaintenanceWindow(ctx context.Context, mw *spqr.MaintenanceWindow, d
 			)
 			maintenanceWindow.Hour = types.Int64Value(p.WeeklyMaintenanceWindow.Hour)
 		default:
-			diags.AddError("Failed to flatten maintenance window.", "Unsupported MySQL maintenance policy type.")
+			diags.AddError("Failed to flatten maintenance window.", "Unsupported SPQR maintenance policy type.")
 			return types.ObjectNull(MaintenanceWindowAttrTypes)
 		}
 	} else {
-		diags.AddError("Failed to flatten maintenance window.", "Unsupported nil MySQL maintenance window type.")
+		diags.AddError("Failed to flatten maintenance window.", "Unsupported nil SPQR maintenance window type.")
 		return types.ObjectNull(MaintenanceWindowAttrTypes)
 	}
 

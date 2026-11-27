@@ -3,12 +3,13 @@ package mdb_sharded_postgresql_cluster
 import (
 	"context"
 	"fmt"
-	"github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1"
 	"log"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
+	spqrsdk "github.com/yandex-cloud/go-sdk/services/mdb/spqr/v1"
 	ycsdk "github.com/yandex-cloud/go-sdk/v2"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/retry"
 )
@@ -135,7 +136,15 @@ func (p *ShardedPostgreSQLAPI) CreateHostsWithSubclusterCheck(
 
 	addClusterHosts := make([]*spqr.HostSpec, 0, len(specs))
 	// Create new subclusters
-	for t, specs := range newHosts {
+	hostTypes := make([]spqr.Host_Type, 0, len(newHosts))
+	for t := range newHosts {
+		hostTypes = append(hostTypes, t)
+	}
+	sort.Slice(hostTypes, func(i, j int) bool {
+		return hostTypes[i].String() < hostTypes[j].String()
+	})
+	for _, t := range hostTypes {
+		specs := newHosts[t]
 		if _, ok := currentHosts[t]; ok {
 			addClusterHosts = append(addClusterHosts, specs...)
 		} else {
@@ -199,7 +208,10 @@ func (p *ShardedPostgreSQLAPI) CreateHostsWithSubclusterCheck(
 }
 
 func (p *ShardedPostgreSQLAPI) CreateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*spqr.HostSpec, opts struct{}) {
-	panic("never should be called")
+	diag.AddError(
+		"Failed to create hosts",
+		fmt.Sprintf("CreateHosts is not supported for ShardedPostgresql cluster %q; use CreateHostsWithSubclusterCheck instead", cid),
+	)
 }
 
 func (p *ShardedPostgreSQLAPI) UpdateHosts(ctx context.Context, sdk *ycsdk.SDK, diag *diag.Diagnostics, cid string, specs []*spqr.UpdateHostSpec) {
@@ -258,10 +270,14 @@ func (p *ShardedPostgreSQLAPI) DeleteHosts(ctx context.Context, sdk *ycsdk.SDK, 
 }
 
 func (p *ShardedPostgreSQLAPI) ListHosts(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*spqr.Host {
-	log.Printf("[DEBUG] Try ListSPQRHosts")
-	return p.listHostsOnce(ctx, sdk, diags, cid)
+	hosts := p.listHostsOnce(ctx, sdk, diags, cid)
+	if diags.HasError() {
+		return nil
+	}
+	return hosts
 }
 
+// Do not use. Use ListHosts instead
 func (p *ShardedPostgreSQLAPI) listHostsOnce(ctx context.Context, sdk *ycsdk.SDK, diags *diag.Diagnostics, cid string) []*spqr.Host {
 	hosts := []*spqr.Host{}
 	pageToken := ""

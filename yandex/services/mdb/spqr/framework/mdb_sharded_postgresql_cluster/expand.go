@@ -6,7 +6,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/postgresql/v1"
 	"github.com/yandex-cloud/go-genproto/yandex/cloud/mdb/spqr/v1"
 	protobuf_adapter "github.com/yandex-cloud/terraform-provider-yandex/pkg/adapters/protobuf"
 	"github.com/yandex-cloud/terraform-provider-yandex/pkg/datasize"
@@ -125,7 +124,7 @@ func expandClusterMaintenanceWindow(ctx context.Context, mw types.Object, diags 
 		}
 	} else if mwType == weeklyType {
 		mwDay, mwHour := mwConf.Day.ValueString(), mwConf.Hour.ValueInt64()
-		day := postgresql.WeeklyMaintenanceWindow_WeekDay_value[mwDay]
+		day := spqr.WeeklyMaintenanceWindow_WeekDay_value[mwDay]
 
 		out.Policy = &spqr.MaintenanceWindow_WeeklyMaintenanceWindow{
 			WeeklyMaintenanceWindow: &spqr.WeeklyMaintenanceWindow{
